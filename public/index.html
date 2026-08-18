@@ -1830,34 +1830,35 @@ $("filtroFecha").addEventListener("change", actualizarTodo);
    ============================================================ */
 function textoTablaCorreo(registros) {
   if (!registros.length) {
-    return "No hay registros para la fecha seleccionada.";
+    return "Sin registros para la fecha seleccionada.";
   }
 
-  const cabecera = [
-    "Depósito",
-    "Origen",
-    "Cosecha",
-    "Certificación",
-    "Producto",
-    "Prom. densidad",
-    "Viajes",
-    "Muestras",
-    "% Muestreo"
-  ].join(" | ");
+  return registros.map((r, i) => {
+    const densidad =
+      r.promedio_densidad == null
+        ? "-"
+        : numero(r.promedio_densidad, 3);
 
-  const lineas = registros.map(r => [
-    r.deposito ?? "",
-    r.origen ?? "",
-    r.cosecha ?? "",
-    r.certificacion ?? "",
-    r.nombre_prod ?? "",
-    r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3),
-    numero(r.viajes, 0),
-    numero(r.muestras, 0),
-    porcentaje(r.porcentaje_muestreo)
-  ].join(" | "));
+    return [
+      `${i + 1}. ${r.origen ?? "-"}`,
+      `   Depósito: ${r.deposito ?? "-"}`,
+      `   Cosecha: ${r.cosecha ?? "-"}`,
+      `   Certificación: ${r.certificacion ?? "-"}`,
+      `   Producto: ${r.nombre_prod ?? "-"}`,
+      `   Prom. densidad: ${densidad}`,
+      `   Viajes: ${numero(r.viajes, 0)} | Muestras: ${numero(r.muestras, 0)} | % Muestreo: ${porcentaje(r.porcentaje_muestreo)}`
+    ].join("\n");
+  }).join("\n\n");
+}
 
-  return [cabecera, ...lineas].join("\n");
+function bloqueTotalesCorreo(titulo, total) {
+  return [
+    titulo,
+    `Viajes: ${numero(total.viajes, 0)}`,
+    `Muestras: ${numero(total.muestras, 0)}`,
+    `% Muestreo: ${porcentaje(total.porcentaje)}`,
+    `Promedio densidad: ${total.densidad == null ? "-" : numero(total.densidad, 3)}`
+  ].join("\n");
 }
 
 function prepararCorreoMuestras() {
@@ -1894,29 +1895,29 @@ function prepararCorreoMuestras() {
     ? `${periodoActual.mes} ${periodoActual.ano}`
     : "Sin información";
 
+  const separador = "────────────────────────────────────────";
+
   const cuerpo = [
     `MUESTRAS AL CIERRE - ${tituloFecha}`,
+    separador,
     "",
-    `DETALLE RESUMIDO DEL DÍA - ${tituloFecha}`,
+    `DETALLE RESUMIDO DEL DÍA`,
+    `Fecha: ${tituloFecha}`,
     "",
     textoTablaCorreo(resumenDia),
     "",
-    "TOTAL DÍA",
-    `Promedio densidad: ${totalDia.densidad == null ? "-" : numero(totalDia.densidad, 3)}`,
-    `Viajes: ${numero(totalDia.viajes, 0)}`,
-    `Muestras: ${numero(totalDia.muestras, 0)}`,
-    `% Muestreo: ${porcentaje(totalDia.porcentaje)}`,
+    bloqueTotalesCorreo("TOTAL DÍA", totalDia),
     "",
+    separador,
     "",
-    `DETALLE RESUMIDO DEL MES ACTUAL - ${tituloMes}`,
+    `DETALLE RESUMIDO DEL MES ACTUAL`,
+    `Período: ${tituloMes}`,
     "",
     textoTablaCorreo(resumenMes),
     "",
-    "TOTAL MES",
-    `Promedio densidad: ${totalMes.densidad == null ? "-" : numero(totalMes.densidad, 3)}`,
-    `Viajes: ${numero(totalMes.viajes, 0)}`,
-    `Muestras: ${numero(totalMes.muestras, 0)}`,
-    `% Muestreo: ${porcentaje(totalMes.porcentaje)}`,
+    bloqueTotalesCorreo("TOTAL MES", totalMes),
+    "",
+    separador,
     "",
     "Saludos."
   ].join("\n");
