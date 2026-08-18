@@ -209,7 +209,7 @@
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:var(--radius);
-      overflow:hidden;
+      overflow:visible;
       box-shadow:var(--shadow);
     }
 
@@ -239,21 +239,19 @@
     }
 
     .table-scroll{
-      overflow:auto;
-      max-height:65vh;
+      overflow:visible;
+      max-height:none;
     }
 
     table{
-      width:max-content;
+      width:100%;
       min-width:100%;
       border-collapse:collapse;
       table-layout:auto;
     }
 
     thead th{
-      position:sticky;
-      top:0;
-      z-index:2;
+      position:static;
       background:#202a35;
       color:#f7f9fb;
       text-align:left;
@@ -283,8 +281,7 @@
     }
 
     tfoot td{
-      position:sticky;
-      bottom:0;
+      position:static;
       background:#202a35;
       padding:9px 7px;
       font-weight:700;
@@ -321,7 +318,7 @@
     .descargas-section{
       margin-top:26px;
       padding-top:18px;
-      border-top:1px solid var(--line);
+      border-top:1px solid lime;
     }
 
     .descargas-section > .update-box{
@@ -464,7 +461,235 @@
         width:100%;
       }
     }
+  
+    /* ============================================================
+       ESTANDARIZACIÓN GENERAL DE TIPOGRAFÍA Y TAMAÑOS
+       ============================================================ */
+    html, body,
+    button, input, select, table {
+      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .title-wrap h1,
+    .descargas-title,
+    .cierre-title {
+      font-size:28px;
+      line-height:1.15;
+      font-weight:800;
+      letter-spacing:.6px;
+    }
+
+    .subtitle,
+    .month-info,
+    .fecha-info {
+      font-size:13px;
+    }
+
+    .update-label,
+    .filter label,
+    .kpi-label,
+    .descarga-kpi .label,
+    .cierre-kpi .label {
+      font-size:11px;
+    }
+
+    #actualizado,
+    #descargasActualizado,
+    #cierreActualizado,
+    .filter select {
+      font-size:14px;
+    }
+
+    .kpi-value,
+    .descarga-kpi .value,
+    .cierre-kpi .value {
+      font-size:32px;
+      line-height:1;
+    }
+
+    .kpi-note,
+    .descarga-kpi .note,
+    .cierre-kpi .note,
+    .record-count {
+      font-size:11px;
+    }
+
+    .table-title {
+      font-size:16px;
+    }
+
+    thead th {
+      font-size:12px;
+    }
+
+    tbody td,
+    tfoot td {
+      font-size:13px;
+    }
+
+    /* ============================================================
+       DESCARGA CIERRE DE TURNO
+       ============================================================ */
+    .cierre-section{
+      margin-top:26px;
+      padding-top:18px;
+      border-top:1px solid lime;
+    }
+
+    .cierre-section > .update-box{
+      width:fit-content;
+      min-width:250px;
+    }
+
+    .cierre-title{
+      text-align:center;
+      color:lime;
+      margin:28px 0 18px 0;
+      text-transform:uppercase;
+    }
+
+    .cierre-filters{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(150px,1fr));
+      gap:12px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      margin-bottom:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .cierre-kpis{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(220px,1fr));
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .cierre-kpi{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .cierre-kpi .label{
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.75px;
+      font-weight:700;
+      line-height:1.35;
+    }
+
+    .cierre-kpi .value{
+      margin-top:8px;
+      font-weight:800;
+      color:lime;
+    }
+
+    .cierre-kpi .note{
+      margin-top:7px;
+      color:var(--muted);
+    }
+
+    .cierre-table th,
+    .cierre-table td{
+      text-align:center;
+    }
+
+    @media(max-width:900px){
+      .cierre-filters{
+        grid-template-columns:repeat(2,1fr);
+      }
+    }
+
+    @media(max-width:560px){
+      .cierre-filters,
+      .cierre-kpis{
+        grid-template-columns:1fr;
+      }
+
+      .title-wrap h1,
+      .descargas-title,
+      .cierre-title{
+        font-size:23px;
+      }
+    }
+
+  
+    .cierre-toneladas-resumen{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(220px,1fr));
+      gap:12px;
+      margin:-4px 0 16px 0;
+    }
+
+    .cierre-toneladas-item{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:11px 14px;
+      text-align:center;
+      box-shadow:var(--shadow);
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .cierre-toneladas-item strong{
+      color:var(--text);
+      font-weight:800;
+    }
+
+    .cierre-toneladas-item .valor-ton{
+      color:lime;
+      font-weight:800;
+      margin-left:4px;
+    }
+
+    @media(max-width:560px){
+      .cierre-toneladas-resumen{
+        grid-template-columns:1fr;
+      }
+    }
+
+  
+    .cierre-export-wrap{
+      display:flex;
+      justify-content:flex-end;
+      margin:0 0 12px 0;
+    }
+
+    .cierre-export-btn{
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:10px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .cierre-export-btn:hover{
+      border-color:var(--accent);
+      background:#1a2530;
+    }
+
+    .cierre-export-btn:active{
+      transform:translateY(1px);
+    }
+
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 
 <body>
@@ -637,6 +862,94 @@
     </div>
   </div>
 
+
+  <div class="cierre-section">
+    <div class="update-box" style="margin-bottom:18px;">
+      <div class="update-label">Última actualización</div>
+      <div id="cierreActualizado">Cargando...</div>
+    </div>
+
+    <div class="cierre-title">DESCARGA CIERRE DE TURNO</div>
+
+    <div class="cierre-filters">
+      <div class="filter">
+        <label for="cierreFiltroAno">Año</label>
+        <select id="cierreFiltroAno"></select>
+      </div>
+
+      <div class="filter">
+        <label for="cierreFiltroMes">Mes</label>
+        <select id="cierreFiltroMes"></select>
+      </div>
+
+      <div class="filter">
+        <label for="cierreFiltroFecha">Fecha</label>
+        <select id="cierreFiltroFecha"></select>
+      </div>
+    </div>
+
+    <div class="cierre-kpis">
+      <div class="cierre-kpi">
+        <div class="label">TOTAL CAMIONES</div>
+        <div class="value" id="cierreTotalCamiones">0</div>
+        <div class="note">Camiones descargados en la fecha seleccionada</div>
+      </div>
+
+      <div class="cierre-kpi">
+        <div class="label">PROM. DESCARGA</div>
+        <div class="value" id="cierrePromedioDescarga">00:00:00</div>
+        <div class="note">Promedio de tiempo de descarga</div>
+      </div>
+    </div>
+
+    <div class="cierre-toneladas-resumen">
+      <div class="cierre-toneladas-item">
+        <strong>DIRECTO</strong> = Neto ton Pila FFU:
+        <span class="valor-ton" id="cierreTonDirecto">0,00 ton</span>
+      </div>
+
+      <div class="cierre-toneladas-item">
+        <strong>ACOPIO</strong> = Neto ton diferente FFU:
+        <span class="valor-ton" id="cierreTonAcopio">0,00 ton</span>
+      </div>
+    </div>
+
+    <div class="sin-pendientes" id="cierreSinDatos" style="display:none; margin-bottom:16px;">
+      SIN DESCARGA DE CAMIONES EN PLANTA
+    </div>
+
+    <div class="cierre-export-wrap">
+      <button type="button" class="cierre-export-btn" id="btnExportarCierreExcel">
+        Exportar a Excel
+      </button>
+    </div>
+
+    <div class="table-card">
+      <div class="table-head">
+        <div class="table-title" id="cierreTituloDetalle">Detalle de descargas</div>
+        <div class="record-count" id="cierreRecordCount">0 registros</div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="cierre-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Hora Ingreso</th>
+              <th>Hora salida</th>
+              <th>Tiempo descarga</th>
+              <th>Primero de pila</th>
+              <th>Producto</th>
+              <th>Matrícula</th>
+              <th class="num">Neto ton</th>
+            </tr>
+          </thead>
+          <tbody id="cierreTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -654,6 +967,10 @@ const JSON_URL = "https://dl.dropbox.com/scl/fi/439wwzcj91fifxlbhi6vy/MuestrasCi
 
 const JSON_DESCARGAS_URL =
   "https://dl.dropbox.com/scl/fi/eo971dn4yrjz5h71qkh2b/EstadoDescargaRemitos.json?rlkey=j5udth4t07t8vpaoyqel87j93&dl=1";
+
+
+const JSON_CIERRE_TURNO_URL =
+  "https://dl.dropbox.com/scl/fi/u60rutxb6znq6oxtuhspi/DescargaCierreTurno.json?rlkey=h2nzakpz2np5xoj0avdlbg8j9&dl=1";
 
 
 /* ============================================================
@@ -1517,11 +1834,434 @@ async function cargarDescargasPendientes() {
   }
 }
 
+
+/* ============================================================
+   DESCARGA CIERRE DE TURNO
+   ============================================================ */
+let cierreDatos = [];
+
+function cierreFechaISO(valor) {
+  if (!valor) return "";
+
+  const texto = String(valor).trim();
+
+  let m = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
+
+  m = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) {
+    return `${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`;
+  }
+
+  return "";
+}
+
+function cierreSegundos(valor) {
+  if (!valor) return null;
+
+  const partes = String(valor).trim().split(":");
+  if (partes.length !== 3) return null;
+
+  const h = Number(partes[0]);
+  const m = Number(partes[1]);
+  const s = Number(partes[2]);
+
+  if (![h,m,s].every(Number.isFinite)) return null;
+
+  return h * 3600 + m * 60 + s;
+}
+
+function cierreHHMMSS(segundos) {
+  if (!Number.isFinite(segundos)) return "00:00:00";
+
+  segundos = Math.round(segundos);
+
+  const h = Math.floor(segundos / 3600);
+  const m = Math.floor((segundos % 3600) / 60);
+  const s = segundos % 60;
+
+  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+}
+
+function cierreNeto(valor) {
+  const n = Number(String(valor ?? "").replace(",", "."));
+  if (!Number.isFinite(n)) return "-";
+
+  return n.toLocaleString("es-UY", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function cierreFechasDisponibles() {
+  return [...new Set(
+    cierreDatos
+      .map(r => r.fechaISO)
+      .filter(Boolean)
+  )].sort();
+}
+
+function cierreCargarFiltros(fechaPreferida = "") {
+  const fechas = cierreFechasDisponibles();
+
+  const selAno = $("cierreFiltroAno");
+  const selMes = $("cierreFiltroMes");
+  const selFecha = $("cierreFiltroFecha");
+
+  if (!fechas.length) {
+    selAno.innerHTML = "";
+    selMes.innerHTML = "";
+    selFecha.innerHTML = "";
+    cierreRender("");
+    return;
+  }
+
+  const fechaBase =
+    fechaPreferida && fechas.includes(fechaPreferida)
+      ? fechaPreferida
+      : fechas[fechas.length - 1];
+
+  const [anoBase, mesBase] = fechaBase.split("-");
+
+  const anos = [...new Set(
+    fechas.map(f => f.substring(0,4))
+  )].sort((a,b) => Number(b) - Number(a));
+
+  selAno.innerHTML = anos
+    .map(a => `<option value="${a}">${a}</option>`)
+    .join("");
+
+  selAno.value = anoBase;
+
+  cierreActualizarMeses(mesBase, fechaBase);
+}
+
+function cierreActualizarMeses(mesPreferido = "", fechaPreferida = "") {
+  const ano = $("cierreFiltroAno").value;
+  const selMes = $("cierreFiltroMes");
+
+  const fechas = cierreFechasDisponibles()
+    .filter(f => f.startsWith(`${ano}-`));
+
+  const nums = [...new Set(
+    fechas.map(f => f.substring(5,7))
+  )].sort((a,b) => Number(a) - Number(b));
+
+  selMes.innerHTML = nums
+    .map(m => `<option value="${m}">${meses[Number(m)] || m}</option>`)
+    .join("");
+
+  const mesElegido =
+    mesPreferido && nums.includes(mesPreferido)
+      ? mesPreferido
+      : nums[nums.length - 1];
+
+  selMes.value = mesElegido || "";
+
+  cierreActualizarFechas(fechaPreferida);
+}
+
+function cierreActualizarFechas(fechaPreferida = "") {
+  const ano = $("cierreFiltroAno").value;
+  const mes = $("cierreFiltroMes").value;
+  const selFecha = $("cierreFiltroFecha");
+
+  const fechas = cierreFechasDisponibles()
+    .filter(f => f.startsWith(`${ano}-${mes}-`))
+    .sort((a,b) => b.localeCompare(a));
+
+  selFecha.innerHTML = fechas
+    .map(f => `<option value="${f}">${fechaUY(f)}</option>`)
+    .join("");
+
+  const fechaElegida =
+    fechaPreferida && fechas.includes(fechaPreferida)
+      ? fechaPreferida
+      : fechas[0];
+
+  selFecha.value = fechaElegida || "";
+
+  cierreRender(fechaElegida || "");
+}
+
+function cierreRender(fecha) {
+  const registros = cierreDatos
+    .filter(r => r.fechaISO === fecha)
+    .sort((a,b) => String(a.hora_rto).localeCompare(String(b.hora_rto)));
+
+  $("cierreTotalCamiones").textContent =
+    registros.length.toLocaleString("es-UY");
+
+  const toneladasDirecto = registros
+    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() === "FFU")
+    .reduce((suma, r) => {
+      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
+      return suma + (Number.isFinite(n) ? n : 0);
+    }, 0);
+
+  const toneladasAcopio = registros
+    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() !== "FFU")
+    .reduce((suma, r) => {
+      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
+      return suma + (Number.isFinite(n) ? n : 0);
+    }, 0);
+
+  $("cierreTonDirecto").textContent =
+    `${toneladasDirecto.toLocaleString("es-UY", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })} ton`;
+
+  $("cierreTonAcopio").textContent =
+    `${toneladasAcopio.toLocaleString("es-UY", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })} ton`;
+
+  const tiempos = registros
+    .map(r => cierreSegundos(r.tiempo_descarga))
+    .filter(Number.isFinite);
+
+  const promedio = tiempos.length
+    ? tiempos.reduce((a,b) => a+b, 0) / tiempos.length
+    : 0;
+
+  $("cierrePromedioDescarga").textContent =
+    cierreHHMMSS(promedio);
+
+  $("cierreSinDatos").style.display =
+    registros.length ? "none" : "block";
+
+  $("cierreTituloDetalle").textContent =
+    fecha
+      ? `Detalle de descargas - ${fechaUY(fecha)}`
+      : "Detalle de descargas";
+
+  $("cierreRecordCount").textContent =
+    `${registros.length.toLocaleString("es-UY")} registros`;
+
+  const tbody = $("cierreTbody");
+
+  if (!registros.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="8" class="empty">
+          SIN DESCARGA DE CAMIONES EN PLANTA
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = registros.map(r => `
+    <tr>
+      <td>${esc(fechaUY(r.fechaISO))}</td>
+      <td>${esc(r.hora_rto || "-")}</td>
+      <td>${esc(r.hora_salida || "-")}</td>
+      <td>${esc(r.tiempo_descarga || "-")}</td>
+      <td>${esc(r.primero_de_pila || "-")}</td>
+      <td>${esc(r.nombre_prod || "-")}</td>
+      <td>${esc(r.matricula || "-")}</td>
+      <td class="num">${esc(cierreNeto(r.neto_ton))}</td>
+    </tr>
+  `).join("");
+}
+
+async function cargarCierreTurno() {
+  try {
+    const respuesta = await fetch(
+      `${JSON_CIERRE_TURNO_URL}&t=${Date.now()}`,
+      { cache:"no-store" }
+    );
+
+    if (!respuesta.ok) {
+      throw new Error(`HTTP ${respuesta.status}`);
+    }
+
+    const json = await respuesta.json();
+
+    const registros = Array.isArray(json.registros)
+      ? json.registros
+      : [];
+
+    cierreDatos = registros
+      .map(r => ({
+        fechaISO: cierreFechaISO(r.fecha_rto),
+        hora_rto: r.hora_rto ?? "",
+        hora_salida: r.hora_salida ?? "",
+        tiempo_descarga:
+          r.tiempo_descarga_texto ??
+          r.tiempo_descarga ??
+          "",
+        primero_de_pila: r.primero_de_pila ?? "",
+        nombre_prod: r.nombre_prod ?? "",
+        matricula: r.matricula ?? "",
+        neto_ton: r.neto_ton
+      }))
+      .filter(r =>
+        r.fechaISO &&
+        r.matricula &&
+        String(r.matricula).trim() !== "0"
+      );
+
+    $("cierreActualizado").textContent =
+      fechaHoraActualizacion(json.actualizado);
+
+    const fechas = cierreFechasDisponibles();
+
+    cierreCargarFiltros(
+      fechas.length
+        ? fechas[fechas.length - 1]
+        : ""
+    );
+
+  } catch (error) {
+    console.error(error);
+
+    $("cierreActualizado").textContent =
+      "Error de carga";
+
+    $("cierreSinDatos").style.display =
+      "block";
+
+    $("cierreSinDatos").textContent =
+      "No fue posible cargar DescargaCierreTurno.json";
+
+    $("cierreTbody").innerHTML = `
+      <tr>
+        <td colspan="8" class="error">
+          No fue posible cargar DescargaCierreTurno.json
+        </td>
+      </tr>
+    `;
+  }
+}
+
+$("cierreFiltroAno").addEventListener("change", () => {
+  cierreActualizarMeses();
+});
+
+$("cierreFiltroMes").addEventListener("change", () => {
+  cierreActualizarFechas();
+});
+
+$("cierreFiltroFecha").addEventListener("change", () => {
+  cierreRender($("cierreFiltroFecha").value);
+});
+
+
+
+function exportarCierreTurnoExcel() {
+  const fecha = $("cierreFiltroFecha").value;
+
+  const registros = cierreDatos
+    .filter(r => r.fechaISO === fecha)
+    .sort((a,b) => String(a.hora_rto).localeCompare(String(b.hora_rto)));
+
+  if (!registros.length) {
+    alert("No hay registros para exportar en la fecha seleccionada.");
+    return;
+  }
+
+  if (typeof XLSX === "undefined") {
+    alert("No fue posible cargar el módulo de exportación a Excel.");
+    return;
+  }
+
+  const tiempos = registros
+    .map(r => cierreSegundos(r.tiempo_descarga))
+    .filter(Number.isFinite);
+
+  const promedio = tiempos.length
+    ? tiempos.reduce((a,b) => a + b, 0) / tiempos.length
+    : 0;
+
+  const toneladasDirecto = registros
+    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() === "FFU")
+    .reduce((suma, r) => {
+      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
+      return suma + (Number.isFinite(n) ? n : 0);
+    }, 0);
+
+  const toneladasAcopio = registros
+    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() !== "FFU")
+    .reduce((suma, r) => {
+      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
+      return suma + (Number.isFinite(n) ? n : 0);
+    }, 0);
+
+  const filas = [
+    ["DESCARGA CIERRE DE TURNO - FRIMOSA"],
+    [],
+    ["Fecha", fechaUY(fecha)],
+    ["Total camiones", registros.length],
+    ["Prom. descarga", cierreHHMMSS(promedio)],
+    ["DIRECTO - Neto ton Pila FFU", toneladasDirecto],
+    ["ACOPIO - Neto ton diferente FFU", toneladasAcopio],
+    [],
+    [
+      "Fecha",
+      "Hora Ingreso",
+      "Hora Salida",
+      "Tiempo Descarga",
+      "Primero de Pila",
+      "Producto",
+      "Matrícula",
+      "Neto ton"
+    ]
+  ];
+
+  registros.forEach(r => {
+    const neto = Number(String(r.neto_ton ?? "").replace(",", "."));
+
+    filas.push([
+      fechaUY(r.fechaISO),
+      r.hora_rto || "",
+      r.hora_salida || "",
+      r.tiempo_descarga || "",
+      r.primero_de_pila || "",
+      r.nombre_prod || "",
+      r.matricula || "",
+      Number.isFinite(neto) ? neto : ""
+    ]);
+  });
+
+  const ws = XLSX.utils.aoa_to_sheet(filas);
+
+  ws["!cols"] = [
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 18 },
+    { wch: 18 },
+    { wch: 22 },
+    { wch: 14 },
+    { wch: 12 }
+  ];
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Descarga Cierre Turno");
+
+  const nombreFecha = fecha ? fecha.replaceAll("-", "") : "sin_fecha";
+
+  XLSX.writeFile(
+    wb,
+    `Descarga_Cierre_Turno_${nombreFecha}.xlsx`
+  );
+}
+
+$("btnExportarCierreExcel").addEventListener(
+  "click",
+  exportarCierreTurnoExcel
+);
+
+
 /* ============================================================
    INICIO
    ============================================================ */
 cargarDatos();
 cargarDescargasPendientes();
+cargarCierreTurno();
 </script>
 </body>
 </html>
