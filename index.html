@@ -688,6 +688,38 @@
       transform:translateY(1px);
     }
 
+  
+    .filter select option{
+      background:var(--panel-2);
+      color:var(--text);
+    }
+
+  
+    .ultimo-registro-info{
+      margin:-4px 0 14px 0;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .ultimo-registro-info strong{
+      color:#c7f7d4;
+      font-weight:700;
+    }
+
+  
+    .cierre-ultimo-registro{
+      margin:-4px 0 16px 0;
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .cierre-ultimo-registro strong{
+      color:#c7f7d4;
+      font-weight:700;
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
@@ -729,7 +761,11 @@
   </div>
 
   <div class="fecha-info">
-    <strong>Nota:</strong> si una fecha no aparece en el selector, es porque no hubo ingreso de madera ese día.
+    <strong>Nota:</strong> el selector completa las fechas hasta hoy. Si una fecha no tiene datos, se mostrará como día sin registros.
+  </div>
+
+  <div class="ultimo-registro-info">
+    Último día con registro: <strong id="ultimoDiaConRegistro">Cargando...</strong>
   </div>
 
   <div class="kpis">
@@ -914,6 +950,10 @@
       </div>
     </div>
 
+    <div class="cierre-ultimo-registro">
+      Último día con registro: <strong id="cierreUltimoDiaConRegistro">Cargando...</strong>
+    </div>
+
     <div class="sin-pendientes" id="cierreSinDatos" style="display:none; margin-bottom:16px;">
       SIN DESCARGA DE CAMIONES EN PLANTA
     </div>
@@ -1028,6 +1068,49 @@ function fechaUY(valor) {
   return `${partes[2]}/${partes[1]}/${partes[0]}`;
 }
 
+
+function fechasCalendarioMes(ano, mesNumero) {
+  const a = Number(ano);
+  const m = Number(mesNumero);
+
+  if (!a || !m) return [];
+
+  const hoy = new Date();
+  hoy.setHours(0, 0, 0, 0);
+
+  const primerDiaMes = new Date(a, m - 1, 1);
+  primerDiaMes.setHours(0, 0, 0, 0);
+
+  // Si el mes seleccionado todavía no comenzó, no mostrar fechas futuras.
+  if (primerDiaMes > hoy) {
+    return [];
+  }
+
+  const ultimoDiaNatural = new Date(a, m, 0).getDate();
+
+  // Para el mes actual, completar solamente hasta hoy.
+  // Para meses anteriores, mostrar el mes completo.
+  let ultimoDia = ultimoDiaNatural;
+
+  if (
+    a === hoy.getFullYear() &&
+    m === hoy.getMonth() + 1
+  ) {
+    ultimoDia = hoy.getDate();
+  }
+
+  const resultado = [];
+
+  for (let dia = 1; dia <= ultimoDia; dia++) {
+    const mm = String(m).padStart(2, "0");
+    const dd = String(dia).padStart(2, "0");
+
+    resultado.push(`${a}-${mm}-${dd}`);
+  }
+
+  return resultado;
+}
+
 function fechaHoraActualizacion(valor) {
   if (!valor) return "Sin información";
 
@@ -1069,6 +1152,16 @@ async function cargarDatos() {
     $("actualizado").textContent =
       fechaHoraActualizacion(json.actualizado);
 
+    const fechasConRegistro = datosOriginales
+      .map(r => String(r.fecha || "").substring(0,10))
+      .filter(Boolean)
+      .sort((a,b) => b.localeCompare(a));
+
+    $("ultimoDiaConRegistro").textContent =
+      fechasConRegistro.length
+        ? fechaUY(fechasConRegistro[0])
+        : "Sin registros";
+
     inicializarFiltros();
     actualizarTodo();
 
@@ -1076,6 +1169,7 @@ async function cargarDatos() {
     console.error(error);
 
     $("actualizado").textContent = "Error de carga";
+    $("ultimoDiaConRegistro").textContent = "Sin información";
 
     $("tbody").innerHTML = `
       <tr>
@@ -1117,6 +1211,15 @@ function llenarSelect(select, valores, etiquetaTodos, valorActual = "") {
 }
 
 function inicializarFiltros() {
+  const hoy = new Date();
+  const anoHoy = String(hoy.getFullYear());
+  const mesHoy = String(hoy.getMonth() + 1);
+  const fechaHoy = [
+    hoy.getFullYear(),
+    String(hoy.getMonth() + 1).padStart(2, "0"),
+    String(hoy.getDate()).padStart(2, "0")
+  ].join("-");
+
   const anos = valoresUnicos(
     datosOriginales.map(r => Number(r.ano))
   ).sort((a,b) => b-a);
@@ -1127,12 +1230,23 @@ function inicializarFiltros() {
     "Todos los años"
   );
 
-  if (anos.length) {
+  if ([...$("filtroAno").options].some(o => o.value === anoHoy)) {
+    $("filtroAno").value = anoHoy;
+  } else if (anos.length) {
     $("filtroAno").value = String(anos[0]);
   }
 
   actualizarFiltroMes();
+
+  if ([...$("filtroMes").options].some(o => o.value === mesHoy)) {
+    $("filtroMes").value = mesHoy;
+  }
+
   actualizarFiltroFecha();
+
+  if ([...$("filtroFecha").options].some(o => o.value === fechaHoy)) {
+    $("filtroFecha").value = fechaHoy;
+  }
 }
 
 function datosSegunAno() {
@@ -1191,9 +1305,8 @@ function actualizarFiltroMes() {
 
 
 function actualizarFiltroFecha() {
-  const fechas = valoresUnicos(
-    datosSegunAnoMesSemana().map(r => String(r.fecha).substring(0,10))
-  ).sort((a,b) => b.localeCompare(a));
+  const ano = $("filtroAno").value;
+  const mes = $("filtroMes").value;
 
   $("filtroFecha").innerHTML = "";
 
@@ -1202,19 +1315,50 @@ function actualizarFiltroFecha() {
   todos.textContent = "Todas las fechas";
   $("filtroFecha").appendChild(todos);
 
-  fechas.forEach(f => {
-    const op = document.createElement("option");
-    op.value = f;
-    op.textContent = fechaUY(f);
-    $("filtroFecha").appendChild(op);
-  });
+  if (ano && mes) {
+    const hoy = new Date();
+    const hoyISO = [
+      hoy.getFullYear(),
+      String(hoy.getMonth() + 1).padStart(2, "0"),
+      String(hoy.getDate()).padStart(2, "0")
+    ].join("-");
 
-  // Siempre seleccionar automáticamente la última fecha disponible
-  if (fechas.length > 0) {
-    $("filtroFecha").value = fechas[0];
-  } else {
-    $("filtroFecha").value = "";
+    const fechas = fechasCalendarioMes(ano, mes)
+      .sort((a,b) => b.localeCompare(a));
+
+    // Si HOY pertenece al mes seleccionado, moverlo arriba del todo.
+    const fechasOrdenadas = fechas.includes(hoyISO)
+      ? [hoyISO, ...fechas.filter(f => f !== hoyISO)]
+      : fechas;
+
+    fechasOrdenadas.forEach(f => {
+      const op = document.createElement("option");
+      op.value = f;
+
+      const tieneDatos = datosOriginales.some(r =>
+        String(r.fecha || "").substring(0,10) === f
+      );
+
+      const esHoy = f === hoyISO;
+
+      op.textContent =
+        `${esHoy ? "HOY - " : ""}${fechaUY(f)}`;
+
+      $("filtroFecha").appendChild(op);
+    });
+
+    // Seleccionar HOY por defecto si está en el mes seleccionado.
+    // Si no, usar la fecha más reciente disponible del mes.
+    if (fechasOrdenadas.length > 0) {
+      $("filtroFecha").value = fechasOrdenadas[0];
+    } else {
+      $("filtroFecha").value = "";
+    }
+
+    return;
   }
+
+  $("filtroFecha").value = "";
 }
 
 
@@ -1368,7 +1512,7 @@ function renderTablaResumen(registros, tbodyId, countId) {
     tbody.innerHTML = `
       <tr>
         <td colspan="9" class="empty">
-          No hay registros para este período.
+          No hay registros para la fecha seleccionada.
         </td>
       </tr>
     `;
@@ -1902,38 +2046,66 @@ function cierreFechasDisponibles() {
 }
 
 function cierreCargarFiltros(fechaPreferida = "") {
-  const fechas = cierreFechasDisponibles();
 
-  const selAno = $("cierreFiltroAno");
-  const selMes = $("cierreFiltroMes");
-  const selFecha = $("cierreFiltroFecha");
+    const fechas = cierreFechasDisponibles();
 
-  if (!fechas.length) {
-    selAno.innerHTML = "";
-    selMes.innerHTML = "";
-    selFecha.innerHTML = "";
-    cierreRender("");
-    return;
-  }
+    const anioSelect = document.getElementById("cierreFiltroAno");
+    const mesSelect = document.getElementById("cierreFiltroMes");
+    const fechaSelect = document.getElementById("cierreFiltroFecha");
 
-  const fechaBase =
-    fechaPreferida && fechas.includes(fechaPreferida)
-      ? fechaPreferida
-      : fechas[fechas.length - 1];
+    if (fechas.length === 0) {
+        anioSelect.innerHTML = "";
+        mesSelect.innerHTML = "";
+        fechaSelect.innerHTML = "";
+        cierreRender("");
+        return;
+    }
 
-  const [anoBase, mesBase] = fechaBase.split("-");
+    const hoy = new Date();
+    const anoHoy = String(hoy.getFullYear());
+    const mesHoy = String(hoy.getMonth() + 1).padStart(2, "0");
+    const fechaHoy = [
+      hoy.getFullYear(),
+      String(hoy.getMonth() + 1).padStart(2, "0"),
+      String(hoy.getDate()).padStart(2, "0")
+    ].join("-");
 
-  const anos = [...new Set(
-    fechas.map(f => f.substring(0,4))
-  )].sort((a,b) => Number(b) - Number(a));
+    const anios = [...new Set(
+        fechas.map(f => f.substring(0, 4))
+    )].sort((a, b) => Number(b) - Number(a));
 
-  selAno.innerHTML = anos
-    .map(a => `<option value="${a}">${a}</option>`)
-    .join("");
+    anioSelect.innerHTML = anios
+        .map(anio => `<option value="${anio}">${anio}</option>`)
+        .join("");
 
-  selAno.value = anoBase;
+    if (anios.includes(anoHoy)) {
+      anioSelect.value = anoHoy;
+    } else {
+      const fechaBase = fechaPreferida && fechas.includes(fechaPreferida)
+        ? fechaPreferida
+        : fechas[fechas.length - 1];
 
-  cierreActualizarMeses(mesBase, fechaBase);
+      anioSelect.value = fechaBase.substring(0,4);
+    }
+
+    const mesPreferido =
+      anioSelect.value === anoHoy
+        ? mesHoy
+        : (
+            fechaPreferida && fechas.includes(fechaPreferida)
+              ? fechaPreferida.substring(5,7)
+              : fechas[fechas.length - 1].substring(5,7)
+          );
+
+    const fechaPreferidaFinal =
+      anioSelect.value === anoHoy
+        ? fechaHoy
+        : fechaPreferida;
+
+    cierreActualizarMeses(
+      mesPreferido,
+      fechaPreferidaFinal
+    );
 }
 
 function cierreActualizarMeses(mesPreferido = "", fechaPreferida = "") {
@@ -1966,22 +2138,52 @@ function cierreActualizarFechas(fechaPreferida = "") {
   const mes = $("cierreFiltroMes").value;
   const selFecha = $("cierreFiltroFecha");
 
-  const fechas = cierreFechasDisponibles()
-    .filter(f => f.startsWith(`${ano}-${mes}-`))
+  if (!ano || !mes) {
+    selFecha.innerHTML = "";
+    cierreRender("");
+    return;
+  }
+
+  const hoy = new Date();
+  const hoyISO = [
+    hoy.getFullYear(),
+    String(hoy.getMonth() + 1).padStart(2, "0"),
+    String(hoy.getDate()).padStart(2, "0")
+  ].join("-");
+
+  const fechas = fechasCalendarioMes(ano, mes)
     .sort((a,b) => b.localeCompare(a));
 
-  selFecha.innerHTML = fechas
-    .map(f => `<option value="${f}">${fechaUY(f)}</option>`)
+  const fechasOrdenadas = fechas.includes(hoyISO)
+    ? [hoyISO, ...fechas.filter(f => f !== hoyISO)]
+    : fechas;
+
+  selFecha.innerHTML = fechasOrdenadas
+    .map(f => {
+      const tieneDatos = cierreDatos.some(r => r.fechaISO === f);
+      const esHoy = f === hoyISO;
+
+      return `
+        <option value="${f}">
+          ${esHoy ? "HOY - " : ""}${fechaUY(f)}
+        </option>
+      `;
+    })
     .join("");
 
-  const fechaElegida =
-    fechaPreferida && fechas.includes(fechaPreferida)
-      ? fechaPreferida
-      : fechas[0];
+  let fechaElegida = "";
 
-  selFecha.value = fechaElegida || "";
+  // Si se pasó una preferida válida, respetarla.
+  if (fechaPreferida && fechasOrdenadas.includes(fechaPreferida)) {
+    fechaElegida = fechaPreferida;
+  } else if (fechasOrdenadas.length) {
+    // Por defecto HOY si corresponde, o la fecha más reciente.
+    fechaElegida = fechasOrdenadas[0];
+  }
 
-  cierreRender(fechaElegida || "");
+  selFecha.value = fechaElegida;
+
+  cierreRender(fechaElegida);
 }
 
 function cierreRender(fecha) {
@@ -2109,10 +2311,22 @@ async function cargarCierreTurno() {
 
     const fechas = cierreFechasDisponibles();
 
-    cierreCargarFiltros(
+    $("cierreUltimoDiaConRegistro").textContent =
       fechas.length
-        ? fechas[fechas.length - 1]
-        : ""
+        ? fechaUY(fechas[fechas.length - 1])
+        : "Sin registros";
+
+    const hoy = new Date();
+    const hoyISO = [
+      hoy.getFullYear(),
+      String(hoy.getMonth() + 1).padStart(2, "0"),
+      String(hoy.getDate()).padStart(2, "0")
+    ].join("-");
+
+    cierreCargarFiltros(
+      fechas.includes(hoyISO)
+        ? hoyISO
+        : (fechas.length ? fechas[fechas.length - 1] : "")
     );
 
   } catch (error) {
@@ -2120,6 +2334,9 @@ async function cargarCierreTurno() {
 
     $("cierreActualizado").textContent =
       "Error de carga";
+
+    $("cierreUltimoDiaConRegistro").textContent =
+      "Sin información";
 
     $("cierreSinDatos").style.display =
       "block";
