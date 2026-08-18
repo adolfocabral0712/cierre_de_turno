@@ -87,7 +87,7 @@
 
     .filters{
       display:grid;
-      grid-template-columns:repeat(4, minmax(150px,1fr));
+      grid-template-columns:repeat(3, minmax(150px,1fr));
       gap:12px;
       background:var(--panel);
       border:1px solid var(--line);
@@ -124,6 +124,27 @@
 
     .filter select:focus{
       border-color:var(--accent);
+    }
+
+
+    .month-info{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:9px 14px;
+      margin-bottom:12px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    .month-info strong{
+      color:var(--text);
+      font-weight:700;
     }
 
     .kpis{
@@ -245,6 +266,15 @@
       font-size:13px;
     }
 
+
+    tbody tr.alerta-baja{
+      background:rgba(220,86,86,.22);
+    }
+
+    tbody tr.alerta-baja:hover{
+      background:rgba(220,86,86,.32);
+    }
+
     .pct-good{
       color:#71d7be;
       font-weight:700;
@@ -270,7 +300,28 @@
         grid-template-columns:repeat(2,1fr);
       }
 
-      .kpis{
+  
+    .month-info{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:9px 14px;
+      margin-bottom:12px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    .month-info strong{
+      color:var(--text);
+      font-weight:700;
+    }
+
+    .kpis{
         grid-template-columns:repeat(2,1fr);
       }
 
@@ -281,7 +332,28 @@
 
     @media(max-width:560px){
       .filters,
-      .kpis{
+  
+    .month-info{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:9px 14px;
+      margin-bottom:12px;
+      color:var(--muted);
+      font-size:13px;
+      text-align:center;
+    }
+
+    .month-info strong{
+      color:var(--text);
+      font-weight:700;
+    }
+
+    .kpis{
         grid-template-columns:1fr;
       }
 
@@ -317,16 +389,15 @@
       <label for="filtroMes">Mes</label>
       <select id="filtroMes"></select>
     </div>
-
-    <div class="filter">
-      <label for="filtroSemana">Semana</label>
-      <select id="filtroSemana"></select>
-    </div>
-
-    <div class="filter">
+<div class="filter">
       <label for="filtroFecha">Fecha</label>
       <select id="filtroFecha"></select>
     </div>
+  </div>
+
+
+  <div class="month-info" id="infoMesActual">
+    Mes operativo actual: <strong>Cargando...</strong>
   </div>
 
   <div class="kpis">
@@ -600,7 +671,6 @@ function inicializarFiltros() {
   }
 
   actualizarFiltroMes();
-  actualizarFiltroSemana();
   actualizarFiltroFecha();
 }
 
@@ -625,12 +695,10 @@ function datosSegunAnoMes() {
 function datosSegunAnoMesSemana() {
   const ano = $("filtroAno").value;
   const mes = $("filtroMes").value;
-  const semana = $("filtroSemana").value;
 
   return datosOriginales.filter(r =>
     (!ano || String(r.ano) === ano) &&
-    (!mes || String(r.mes_numero) === mes) &&
-    (!semana || String(r.semana) === semana)
+    (!mes || String(r.mes_numero) === mes)
   );
 }
 
@@ -660,20 +728,6 @@ function actualizarFiltroMes() {
   }
 }
 
-function actualizarFiltroSemana() {
-  const actual = $("filtroSemana").value;
-
-  const semanas = valoresUnicos(
-    datosSegunAnoMes().map(r => Number(r.semana))
-  ).sort((a,b) => a-b);
-
-  llenarSelect(
-    $("filtroSemana"),
-    semanas,
-    "Todas las semanas",
-    actual
-  );
-}
 
 function actualizarFiltroFecha() {
   const fechas = valoresUnicos(
@@ -709,7 +763,6 @@ function actualizarFiltroFecha() {
 function registrosFiltrados() {
   const ano = $("filtroAno").value;
   const mes = $("filtroMes").value;
-  const semana = $("filtroSemana").value;
   const fecha = $("filtroFecha").value;
 
   return datosOriginales.filter(r => {
@@ -718,7 +771,6 @@ function registrosFiltrados() {
     return (
       (!ano || String(r.ano) === ano) &&
       (!mes || String(r.mes_numero) === mes) &&
-      (!semana || String(r.semana) === semana) &&
       (!fecha || f === fecha)
     );
   });
@@ -864,7 +916,7 @@ function renderTablaResumen(registros, tbodyId, countId) {
   }
 
   tbody.innerHTML = datos.map(r => `
-    <tr>
+    <tr class="${Number(r.porcentaje_muestreo) < 10 ? 'alerta-baja' : ''}">
       <td>${esc(r.deposito)}</td>
       <td>${esc(r.origen)}</td>
       <td>${esc(r.cosecha)}</td>
@@ -934,6 +986,28 @@ function periodoOperativoActual() {
   };
 }
 
+function textoPeriodoOperativo(periodo) {
+  if (!periodo) return "Sin período disponible";
+
+  const ano = Number(periodo.ano);
+  const mesNumero = Number(periodo.mes_numero);
+
+  if (!ano || !mesNumero) {
+    return `${periodo.mes} ${periodo.ano}`;
+  }
+
+  const inicio = new Date(ano, mesNumero - 2, 26);
+  const fin = new Date(ano, mesNumero - 1, 25);
+
+  const f = d => d.toLocaleDateString("es-UY", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  });
+
+  return `${periodo.mes} ${periodo.ano} · ${f(inicio)} al ${f(fin)}`;
+}
+
 function registrosMesActual() {
   const periodo = periodoOperativoActual();
   if (!periodo) return [];
@@ -968,16 +1042,12 @@ function renderKpis(registros) {
 function actualizarTitulo() {
   const ano = $("filtroAno").value;
   const mes = $("filtroMes").value;
-  const semana = $("filtroSemana").value;
   const fecha = $("filtroFecha").value;
 
   let texto = "Muestras al cierre";
 
   if (fecha) {
     texto += ` de ${fechaUY(fecha)}`;
-  } else if (semana) {
-    texto += ` - Semana ${semana}`;
-    if (ano) texto += ` / ${ano}`;
   } else if (mes) {
     texto += ` - ${meses[Number(mes)]}`;
     if (ano) texto += ` ${ano}`;
@@ -1003,6 +1073,10 @@ function actualizarTodo() {
   const periodoActual = periodoOperativoActual();
   const registrosMes = registrosMesActual();
   const resumenMes = agrupar(registrosMes);
+
+  $("infoMesActual").innerHTML = periodoActual
+    ? `Mes operativo actual: <strong>${textoPeriodoOperativo(periodoActual)}</strong>`
+    : `Mes operativo actual: <strong>Sin información</strong>`;
 
   renderKpis(resumenMes);
 
@@ -1084,21 +1158,22 @@ function actualizarTodo() {
    ============================================================ */
 $("filtroAno").addEventListener("change", () => {
   actualizarFiltroMes();
-  actualizarFiltroSemana();
   actualizarFiltroFecha();
   actualizarTodo();
 });
 
 $("filtroMes").addEventListener("change", () => {
-  actualizarFiltroSemana();
   actualizarFiltroFecha();
+
+  // Al seleccionar un mes, dejar FECHA libre.
+  // Así el resumen muestra el mes completo y no la última fecha.
+  if ($("filtroMes").value !== "") {
+    $("filtroFecha").value = "";
+  }
+
   actualizarTodo();
 });
 
-$("filtroSemana").addEventListener("change", () => {
-  actualizarFiltroFecha();
-  actualizarTodo();
-});
 
 $("filtroFecha").addEventListener("change", actualizarTodo);
 
