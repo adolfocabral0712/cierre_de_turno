@@ -720,6 +720,34 @@
       font-weight:700;
     }
 
+  
+    .muestras-correo-wrap{
+      display:flex;
+      justify-content:flex-end;
+      margin:0 0 12px 0;
+    }
+
+    .muestras-correo-btn{
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:10px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.2s ease;
+    }
+
+    .muestras-correo-btn:hover{
+      border-color:var(--accent);
+      background:#1a2530;
+    }
+
+    .muestras-correo-btn:active{
+      transform:translateY(1px);
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
@@ -766,6 +794,12 @@
 
   <div class="ultimo-registro-info">
     Último día con registro: <strong id="ultimoDiaConRegistro">Cargando...</strong>
+  </div>
+
+  <div class="muestras-correo-wrap">
+    <button type="button" class="muestras-correo-btn" id="btnPrepararCorreoMuestras">
+      Preparar correo
+    </button>
   </div>
 
   <div class="kpis">
@@ -1790,6 +1824,119 @@ $("filtroFecha").addEventListener("change", actualizarTodo);
 
 
 
+
+/* ============================================================
+   PREPARAR CORREO - MUESTRAS AL CIERRE
+   ============================================================ */
+function textoTablaCorreo(registros) {
+  if (!registros.length) {
+    return "No hay registros para la fecha seleccionada.";
+  }
+
+  const cabecera = [
+    "Depósito",
+    "Origen",
+    "Cosecha",
+    "Certificación",
+    "Producto",
+    "Prom. densidad",
+    "Viajes",
+    "Muestras",
+    "% Muestreo"
+  ].join(" | ");
+
+  const lineas = registros.map(r => [
+    r.deposito ?? "",
+    r.origen ?? "",
+    r.cosecha ?? "",
+    r.certificacion ?? "",
+    r.nombre_prod ?? "",
+    r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3),
+    numero(r.viajes, 0),
+    numero(r.muestras, 0),
+    porcentaje(r.porcentaje_muestreo)
+  ].join(" | "));
+
+  return [cabecera, ...lineas].join("\n");
+}
+
+function prepararCorreoMuestras() {
+  const fechaSeleccionada = $("filtroFecha").value;
+  const periodoActual = periodoOperativoActual();
+
+  // ----------------------------------------------------------
+  // DETALLE DÍA
+  // ----------------------------------------------------------
+  let resumenDia = [];
+
+  if (fechaSeleccionada) {
+    const registrosDia = datosOriginales.filter(r =>
+      String(r.fecha || "").substring(0,10) === fechaSeleccionada
+    );
+
+    resumenDia = agrupar(registrosDia);
+  }
+
+  const totalDia = calcularTotales(resumenDia);
+
+  // ----------------------------------------------------------
+  // DETALLE MES ACTUAL
+  // ----------------------------------------------------------
+  const registrosMes = registrosMesActual();
+  const resumenMes = agrupar(registrosMes);
+  const totalMes = calcularTotales(resumenMes);
+
+  const tituloFecha = fechaSeleccionada
+    ? fechaUY(fechaSeleccionada)
+    : "Sin fecha";
+
+  const tituloMes = periodoActual
+    ? `${periodoActual.mes} ${periodoActual.ano}`
+    : "Sin información";
+
+  const cuerpo = [
+    `MUESTRAS AL CIERRE - ${tituloFecha}`,
+    "",
+    `DETALLE RESUMIDO DEL DÍA - ${tituloFecha}`,
+    "",
+    textoTablaCorreo(resumenDia),
+    "",
+    "TOTAL DÍA",
+    `Promedio densidad: ${totalDia.densidad == null ? "-" : numero(totalDia.densidad, 3)}`,
+    `Viajes: ${numero(totalDia.viajes, 0)}`,
+    `Muestras: ${numero(totalDia.muestras, 0)}`,
+    `% Muestreo: ${porcentaje(totalDia.porcentaje)}`,
+    "",
+    "",
+    `DETALLE RESUMIDO DEL MES ACTUAL - ${tituloMes}`,
+    "",
+    textoTablaCorreo(resumenMes),
+    "",
+    "TOTAL MES",
+    `Promedio densidad: ${totalMes.densidad == null ? "-" : numero(totalMes.densidad, 3)}`,
+    `Viajes: ${numero(totalMes.viajes, 0)}`,
+    `Muestras: ${numero(totalMes.muestras, 0)}`,
+    `% Muestreo: ${porcentaje(totalMes.porcentaje)}`,
+    "",
+    "Saludos."
+  ].join("\n");
+
+  const asunto = `Muestras al cierre - ${tituloFecha}`;
+
+  const mailto =
+    `mailto:` +
+    `?subject=${encodeURIComponent(asunto)}` +
+    `&body=${encodeURIComponent(cuerpo)}`;
+
+  window.location.href = mailto;
+}
+
+$("btnPrepararCorreoMuestras").addEventListener(
+  "click",
+  prepararCorreoMuestras
+);
+
+
 /* ============================================================
    RESTAN DESCARGAR
    ============================================================ */
@@ -2705,7 +2852,7 @@ function exportarCierreTurnoExcel() {
   // Por seguridad del navegador, el archivo descargado NO puede adjuntarse
   // automáticamente desde un mailto:. El correo queda preparado para adjuntarlo.
   const para = [
-    "laboratorio@ffu.com.uy";
+    "laboratorio@ffu.com.uy",
     "a.ruggiero@ffu.com.uy"
   ].join(",");
 
