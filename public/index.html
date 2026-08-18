@@ -1391,7 +1391,7 @@
     <div class="kpi">
       <div class="kpi-label">Promedio de densidad</div>
       <div class="kpi-value" id="kpiDensidad">0,000</div>
-      <div class="kpi-note">Promedio según filtro seleccionado</div>
+      <div class="kpi-note">Promedio ponderado del mes actual</div>
     </div>
   </div>
 
@@ -2341,7 +2341,7 @@ function actualizarTodo() {
   actualizarTitulo();
 
   // --------------------------------------------------------
-  // MES OPERATIVO ACTUAL
+  // TARJETAS KPI = MES OPERATIVO ACTUAL
   // --------------------------------------------------------
   const periodoActual = periodoOperativoActual();
   const registrosMes = registrosMesActual();
@@ -2351,8 +2351,11 @@ function actualizarTodo() {
     ? `Mes operativo actual: <strong>${textoPeriodoOperativo(periodoActual)}</strong>`
     : `Mes operativo actual: <strong>Sin información</strong>`;
 
+  // Las tarjetas SIEMPRE corresponden al mes operativo actual.
+  renderKpis(resumenMes);
+
   // --------------------------------------------------------
-  // DETALLE + KPI SEGÚN FILTRO SELECCIONADO
+  // DETALLE SEGÚN FILTRO SELECCIONADO
   // --------------------------------------------------------
   const fechaSeleccionada = $("filtroFecha").value;
   const anoSeleccionado = $("filtroAno").value;
@@ -2387,11 +2390,6 @@ function actualizarTodo() {
 
   resumenSeleccionado = agrupar(registrosSeleccionados);
 
-  // IMPORTANTE:
-  // Los KPI, incluido PROMEDIO DE DENSIDAD, se calculan ahora
-  // exclusivamente con los registros del filtro seleccionado.
-  renderKpis(resumenSeleccionado);
-
   $("tituloDetalleDia").textContent = tituloDetalle;
 
   renderTablaResumen(
@@ -2407,7 +2405,6 @@ function actualizarTodo() {
 
   // --------------------------------------------------------
   // DETALLE DEL MES ACTUAL
-  // Este bloque sigue mostrando el mes actual de forma independiente.
   // --------------------------------------------------------
   if (periodoActual) {
     $("tituloDetalleMes").textContent =
