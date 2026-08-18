@@ -53,8 +53,17 @@
     .title-wrap h1{
       margin:0;
       font-size:28px;
-      font-weight:700;
-      letter-spacing:.2px;
+      font-weight:800;
+      letter-spacing:.4px;
+      text-transform:uppercase;
+      color:lime;
+      text-align:center;
+    }
+
+    .title-wrap{
+      width:100%;
+      text-align:center;
+      padding-top:18px;
     }
 
     .title-wrap .subtitle{
@@ -207,6 +216,11 @@
       font-weight:700;
     }
 
+    #tituloDetalleDia,
+    #tituloDetalleMes{
+      color:#8ee8a8;
+    }
+
     .record-count{
       color:var(--muted);
       font-size:12px;
@@ -289,6 +303,83 @@
 
     .error{
       color:#ff8989;
+    }
+
+
+    .descargas-section{
+      margin-top:26px;
+      padding-top:18px;
+      border-top:1px solid var(--line);
+    }
+
+    .descargas-section > .update-box{
+      width:fit-content;
+      min-width:250px;
+    }
+
+    .descargas-title{
+      text-align:center;
+      color:lime;
+      font-size:30px;
+      font-weight:800;
+      letter-spacing:1px;
+      margin:28px 0 18px 0;
+      text-transform:uppercase;
+    }
+
+    .descargas-kpis{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .descarga-kpi{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+
+    .descarga-kpi .label{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.75px;
+      font-weight:700;
+      line-height:1.35;
+    }
+
+    .descarga-kpi .value{
+      margin-top:8px;
+      font-size:38px;
+      font-weight:800;
+      color:lime;
+      line-height:1;
+    }
+
+    .descarga-kpi .note{
+      margin-top:7px;
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .sin-pendientes{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:20px;
+      text-align:center;
+      color:var(--muted);
+      box-shadow:var(--shadow);
+      font-weight:700;
+    }
+
+    .descargas-table th,
+    .descargas-table td{
+      text-align:center;
     }
 
     @media(max-width:900px){
@@ -496,6 +587,40 @@
     </div>
   </div>
 
+
+  <div class="descargas-section">
+    <div class="update-box" style="margin-bottom:18px;">
+      <div class="update-label">Última actualización</div>
+      <div id="descargasActualizado">Cargando...</div>
+    </div>
+
+    <div class="descargas-title">RESTAN DESCARGAR</div>
+
+    <div class="descargas-kpis" id="descargasTarjetas"></div>
+
+    <div class="table-card" style="margin-top:16px;">
+      <div class="table-head">
+        <div class="table-title">Detalle por destino</div>
+        <div class="record-count" id="descargasRecordCount">0 registros</div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="descargas-table">
+          <thead>
+            <tr>
+              <th>Remito Monte</th>
+              <th>Destino</th>
+              <th>Predio</th>
+              <th>Vehículo</th>
+              <th>Fin Carga</th>
+            </tr>
+          </thead>
+          <tbody id="descargasTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -510,6 +635,9 @@
    esta constante por la URL directa del JSON.
 */
 const JSON_URL = "https://dl.dropbox.com/scl/fi/439wwzcj91fifxlbhi6vy/MuestrasCierre.json?rlkey=k5v092rq9pw960pjwoe5rb3fd&dl=1";
+
+const JSON_DESCARGAS_URL =
+  "https://dl.dropbox.com/scl/fi/eo971dn4yrjz5h71qkh2b/EstadoDescargaRemitos.json?rlkey=j5udth4t07t8vpaoyqel87j93&dl=1";
 
 
 /* ============================================================
@@ -1178,10 +1306,206 @@ $("filtroMes").addEventListener("change", () => {
 $("filtroFecha").addEventListener("change", actualizarTodo);
 
 
+
+/* ============================================================
+   RESTAN DESCARGAR
+   ============================================================ */
+function normalizarTextoDescargas(valor) {
+  return String(valor ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toUpperCase();
+}
+
+function formatoFechaHoraDescargas(valor) {
+  if (!valor) return "Sin información";
+
+  const d = new Date(valor);
+
+  if (Number.isNaN(d.getTime())) return String(valor);
+
+  return d.toLocaleString("es-UY", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+}
+
+function esFaltaDescargarDescargas(r) {
+  const estado = normalizarTextoDescargas(
+    r["ESTADO DESCARGA"] ?? r["estado_descarga"]
+  );
+
+  return estado === "FALTA DESCARGAR";
+}
+
+function valorDescarga(r, ...campos) {
+  for (const campo of campos) {
+    if (r[campo] !== undefined && r[campo] !== null && r[campo] !== "") {
+      return r[campo];
+    }
+  }
+  return "";
+}
+
+async function cargarDescargasPendientes() {
+  try {
+    const respuesta = await fetch(`${JSON_DESCARGAS_URL}&t=${Date.now()}`, {
+      cache: "no-store"
+    });
+
+    if (!respuesta.ok) {
+      throw new Error(`HTTP ${respuesta.status}`);
+    }
+
+    const json = await respuesta.json();
+
+    const registros = Array.isArray(json)
+      ? json
+      : Array.isArray(json.registros)
+        ? json.registros
+        : [];
+
+    const actualizado =
+      json.actualizado ??
+      json.generado ??
+      json.fechaActualizacion ??
+      json.fecha_actualizacion ??
+      null;
+
+    $("descargasActualizado").textContent =
+      actualizado
+        ? formatoFechaHoraDescargas(actualizado)
+        : "Sin información";
+
+    const pendientes = registros.filter(esFaltaDescargarDescargas);
+
+    const conteo = new Map();
+
+    pendientes.forEach(r => {
+      const destino = String(
+        valorDescarga(r, "DESTINO", "destino")
+      ).trim();
+
+      if (!destino) return;
+
+      conteo.set(destino, (conteo.get(destino) || 0) + 1);
+    });
+
+    const destinos = [...conteo.entries()]
+      .sort((a,b) => b[1] - a[1]);
+
+    const tarjetas = $("descargasTarjetas");
+
+    if (!destinos.length) {
+      tarjetas.innerHTML = `
+        <div class="sin-pendientes">
+          SIN CAMIONES PENDIENTES DE DESCARGAR
+        </div>
+      `;
+    } else {
+      tarjetas.innerHTML = destinos.map(([destino, cantidad]) => `
+        <div class="descarga-kpi">
+          <div class="label">${esc(destino)}</div>
+          <div class="value">${numero(cantidad, 0)}</div>
+          <div class="note">Falta descargar</div>
+        </div>
+      `).join("");
+    }
+
+    const ordenados = [...pendientes].sort((a,b) => {
+      const da = String(valorDescarga(a, "DESTINO", "destino")).toUpperCase();
+      const db = String(valorDescarga(b, "DESTINO", "destino")).toUpperCase();
+
+      if (da !== db) return da.localeCompare(db, "es");
+
+      const pa = String(valorDescarga(a, "PREDIO", "predio")).toUpperCase();
+      const pb = String(valorDescarga(b, "PREDIO", "predio")).toUpperCase();
+
+      return pa.localeCompare(pb, "es");
+    });
+
+    const tbody = $("descargasTbody");
+
+    if (!ordenados.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="empty">
+            SIN CAMIONES PENDIENTES DE DESCARGAR
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = ordenados.map(r => {
+        const remito = valorDescarga(
+          r,
+          "REMITO MONTE",
+          "remito_monte",
+          "numero_1"
+        );
+
+        const destino = valorDescarga(r, "DESTINO", "destino");
+        const predio = valorDescarga(r, "PREDIO", "predio");
+        const vehiculo = valorDescarga(
+          r,
+          "VEHÍCULO",
+          "VEHICULO",
+          "vehiculo"
+        );
+
+        const finCarga = valorDescarga(
+          r,
+          "FIN CARGA",
+          "fin_carga"
+        );
+
+        return `
+          <tr>
+            <td>${esc(remito || "-")}</td>
+            <td>${esc(destino || "-")}</td>
+            <td>${esc(predio || "-")}</td>
+            <td>${esc(vehiculo || "-")}</td>
+            <td>${esc(formatoFechaHoraDescargas(finCarga))}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    $("descargasRecordCount").textContent =
+      `${ordenados.length.toLocaleString("es-UY")} registros`;
+
+  } catch (error) {
+    console.error(error);
+
+    $("descargasActualizado").textContent =
+      "Error de carga";
+
+    $("descargasTarjetas").innerHTML = `
+      <div class="sin-pendientes">
+        No fue posible cargar EstadoDescargaRemitos.json
+      </div>
+    `;
+
+    $("descargasTbody").innerHTML = `
+      <tr>
+        <td colspan="5" class="error">
+          No fue posible cargar EstadoDescargaRemitos.json
+        </td>
+      </tr>
+    `;
+  }
+}
+
 /* ============================================================
    INICIO
    ============================================================ */
 cargarDatos();
+cargarDescargasPendientes();
 </script>
 </body>
 </html>
