@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Muestras al cierre</title>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111820;
+      --panel-2:#161f29;
+      --line:#2a3542;
+      --text:#f3f6f8;
+      --muted:#95a1ad;
+      --accent:#27c2a0;
+      --accent-2:#1d8e78;
+      --danger:#dc5656;
+      --shadow:0 12px 28px rgba(0,0,0,.22);
+      --radius:14px;
+    }
+
+    *{
+      box-sizing:border-box;
+    }
+
+    html,body{
+      margin:0;
+      min-height:100%;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Segoe UI, Arial, Helvetica, sans-serif;
+    }
+
+    body{
+      padding:18px;
+    }
+
+    .dashboard{
+      max-width:1600px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .title-wrap h1{
+      margin:0;
+      font-size:28px;
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+
+    .title-wrap .subtitle{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .update-box{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:10px 14px;
+      min-width:250px;
+      box-shadow:var(--shadow);
+    }
+
+    .update-label{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      margin-bottom:3px;
+    }
+
+    #actualizado{
+      font-size:14px;
+      font-weight:600;
+    }
+
+    .filters{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(150px,1fr));
+      gap:12px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:14px;
+      margin-bottom:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .filter{
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .filter label{
+      font-size:11px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      font-weight:700;
+    }
+
+    .filter select{
+      width:100%;
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:10px 12px;
+      outline:none;
+      font-size:14px;
+    }
+
+    .filter select:focus{
+      border-color:var(--accent);
+    }
+
+    .kpis{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(170px,1fr));
+      gap:12px;
+      margin-bottom:16px;
+    }
+
+    .kpi{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .kpi-label{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.75px;
+      margin-bottom:6px;
+      font-weight:700;
+    }
+
+    .kpi-value{
+      font-size:29px;
+      font-weight:750;
+      line-height:1;
+    }
+
+    .kpi-note{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:11px;
+    }
+
+    .table-card{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .table-head{
+      padding:14px 16px;
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      border-bottom:1px solid var(--line);
+      flex-wrap:wrap;
+    }
+
+    .table-title{
+      font-size:16px;
+      font-weight:700;
+    }
+
+    .record-count{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .table-scroll{
+      overflow:auto;
+      max-height:65vh;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:1100px;
+    }
+
+    thead th{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#202a35;
+      color:#f7f9fb;
+      text-align:left;
+      font-size:12px;
+      padding:10px 10px;
+      border-bottom:1px solid #3a4654;
+      white-space:nowrap;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    thead th.num,
+    tbody td.num,
+    tfoot td.num{
+      text-align:right;
+    }
+
+    tbody td{
+      padding:9px 10px;
+      border-bottom:1px solid #202a35;
+      font-size:13px;
+      white-space:nowrap;
+    }
+
+    tbody tr:hover{
+      background:#141e28;
+    }
+
+    tfoot td{
+      position:sticky;
+      bottom:0;
+      background:#202a35;
+      padding:10px;
+      font-weight:700;
+      border-top:1px solid #3a4654;
+      font-size:13px;
+    }
+
+    .pct-good{
+      color:#71d7be;
+      font-weight:700;
+    }
+
+    .empty,
+    .error{
+      padding:38px 18px;
+      text-align:center;
+      color:var(--muted);
+    }
+
+    .error{
+      color:#ff8989;
+    }
+
+    @media(max-width:900px){
+      body{
+        padding:10px;
+      }
+
+      .filters{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .kpis{
+        grid-template-columns:repeat(2,1fr);
+      }
+
+      .title-wrap h1{
+        font-size:23px;
+      }
+    }
+
+    @media(max-width:560px){
+      .filters,
+      .kpis{
+        grid-template-columns:1fr;
+      }
+
+      .update-box{
+        width:100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="dashboard">
+
+  <div class="topbar">
+    <div class="title-wrap">
+      <h1 id="titulo">Muestras al cierre</h1>
+      <div class="subtitle">FRIMOSA · Resumen de muestreo por período</div>
+    </div>
+
+    <div class="update-box">
+      <div class="update-label">Última actualización</div>
+      <div id="actualizado">Cargando...</div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="filter">
+      <label for="filtroAno">Año</label>
+      <select id="filtroAno"></select>
+    </div>
+
+    <div class="filter">
+      <label for="filtroMes">Mes</label>
+      <select id="filtroMes"></select>
+    </div>
+
+    <div class="filter">
+      <label for="filtroSemana">Semana</label>
+      <select id="filtroSemana"></select>
+    </div>
+
+    <div class="filter">
+      <label for="filtroFecha">Fecha</label>
+      <select id="filtroFecha"></select>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi">
+      <div class="kpi-label">Viajes</div>
+      <div class="kpi-value" id="kpiViajes">0</div>
+      <div class="kpi-note">Remitos del período seleccionado</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Muestras</div>
+      <div class="kpi-value" id="kpiMuestras">0</div>
+      <div class="kpi-note">Viajes con densidad registrada</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">% Muestreo</div>
+      <div class="kpi-value" id="kpiPorcentaje">0,00%</div>
+      <div class="kpi-note">Muestras / viajes</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Promedio de densidad</div>
+      <div class="kpi-value" id="kpiDensidad">0,000</div>
+      <div class="kpi-note">Promedio ponderado del período</div>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-head">
+      <div class="table-title">Detalle resumido</div>
+      <div class="record-count" id="recordCount">0 registros</div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th data-key="deposito">Depósito</th>
+            <th data-key="origen">Origen</th>
+            <th data-key="cosecha">Cosecha</th>
+            <th data-key="certificacion">Certificación</th>
+            <th data-key="nombre_prod">Producto</th>
+            <th class="num" data-key="promedio_densidad">Promedio densidad</th>
+            <th class="num" data-key="viajes">Viajes</th>
+            <th class="num" data-key="muestras">Muestras</th>
+            <th class="num" data-key="porcentaje_muestreo">% Muestreo</th>
+          </tr>
+        </thead>
+
+        <tbody id="tbody"></tbody>
+
+        <tfoot>
+          <tr>
+            <td colspan="5">Total general</td>
+            <td class="num" id="totalDensidad">0,000</td>
+            <td class="num" id="totalViajes">0</td>
+            <td class="num" id="totalMuestras">0</td>
+            <td class="num" id="totalPorcentaje">0,00%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN
+   ============================================================
+
+   Si MuestrasCierre.json está en la misma carpeta/servidor que
+   este index.html, dejá esta ruta tal cual.
+
+   Si después usás Dropbox o Cloudflare, reemplazá solamente
+   esta constante por la URL directa del JSON.
+*/
+const JSON_URL = "./MuestrasCierre.json";
+
+
+/* ============================================================
+   VARIABLES
+   ============================================================ */
+let datosOriginales = [];
+let datosTabla = [];
+let sortKey = "origen";
+let sortAsc = true;
+
+const meses = [
+  "",
+  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+  "Julio","Agosto","Setiembre","Octubre","Noviembre","Diciembre"
+];
+
+const $ = id => document.getElementById(id);
+
+
+/* ============================================================
+   FORMATOS
+   ============================================================ */
+function numero(valor, decimales = 0) {
+  const n = Number(valor);
+  if (!Number.isFinite(n)) return "-";
+
+  return n.toLocaleString("es-UY", {
+    minimumFractionDigits: decimales,
+    maximumFractionDigits: decimales
+  });
+}
+
+function porcentaje(valor) {
+  return `${numero(valor, 2)}%`;
+}
+
+function fechaUY(valor) {
+  if (!valor) return "";
+
+  const partes = String(valor).substring(0, 10).split("-");
+  if (partes.length !== 3) return valor;
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
+function fechaHoraActualizacion(valor) {
+  if (!valor) return "Sin información";
+
+  const d = new Date(valor);
+
+  if (Number.isNaN(d.getTime())) return valor;
+
+  return d.toLocaleString("es-UY", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false
+  });
+}
+
+
+/* ============================================================
+   CARGA JSON
+   ============================================================ */
+async function cargarDatos() {
+  try {
+    const respuesta = await fetch(`${JSON_URL}?t=${Date.now()}`, {
+      cache: "no-store"
+    });
+
+    if (!respuesta.ok) {
+      throw new Error(`HTTP ${respuesta.status}`);
+    }
+
+    const json = await respuesta.json();
+
+    datosOriginales = Array.isArray(json.registros)
+      ? json.registros
+      : [];
+
+    $("actualizado").textContent =
+      fechaHoraActualizacion(json.actualizado);
+
+    inicializarFiltros();
+    actualizarTodo();
+
+  } catch (error) {
+    console.error(error);
+
+    $("actualizado").textContent = "Error de carga";
+
+    $("tbody").innerHTML = `
+      <tr>
+        <td colspan="9" class="error">
+          No fue posible cargar MuestrasCierre.json
+        </td>
+      </tr>
+    `;
+  }
+}
+
+
+/* ============================================================
+   FILTROS
+   ============================================================ */
+function valoresUnicos(lista) {
+  return [...new Set(lista)]
+    .filter(v => v !== null && v !== undefined && v !== "");
+}
+
+function llenarSelect(select, valores, etiquetaTodos, valorActual = "") {
+  select.innerHTML = "";
+
+  const opTodos = document.createElement("option");
+  opTodos.value = "";
+  opTodos.textContent = etiquetaTodos;
+  select.appendChild(opTodos);
+
+  valores.forEach(v => {
+    const op = document.createElement("option");
+    op.value = String(v);
+    op.textContent = String(v);
+    select.appendChild(op);
+  });
+
+  if ([...select.options].some(o => o.value === String(valorActual))) {
+    select.value = String(valorActual);
+  }
+}
+
+function inicializarFiltros() {
+  const anos = valoresUnicos(
+    datosOriginales.map(r => Number(r.ano))
+  ).sort((a,b) => b-a);
+
+  llenarSelect(
+    $("filtroAno"),
+    anos,
+    "Todos los años"
+  );
+
+  if (anos.length) {
+    $("filtroAno").value = String(anos[0]);
+  }
+
+  actualizarFiltroMes();
+  actualizarFiltroSemana();
+  actualizarFiltroFecha();
+}
+
+function datosSegunAno() {
+  const ano = $("filtroAno").value;
+
+  return datosOriginales.filter(r =>
+    !ano || String(r.ano) === ano
+  );
+}
+
+function datosSegunAnoMes() {
+  const ano = $("filtroAno").value;
+  const mes = $("filtroMes").value;
+
+  return datosOriginales.filter(r =>
+    (!ano || String(r.ano) === ano) &&
+    (!mes || String(r.mes_numero) === mes)
+  );
+}
+
+function datosSegunAnoMesSemana() {
+  const ano = $("filtroAno").value;
+  const mes = $("filtroMes").value;
+  const semana = $("filtroSemana").value;
+
+  return datosOriginales.filter(r =>
+    (!ano || String(r.ano) === ano) &&
+    (!mes || String(r.mes_numero) === mes) &&
+    (!semana || String(r.semana) === semana)
+  );
+}
+
+function actualizarFiltroMes() {
+  const actual = $("filtroMes").value;
+
+  const nums = valoresUnicos(
+    datosSegunAno().map(r => Number(r.mes_numero))
+  ).sort((a,b) => a-b);
+
+  $("filtroMes").innerHTML = "";
+
+  const todos = document.createElement("option");
+  todos.value = "";
+  todos.textContent = "Todos los meses";
+  $("filtroMes").appendChild(todos);
+
+  nums.forEach(n => {
+    const op = document.createElement("option");
+    op.value = String(n);
+    op.textContent = meses[n] || String(n);
+    $("filtroMes").appendChild(op);
+  });
+
+  if ([...$("filtroMes").options].some(o => o.value === actual)) {
+    $("filtroMes").value = actual;
+  }
+}
+
+function actualizarFiltroSemana() {
+  const actual = $("filtroSemana").value;
+
+  const semanas = valoresUnicos(
+    datosSegunAnoMes().map(r => Number(r.semana))
+  ).sort((a,b) => a-b);
+
+  llenarSelect(
+    $("filtroSemana"),
+    semanas,
+    "Todas las semanas",
+    actual
+  );
+}
+
+function actualizarFiltroFecha() {
+  const actual = $("filtroFecha").value;
+
+  const fechas = valoresUnicos(
+    datosSegunAnoMesSemana().map(r => String(r.fecha).substring(0,10))
+  ).sort((a,b) => a.localeCompare(b));
+
+  $("filtroFecha").innerHTML = "";
+
+  const todos = document.createElement("option");
+  todos.value = "";
+  todos.textContent = "Todas las fechas";
+  $("filtroFecha").appendChild(todos);
+
+  fechas.forEach(f => {
+    const op = document.createElement("option");
+    op.value = f;
+    op.textContent = fechaUY(f);
+    $("filtroFecha").appendChild(op);
+  });
+
+  if ([...$("filtroFecha").options].some(o => o.value === actual)) {
+    $("filtroFecha").value = actual;
+  }
+}
+
+
+/* ============================================================
+   FILTRADO PRINCIPAL
+   ============================================================ */
+function registrosFiltrados() {
+  const ano = $("filtroAno").value;
+  const mes = $("filtroMes").value;
+  const semana = $("filtroSemana").value;
+  const fecha = $("filtroFecha").value;
+
+  return datosOriginales.filter(r => {
+    const f = String(r.fecha || "").substring(0,10);
+
+    return (
+      (!ano || String(r.ano) === ano) &&
+      (!mes || String(r.mes_numero) === mes) &&
+      (!semana || String(r.semana) === semana) &&
+      (!fecha || f === fecha)
+    );
+  });
+}
+
+
+/* ============================================================
+   AGRUPACIÓN
+   ============================================================ */
+function agrupar(registros) {
+  const mapa = new Map();
+
+  registros.forEach(r => {
+    const key = [
+      r.deposito ?? "",
+      r.origen ?? "",
+      r.cosecha ?? "",
+      r.certificacion ?? "",
+      r.nombre_prod ?? ""
+    ].join("|||");
+
+    if (!mapa.has(key)) {
+      mapa.set(key, {
+        deposito: r.deposito ?? "",
+        origen: r.origen ?? "",
+        cosecha: r.cosecha ?? "",
+        certificacion: r.certificacion ?? "",
+        nombre_prod: r.nombre_prod ?? "",
+        viajes: 0,
+        muestras: 0,
+        sumaDensidadPonderada: 0,
+        pesoDensidad: 0
+      });
+    }
+
+    const g = mapa.get(key);
+
+    const viajes = Number(r.viajes) || 0;
+    const muestras = Number(r.muestras) || 0;
+    const densidad = Number(r.promedio_densidad);
+
+    g.viajes += viajes;
+    g.muestras += muestras;
+
+    if (Number.isFinite(densidad)) {
+      /*
+        Ponderamos por viajes porque el JSON ya viene resumido por fecha.
+        Esto evita que un día con 2 viajes pese igual que uno con 100.
+      */
+      const peso = viajes > 0 ? viajes : 1;
+      g.sumaDensidadPonderada += densidad * peso;
+      g.pesoDensidad += peso;
+    }
+  });
+
+  return [...mapa.values()].map(g => ({
+    deposito: g.deposito,
+    origen: g.origen,
+    cosecha: g.cosecha,
+    certificacion: g.certificacion,
+    nombre_prod: g.nombre_prod,
+
+    promedio_densidad:
+      g.pesoDensidad > 0
+        ? g.sumaDensidadPonderada / g.pesoDensidad
+        : null,
+
+    viajes: g.viajes,
+    muestras: g.muestras,
+
+    porcentaje_muestreo:
+      g.viajes > 0
+        ? (g.muestras / g.viajes) * 100
+        : 0
+  }));
+}
+
+
+/* ============================================================
+   TOTALES
+   ============================================================ */
+function calcularTotales(registrosAgrupados) {
+  let viajes = 0;
+  let muestras = 0;
+  let sumaDensidad = 0;
+  let pesoDensidad = 0;
+
+  registrosAgrupados.forEach(r => {
+    const v = Number(r.viajes) || 0;
+    const m = Number(r.muestras) || 0;
+    const d = Number(r.promedio_densidad);
+
+    viajes += v;
+    muestras += m;
+
+    if (Number.isFinite(d)) {
+      const peso = v > 0 ? v : 1;
+      sumaDensidad += d * peso;
+      pesoDensidad += peso;
+    }
+  });
+
+  return {
+    viajes,
+    muestras,
+
+    porcentaje:
+      viajes > 0
+        ? (muestras / viajes) * 100
+        : 0,
+
+    densidad:
+      pesoDensidad > 0
+        ? sumaDensidad / pesoDensidad
+        : null
+  };
+}
+
+
+/* ============================================================
+   TABLA
+   ============================================================ */
+function ordenarDatos() {
+  datosTabla.sort((a,b) => {
+    let va = a[sortKey];
+    let vb = b[sortKey];
+
+    const na = Number(va);
+    const nb = Number(vb);
+
+    if (
+      va !== "" &&
+      vb !== "" &&
+      Number.isFinite(na) &&
+      Number.isFinite(nb)
+    ) {
+      return sortAsc ? na - nb : nb - na;
+    }
+
+    va = String(va ?? "").toLocaleLowerCase("es");
+    vb = String(vb ?? "").toLocaleLowerCase("es");
+
+    return sortAsc
+      ? va.localeCompare(vb, "es")
+      : vb.localeCompare(va, "es");
+  });
+}
+
+function renderTabla() {
+  ordenarDatos();
+
+  const tbody = $("tbody");
+
+  if (!datosTabla.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" class="empty">
+          No hay registros para los filtros seleccionados.
+        </td>
+      </tr>
+    `;
+
+    $("recordCount").textContent = "0 registros";
+    return;
+  }
+
+  tbody.innerHTML = datosTabla.map(r => `
+    <tr>
+      <td>${esc(r.deposito)}</td>
+      <td>${esc(r.origen)}</td>
+      <td>${esc(r.cosecha)}</td>
+      <td>${esc(r.certificacion)}</td>
+      <td>${esc(r.nombre_prod)}</td>
+
+      <td class="num">
+        ${r.promedio_densidad == null
+          ? "-"
+          : numero(r.promedio_densidad, 3)}
+      </td>
+
+      <td class="num">${numero(r.viajes, 0)}</td>
+
+      <td class="num">${numero(r.muestras, 0)}</td>
+
+      <td class="num pct-good">
+        ${porcentaje(r.porcentaje_muestreo)}
+      </td>
+    </tr>
+  `).join("");
+
+  $("recordCount").textContent =
+    `${datosTabla.length.toLocaleString("es-UY")} registros`;
+}
+
+function esc(valor) {
+  return String(valor ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* ============================================================
+   KPI + TÍTULO
+   ============================================================ */
+function renderTotales() {
+  const total = calcularTotales(datosTabla);
+
+  $("kpiViajes").textContent =
+    numero(total.viajes, 0);
+
+  $("kpiMuestras").textContent =
+    numero(total.muestras, 0);
+
+  $("kpiPorcentaje").textContent =
+    porcentaje(total.porcentaje);
+
+  $("kpiDensidad").textContent =
+    total.densidad == null
+      ? "-"
+      : numero(total.densidad, 3);
+
+  $("totalViajes").textContent =
+    numero(total.viajes, 0);
+
+  $("totalMuestras").textContent =
+    numero(total.muestras, 0);
+
+  $("totalPorcentaje").textContent =
+    porcentaje(total.porcentaje);
+
+  $("totalDensidad").textContent =
+    total.densidad == null
+      ? "-"
+      : numero(total.densidad, 3);
+}
+
+function actualizarTitulo() {
+  const ano = $("filtroAno").value;
+  const mes = $("filtroMes").value;
+  const semana = $("filtroSemana").value;
+  const fecha = $("filtroFecha").value;
+
+  let texto = "Muestras al cierre";
+
+  if (fecha) {
+    texto += ` de ${fechaUY(fecha)}`;
+  } else if (semana) {
+    texto += ` - Semana ${semana}`;
+    if (ano) texto += ` / ${ano}`;
+  } else if (mes) {
+    texto += ` - ${meses[Number(mes)]}`;
+    if (ano) texto += ` ${ano}`;
+  } else if (ano) {
+    texto += ` - ${ano}`;
+  }
+
+  $("titulo").textContent = texto;
+}
+
+
+/* ============================================================
+   ACTUALIZACIÓN GENERAL
+   ============================================================ */
+function actualizarTodo() {
+  const filtrados = registrosFiltrados();
+
+  datosTabla = agrupar(filtrados);
+
+  actualizarTitulo();
+  renderTabla();
+  renderTotales();
+}
+
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+$("filtroAno").addEventListener("change", () => {
+  actualizarFiltroMes();
+  actualizarFiltroSemana();
+  actualizarFiltroFecha();
+  actualizarTodo();
+});
+
+$("filtroMes").addEventListener("change", () => {
+  actualizarFiltroSemana();
+  actualizarFiltroFecha();
+  actualizarTodo();
+});
+
+$("filtroSemana").addEventListener("change", () => {
+  actualizarFiltroFecha();
+  actualizarTodo();
+});
+
+$("filtroFecha").addEventListener("change", actualizarTodo);
+
+document.querySelectorAll("thead th[data-key]").forEach(th => {
+  th.addEventListener("click", () => {
+    const key = th.dataset.key;
+
+    if (sortKey === key) {
+      sortAsc = !sortAsc;
+    } else {
+      sortKey = key;
+      sortAsc = true;
+    }
+
+    renderTabla();
+  });
+});
+
+
+/* ============================================================
+   INICIO
+   ============================================================ */
+cargarDatos();
+</script>
+</body>
+</html>
