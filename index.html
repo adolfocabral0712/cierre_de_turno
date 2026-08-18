@@ -689,7 +689,7 @@
     }
 
   </style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
 
 <body>
@@ -2191,14 +2191,14 @@ function exportarCierreTurnoExcel() {
     }, 0);
 
   const filas = [
-    ["DESCARGA CIERRE DE TURNO - FRIMOSA"],
-    [],
-    ["Fecha", fechaUY(fecha)],
-    ["Total camiones", registros.length],
-    ["Prom. descarga", cierreHHMMSS(promedio)],
-    ["DIRECTO - Neto ton Pila FFU", toneladasDirecto],
-    ["ACOPIO - Neto ton diferente FFU", toneladasAcopio],
-    [],
+    ["DESCARGA CIERRE DE TURNO - FRIMOSA", "", "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
+    ["Fecha", fechaUY(fecha), "", "", "", "", "", ""],
+    ["Total camiones", registros.length, "", "", "", "", "", ""],
+    ["Prom. descarga", cierreHHMMSS(promedio), "", "", "", "", "", ""],
+    ["DIRECTO - Neto ton Pila FFU", toneladasDirecto, "", "", "", "", "", ""],
+    ["ACOPIO - Neto ton diferente FFU", toneladasAcopio, "", "", "", "", "", ""],
+    ["", "", "", "", "", "", "", ""],
     [
       "Fecha",
       "Hora Ingreso",
@@ -2228,21 +2228,228 @@ function exportarCierreTurnoExcel() {
 
   const ws = XLSX.utils.aoa_to_sheet(filas);
 
-  ws["!cols"] = [
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 14 },
-    { wch: 18 },
-    { wch: 18 },
-    { wch: 22 },
-    { wch: 14 },
-    { wch: 12 }
+  // ------------------------------------------------------------
+  // DIMENSIONES / MERGE
+  // ------------------------------------------------------------
+  ws["!merges"] = [
+    XLSX.utils.decode_range("A1:H1")
   ];
 
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Descarga Cierre Turno");
+  ws["!cols"] = [
+    { wch: 14 }, // Fecha
+    { wch: 15 }, // Hora ingreso
+    { wch: 15 }, // Hora salida
+    { wch: 18 }, // Tiempo descarga
+    { wch: 18 }, // Primero pila
+    { wch: 24 }, // Producto
+    { wch: 14 }, // Matrícula
+    { wch: 13 }  // Neto
+  ];
 
-  const nombreFecha = fecha ? fecha.replaceAll("-", "") : "sin_fecha";
+  ws["!rows"] = [
+    { hpt: 28 },
+    { hpt: 8 },
+    { hpt: 21 },
+    { hpt: 21 },
+    { hpt: 21 },
+    { hpt: 21 },
+    { hpt: 21 },
+    { hpt: 8 },
+    { hpt: 24 }
+  ];
+
+  // ------------------------------------------------------------
+  // PALETA
+  // ------------------------------------------------------------
+  const COLOR_FONDO = "111820";
+  const COLOR_FONDO_2 = "161F29";
+  const COLOR_HEADER = "202A35";
+  const COLOR_LIMA = "7CFC00";
+  const COLOR_LIMA_SUAVE = "C7F7D4";
+  const COLOR_BLANCO = "FFFFFF";
+  const COLOR_TEXTO = "E8EEF5";
+  const COLOR_MUTED = "AEB9C6";
+  const COLOR_BORDE = "3A4654";
+  const COLOR_ZEBRA = "F4F7F9";
+
+  const borde = {
+    top:    { style: "thin", color: { rgb: COLOR_BORDE } },
+    bottom: { style: "thin", color: { rgb: COLOR_BORDE } },
+    left:   { style: "thin", color: { rgb: COLOR_BORDE } },
+    right:  { style: "thin", color: { rgb: COLOR_BORDE } }
+  };
+
+  // ------------------------------------------------------------
+  // TÍTULO
+  // ------------------------------------------------------------
+  ws["A1"].s = {
+    fill: { fgColor: { rgb: COLOR_FONDO } },
+    font: {
+      name: "Segoe UI",
+      sz: 16,
+      bold: true,
+      color: { rgb: COLOR_LIMA }
+    },
+    alignment: {
+      horizontal: "center",
+      vertical: "center"
+    },
+    border: borde
+  };
+
+  // Estilo de toda la fila combinada del título
+  for (let c = 0; c < 8; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 0, c });
+    if (!ws[ref]) ws[ref] = { t: "s", v: "" };
+    ws[ref].s = ws["A1"].s;
+  }
+
+  // ------------------------------------------------------------
+  // RESUMEN (FILAS 3 A 7)
+  // ------------------------------------------------------------
+  for (let r = 2; r <= 6; r++) {
+    const labelRef = XLSX.utils.encode_cell({ r, c: 0 });
+    const valueRef = XLSX.utils.encode_cell({ r, c: 1 });
+
+    ws[labelRef].s = {
+      fill: { fgColor: { rgb: COLOR_HEADER } },
+      font: {
+        name: "Segoe UI",
+        sz: 11,
+        bold: true,
+        color: { rgb: COLOR_BLANCO }
+      },
+      alignment: {
+        horizontal: "left",
+        vertical: "center"
+      },
+      border: borde
+    };
+
+    ws[valueRef].s = {
+      fill: { fgColor: { rgb: COLOR_FONDO_2 } },
+      font: {
+        name: "Segoe UI",
+        sz: 11,
+        bold: true,
+        color: { rgb: COLOR_LIMA }
+      },
+      alignment: {
+        horizontal: "center",
+        vertical: "center"
+      },
+      border: borde
+    };
+  }
+
+  // Formato numérico para toneladas del resumen
+  ws["B6"].z = '#,##0.00';
+  ws["B7"].z = '#,##0.00';
+
+  // ------------------------------------------------------------
+  // CABECERAS DE TABLA (FILA 9)
+  // ------------------------------------------------------------
+  for (let c = 0; c < 8; c++) {
+    const ref = XLSX.utils.encode_cell({ r: 8, c });
+
+    ws[ref].s = {
+      fill: { fgColor: { rgb: COLOR_HEADER } },
+      font: {
+        name: "Segoe UI",
+        sz: 10,
+        bold: true,
+        color: { rgb: COLOR_LIMA_SUAVE }
+      },
+      alignment: {
+        horizontal: "center",
+        vertical: "center",
+        wrapText: true
+      },
+      border: borde
+    };
+  }
+
+  // ------------------------------------------------------------
+  // CUERPO DE LA TABLA
+  // ------------------------------------------------------------
+  const primeraFilaDatos = 9;
+  const ultimaFilaDatos = filas.length - 1;
+
+  for (let r = primeraFilaDatos; r <= ultimaFilaDatos; r++) {
+    for (let c = 0; c < 8; c++) {
+      const ref = XLSX.utils.encode_cell({ r, c });
+
+      if (!ws[ref]) {
+        ws[ref] = { t: "s", v: "" };
+      }
+
+      ws[ref].s = {
+        fill: {
+          fgColor: {
+            rgb: (r - primeraFilaDatos) % 2 === 0
+              ? "FFFFFF"
+              : COLOR_ZEBRA
+          }
+        },
+        font: {
+          name: "Segoe UI",
+          sz: 10,
+          color: { rgb: "222222" }
+        },
+        alignment: {
+          horizontal: c === 7 ? "right" : "center",
+          vertical: "center"
+        },
+        border: borde
+      };
+
+      if (c === 7 && ws[ref].t === "n") {
+        ws[ref].z = '#,##0.00';
+      }
+    }
+  }
+
+  // Resaltar DIRECTO / ACOPIO en la tabla
+  for (let r = primeraFilaDatos; r <= ultimaFilaDatos; r++) {
+    const pilaRef = XLSX.utils.encode_cell({ r, c: 4 });
+    const valorPila = String(ws[pilaRef]?.v ?? "").trim().toUpperCase();
+
+    if (valorPila === "FFU") {
+      for (let c = 0; c < 8; c++) {
+        const ref = XLSX.utils.encode_cell({ r, c });
+        ws[ref].s.fill = { fgColor: { rgb: "EAF8E8" } };
+      }
+    }
+  }
+
+  // ------------------------------------------------------------
+  // AUTOFILTRO
+  // ------------------------------------------------------------
+  ws["!autofilter"] = {
+    ref: `A9:H${filas.length}`
+  };
+
+  // ------------------------------------------------------------
+  // LIBRO
+  // ------------------------------------------------------------
+  const wb = XLSX.utils.book_new();
+
+  wb.Props = {
+    Title: "Descarga Cierre de Turno - FRIMOSA",
+    Subject: "Detalle de descarga por fecha",
+    Author: "FRIMOSA",
+    Company: "FRIMOSA"
+  };
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    "Descarga Cierre Turno"
+  );
+
+  const nombreFecha = fecha
+    ? fecha.replaceAll("-", "")
+    : "sin_fecha";
 
   XLSX.writeFile(
     wb,
