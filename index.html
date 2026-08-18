@@ -156,6 +156,18 @@
       font-weight:700;
     }
 
+    .fecha-info{
+      margin:-2px 0 12px 0;
+      text-align:center;
+      color:#a9b4bf;
+      font-size:12px;
+    }
+
+    .fecha-info strong{
+      color:#c7f7d4;
+      font-weight:700;
+    }
+
     .kpis{
       display:grid;
       grid-template-columns:repeat(4, minmax(170px,1fr));
@@ -489,6 +501,10 @@
 
   <div class="month-info" id="infoMesActual">
     Mes operativo actual: <strong>Cargando...</strong>
+  </div>
+
+  <div class="fecha-info">
+    <strong>Nota:</strong> si una fecha no aparece en el selector, es porque no hubo ingreso de madera ese día.
   </div>
 
   <div class="kpis">
