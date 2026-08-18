@@ -1,0 +1,20 @@
+{
+  "name": "descarga-cierre-turno",
+
+  "main": "src/index.js",
+
+  "compatibility_date": "2026-08-18",
+
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+
+  "secrets": {
+    "required": [
+      "JSON_MUESTRAS",
+      "JSON_DESCARGAS",
+      "JSON_CIERRE_TURNO"
+    ]
+  }
+}
