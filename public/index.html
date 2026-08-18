@@ -1391,7 +1391,7 @@
     <div class="kpi">
       <div class="kpi-label">Promedio de densidad</div>
       <div class="kpi-value" id="kpiDensidad">0,000</div>
-      <div class="kpi-note">Promedio ponderado del mes actual</div>
+      <div class="kpi-note">Promedio según filtro seleccionado</div>
     </div>
   </div>
 
@@ -2338,12 +2338,10 @@ function actualizarTitulo() {
    ACTUALIZACIÓN GENERAL
    ============================================================ */
 function actualizarTodo() {
-  const filtrados = registrosFiltrados();
-
   actualizarTitulo();
 
   // --------------------------------------------------------
-  // TARJETAS KPI = MES OPERATIVO ACTUAL
+  // MES OPERATIVO ACTUAL
   // --------------------------------------------------------
   const periodoActual = periodoOperativoActual();
   const registrosMes = registrosMesActual();
@@ -2353,59 +2351,63 @@ function actualizarTodo() {
     ? `Mes operativo actual: <strong>${textoPeriodoOperativo(periodoActual)}</strong>`
     : `Mes operativo actual: <strong>Sin información</strong>`;
 
-  renderKpis(resumenMes);
-
   // --------------------------------------------------------
-  // DETALLE SEGÚN FECHA / MES FILTRADO
+  // DETALLE + KPI SEGÚN FILTRO SELECCIONADO
   // --------------------------------------------------------
   const fechaSeleccionada = $("filtroFecha").value;
+  const anoSeleccionado = $("filtroAno").value;
+  const mesSeleccionado = $("filtroMes").value;
 
-  let resumenDia;
-  let tituloDetalle;
+  let registrosSeleccionados = [];
+  let resumenSeleccionado = [];
+  let tituloDetalle = "Detalle resumido";
 
   if (fechaSeleccionada) {
-    const registrosDia = datosOriginales.filter(r =>
+    registrosSeleccionados = datosOriginales.filter(r =>
       String(r.fecha || "").substring(0,10) === fechaSeleccionada
     );
 
-    resumenDia = agrupar(registrosDia);
-    tituloDetalle = `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`;
+    tituloDetalle =
+      `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`;
 
   } else {
-    const anoSeleccionado = $("filtroAno").value;
-    const mesSeleccionado = $("filtroMes").value;
-
-    const registrosMesFiltrado = datosOriginales.filter(r =>
+    registrosSeleccionados = datosOriginales.filter(r =>
       (!anoSeleccionado || String(r.ano) === anoSeleccionado) &&
       (!mesSeleccionado || String(r.mes_numero) === mesSeleccionado)
     );
 
-    resumenDia = agrupar(registrosMesFiltrado);
-
     if (anoSeleccionado && mesSeleccionado) {
-      tituloDetalle = `Detalle resumido del mes - ${meses[Number(mesSeleccionado)]} ${anoSeleccionado}`;
+      tituloDetalle =
+        `Detalle resumido del mes - ${meses[Number(mesSeleccionado)]} ${anoSeleccionado}`;
     } else if (anoSeleccionado) {
-      tituloDetalle = `Detalle resumido del año - ${anoSeleccionado}`;
-    } else {
-      tituloDetalle = "Detalle resumido";
+      tituloDetalle =
+        `Detalle resumido del año - ${anoSeleccionado}`;
     }
   }
+
+  resumenSeleccionado = agrupar(registrosSeleccionados);
+
+  // IMPORTANTE:
+  // Los KPI, incluido PROMEDIO DE DENSIDAD, se calculan ahora
+  // exclusivamente con los registros del filtro seleccionado.
+  renderKpis(resumenSeleccionado);
 
   $("tituloDetalleDia").textContent = tituloDetalle;
 
   renderTablaResumen(
-    resumenDia,
+    resumenSeleccionado,
     "tbodyDia",
     "recordCountDia"
   );
 
   renderTotalesResumen(
-    resumenDia,
+    resumenSeleccionado,
     "Dia"
   );
 
   // --------------------------------------------------------
   // DETALLE DEL MES ACTUAL
+  // Este bloque sigue mostrando el mes actual de forma independiente.
   // --------------------------------------------------------
   if (periodoActual) {
     $("tituloDetalleMes").textContent =
@@ -3619,8 +3621,9 @@ function exportarCierreTurnoExcel() {
   // Por seguridad del navegador, el archivo descargado NO puede adjuntarse
   // automáticamente desde un mailto:. El correo queda preparado para adjuntarlo.
   const para = [
-    "laboratorio@ffu.com.uy","a.ruggiero@ffu.com.uy"
-  ].join(";");
+    "laboratorio@ffu.com.uy",
+    "a.ruggiero@ffu.com.uy"
+  ].join(",");
 
   const cc = "logma@fas.com.uy";
 
