@@ -2455,15 +2455,24 @@ function exportarCierreTurnoExcel() {
     XLSX.utils.decode_range("A1:H1")
   ];
 
+  // Ajuste automático de la columna A según el texto más largo
+  const anchoColumnaA = Math.min(
+    45,
+    Math.max(
+      14,
+      ...filas.map(fila => String(fila[0] ?? "").length + 2)
+    )
+  );
+
   ws["!cols"] = [
-    { wch: 14 }, // Fecha
-    { wch: 15 }, // Hora ingreso
-    { wch: 15 }, // Hora salida
-    { wch: 18 }, // Tiempo descarga
-    { wch: 18 }, // Primero pila
-    { wch: 24 }, // Producto
-    { wch: 14 }, // Matrícula
-    { wch: 13 }  // Neto
+    { wch: anchoColumnaA }, // Fecha / etiquetas del resumen
+    { wch: 15 },            // Hora ingreso
+    { wch: 15 },            // Hora salida
+    { wch: 18 },            // Tiempo descarga
+    { wch: 18 },            // Primero pila
+    { wch: 24 },            // Producto
+    { wch: 14 },            // Matrícula
+    { wch: 13 }             // Neto
   ];
 
   ws["!rows"] = [
