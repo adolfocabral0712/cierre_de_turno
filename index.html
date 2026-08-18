@@ -960,8 +960,11 @@
 
     <div class="cierre-export-wrap">
       <button type="button" class="cierre-export-btn" id="btnExportarCierreExcel">
-        Exportar a Excel
+        Exportar y preparar correo
       </button>
+    </div>
+    <div class="fecha-info" style="margin-top:-6px; margin-bottom:12px;">
+      El botón descarga el Excel y abre un correo nuevo para adjuntarlo.
     </div>
 
     <div class="table-card">
@@ -2668,10 +2671,41 @@ function exportarCierreTurnoExcel() {
     ? fecha.replaceAll("-", "")
     : "sin_fecha";
 
+  const nombreArchivo =
+    `Descarga_Cierre_Turno_${nombreFecha}.xlsx`;
+
+  // Primero genera y descarga el Excel
   XLSX.writeFile(
     wb,
-    `Descarga_Cierre_Turno_${nombreFecha}.xlsx`
+    nombreArchivo
   );
+
+  // Luego prepara el correo en Outlook / cliente de correo predeterminado.
+  // Por seguridad del navegador, el archivo descargado NO puede adjuntarse
+  // automáticamente desde un mailto:. El correo queda preparado para adjuntarlo.
+  const para = [
+    "laboratorio@ffu.com.uy",
+    "a.ruggiero@ffu.com.uy"
+  ].join(",");
+
+  const cc = "logma@fas.com.uy";
+
+  const asunto =
+    `Descarga ${fechaUY(fecha)}`;
+
+  const cuerpo =
+    "Saludos.";
+
+  const mailto =
+    `mailto:${para}` +
+    `?cc=${encodeURIComponent(cc)}` +
+    `&subject=${encodeURIComponent(asunto)}` +
+    `&body=${encodeURIComponent(cuerpo)}`;
+
+  // Pequeña demora para permitir que comience la descarga del Excel
+  setTimeout(() => {
+    window.location.href = mailto;
+  }, 500);
 }
 
 $("btnExportarCierreExcel").addEventListener(
