@@ -1006,14 +1006,12 @@
    Si después usás Dropbox o Cloudflare, reemplazá solamente
    esta constante por la URL directa del JSON.
 */
-const JSON_URL = "https://dl.dropbox.com/scl/fi/439wwzcj91fifxlbhi6vy/MuestrasCierre.json?rlkey=k5v092rq9pw960pjwoe5rb3fd&dl=1";
+const JSON_URL = "/api/muestras";
 
-const JSON_DESCARGAS_URL =
-  "https://dl.dropbox.com/scl/fi/eo971dn4yrjz5h71qkh2b/EstadoDescargaRemitos.json?rlkey=j5udth4t07t8vpaoyqel87j93&dl=1";
+const JSON_DESCARGAS_URL = "/api/descargas";
 
 
-const JSON_CIERRE_TURNO_URL =
-  "https://dl.dropbox.com/scl/fi/u60rutxb6znq6oxtuhspi/DescargaCierreTurno.json?rlkey=h2nzakpz2np5xoj0avdlbg8j9&dl=1";
+const JSON_CIERRE_TURNO_URL = "/api/cierre";
 
 
 /* ============================================================
@@ -1028,6 +1026,13 @@ const meses = [
 ];
 
 const $ = id => document.getElementById(id);
+
+
+function urlSinCache(url) {
+  const separador = url.includes("?") ? "&" : "?";
+  return `${url}${separador}t=${Date.now()}`;
+}
+
 
 
 /* ============================================================
@@ -1138,9 +1143,7 @@ function fechaHoraActualizacion(valor) {
    ============================================================ */
 async function cargarDatos() {
   try {
-    const respuesta = await fetch(`${JSON_URL}?t=${Date.now()}`, {
-      cache: "no-store"
-    });
+    const respuesta = await fetch(urlSinCache(JSON_URL), { cache: "no-store" });
 
     if (!respuesta.ok) {
       throw new Error(`HTTP ${respuesta.status}`);
@@ -1835,9 +1838,7 @@ function valorDescarga(r, ...campos) {
 
 async function cargarDescargasPendientes() {
   try {
-    const respuesta = await fetch(`${JSON_DESCARGAS_URL}&t=${Date.now()}`, {
-      cache: "no-store"
-    });
+    const respuesta = await fetch(urlSinCache(JSON_DESCARGAS_URL), { cache: "no-store" });
 
     if (!respuesta.ok) {
       throw new Error(`HTTP ${respuesta.status}`);
@@ -2275,7 +2276,7 @@ function cierreRender(fecha) {
 async function cargarCierreTurno() {
   try {
     const respuesta = await fetch(
-      `${JSON_CIERRE_TURNO_URL}&t=${Date.now()}`,
+      urlSinCache(JSON_CIERRE_TURNO_URL),
       { cache:"no-store" }
     );
 
@@ -2704,7 +2705,7 @@ function exportarCierreTurnoExcel() {
   // Por seguridad del navegador, el archivo descargado NO puede adjuntarse
   // automáticamente desde un mailto:. El correo queda preparado para adjuntarlo.
   const para = [
-    "laboratorio@ffu.com.uy";
+    "laboratorio@ffu.com.uy",
     "a.ruggiero@ffu.com.uy"
   ].join(",");
 
