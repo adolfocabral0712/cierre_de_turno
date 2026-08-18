@@ -333,7 +333,7 @@
     <div class="kpi">
       <div class="kpi-label">Viajes</div>
       <div class="kpi-value" id="kpiViajes">0</div>
-      <div class="kpi-note">Remitos del período seleccionado</div>
+      <div class="kpi-note">Remitos del mes operativo actual</div>
     </div>
 
     <div class="kpi">
@@ -351,7 +351,7 @@
     <div class="kpi">
       <div class="kpi-label">Promedio de densidad</div>
       <div class="kpi-value" id="kpiDensidad">0,000</div>
-      <div class="kpi-note">Promedio ponderado del período</div>
+      <div class="kpi-note">Promedio ponderado del mes actual</div>
     </div>
   </div>
 
@@ -916,14 +916,31 @@ function ultimaFechaGeneral() {
   return fechas.length ? fechas[0] : "";
 }
 
-function registrosMesActual() {
+function periodoOperativoActual() {
   const ultima = ultimaFechaGeneral();
-  if (!ultima) return [];
+  if (!ultima) return null;
 
-  const prefijo = ultima.substring(0,7);
+  const registroReferencia = datosOriginales.find(r =>
+    String(r.fecha || "").substring(0,10) === ultima
+  );
+
+  if (!registroReferencia) return null;
+
+  return {
+    fecha: ultima,
+    ano: String(registroReferencia.ano ?? ""),
+    mes_numero: String(registroReferencia.mes_numero ?? ""),
+    mes: String(registroReferencia.mes ?? "")
+  };
+}
+
+function registrosMesActual() {
+  const periodo = periodoOperativoActual();
+  if (!periodo) return [];
 
   return datosOriginales.filter(r =>
-    String(r.fecha || "").substring(0,7) === prefijo
+    String(r.ano ?? "") === periodo.ano &&
+    String(r.mes_numero ?? "") === periodo.mes_numero
   );
 }
 
@@ -977,25 +994,55 @@ function actualizarTitulo() {
    ============================================================ */
 function actualizarTodo() {
   const filtrados = registrosFiltrados();
-  const resumenSeleccionado = agrupar(filtrados);
 
   actualizarTitulo();
-  renderKpis(resumenSeleccionado);
 
   // --------------------------------------------------------
-  // DETALLE DEL DÍA
+  // TARJETAS KPI = MES OPERATIVO ACTUAL
+  // --------------------------------------------------------
+  const periodoActual = periodoOperativoActual();
+  const registrosMes = registrosMesActual();
+  const resumenMes = agrupar(registrosMes);
+
+  renderKpis(resumenMes);
+
+  // --------------------------------------------------------
+  // DETALLE SEGÚN FECHA / MES FILTRADO
   // --------------------------------------------------------
   const fechaSeleccionada = $("filtroFecha").value;
 
-  const registrosDia = datosOriginales.filter(r =>
-    String(r.fecha || "").substring(0,10) === fechaSeleccionada
-  );
+  let resumenDia;
+  let tituloDetalle;
 
-  const resumenDia = agrupar(registrosDia);
+  if (fechaSeleccionada) {
+    const registrosDia = datosOriginales.filter(r =>
+      String(r.fecha || "").substring(0,10) === fechaSeleccionada
+    );
 
-  $("tituloDetalleDia").textContent = fechaSeleccionada
-    ? `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`
-    : "Detalle resumido del día";
+    resumenDia = agrupar(registrosDia);
+    tituloDetalle = `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`;
+
+  } else {
+    const anoSeleccionado = $("filtroAno").value;
+    const mesSeleccionado = $("filtroMes").value;
+
+    const registrosMesFiltrado = datosOriginales.filter(r =>
+      (!anoSeleccionado || String(r.ano) === anoSeleccionado) &&
+      (!mesSeleccionado || String(r.mes_numero) === mesSeleccionado)
+    );
+
+    resumenDia = agrupar(registrosMesFiltrado);
+
+    if (anoSeleccionado && mesSeleccionado) {
+      tituloDetalle = `Detalle resumido del mes - ${meses[Number(mesSeleccionado)]} ${anoSeleccionado}`;
+    } else if (anoSeleccionado) {
+      tituloDetalle = `Detalle resumido del año - ${anoSeleccionado}`;
+    } else {
+      tituloDetalle = "Detalle resumido";
+    }
+  }
+
+  $("tituloDetalleDia").textContent = tituloDetalle;
 
   renderTablaResumen(
     resumenDia,
@@ -1011,16 +1058,9 @@ function actualizarTodo() {
   // --------------------------------------------------------
   // DETALLE DEL MES ACTUAL
   // --------------------------------------------------------
-  const ultimaFecha = ultimaFechaGeneral();
-  const registrosMes = registrosMesActual();
-  const resumenMes = agrupar(registrosMes);
-
-  if (ultimaFecha) {
-    const nMes = Number(ultimaFecha.substring(5,7));
-    const anoMes = ultimaFecha.substring(0,4);
-
+  if (periodoActual) {
     $("tituloDetalleMes").textContent =
-      `Detalle resumido del mes actual - ${meses[nMes]} ${anoMes}`;
+      `Detalle resumido del mes actual - ${periodoActual.mes} ${periodoActual.ano}`;
   } else {
     $("tituloDetalleMes").textContent =
       "Detalle resumido del mes actual";
