@@ -139,6 +139,7 @@
       border-radius:var(--radius);
       padding:16px;
       box-shadow:var(--shadow);
+      text-align:center;
     }
 
     .kpi-label{
@@ -196,9 +197,10 @@
     }
 
     table{
-      width:100%;
+      width:max-content;
+      min-width:100%;
       border-collapse:collapse;
-      min-width:1100px;
+      table-layout:auto;
     }
 
     thead th{
@@ -209,7 +211,7 @@
       color:#f7f9fb;
       text-align:left;
       font-size:12px;
-      padding:10px 10px;
+      padding:9px 7px;
       border-bottom:1px solid #3a4654;
       white-space:nowrap;
       cursor:pointer;
@@ -223,7 +225,7 @@
     }
 
     tbody td{
-      padding:9px 10px;
+      padding:8px 7px;
       border-bottom:1px solid #202a35;
       font-size:13px;
       white-space:nowrap;
@@ -237,7 +239,7 @@
       position:sticky;
       bottom:0;
       background:#202a35;
-      padding:10px;
+      padding:9px 7px;
       font-weight:700;
       border-top:1px solid #3a4654;
       font-size:13px;
@@ -355,35 +357,68 @@
 
   <div class="table-card">
     <div class="table-head">
-      <div class="table-title">Detalle resumido</div>
-      <div class="record-count" id="recordCount">0 registros</div>
+      <div class="table-title" id="tituloDetalleDia">Detalle resumido del día</div>
+      <div class="record-count" id="recordCountDia">0 registros</div>
     </div>
 
     <div class="table-scroll">
       <table>
         <thead>
           <tr>
-            <th data-key="deposito">Depósito</th>
-            <th data-key="origen">Origen</th>
-            <th data-key="cosecha">Cosecha</th>
-            <th data-key="certificacion">Certificación</th>
-            <th data-key="nombre_prod">Producto</th>
-            <th class="num" data-key="promedio_densidad">Promedio densidad</th>
-            <th class="num" data-key="viajes">Viajes</th>
-            <th class="num" data-key="muestras">Muestras</th>
-            <th class="num" data-key="porcentaje_muestreo">% Muestreo</th>
+            <th>Depósito</th>
+            <th>Origen</th>
+            <th>Cosecha</th>
+            <th>Certificación</th>
+            <th>Producto</th>
+            <th class="num">Promedio densidad</th>
+            <th class="num">Viajes</th>
+            <th class="num">Muestras</th>
+            <th class="num">% Muestreo</th>
           </tr>
         </thead>
-
-        <tbody id="tbody"></tbody>
-
+        <tbody id="tbodyDia"></tbody>
         <tfoot>
           <tr>
-            <td colspan="5">Total general</td>
-            <td class="num" id="totalDensidad">0,000</td>
-            <td class="num" id="totalViajes">0</td>
-            <td class="num" id="totalMuestras">0</td>
-            <td class="num" id="totalPorcentaje">0,00%</td>
+            <td colspan="5">Total día</td>
+            <td class="num" id="totalDensidadDia">0,000</td>
+            <td class="num" id="totalViajesDia">0</td>
+            <td class="num" id="totalMuestrasDia">0</td>
+            <td class="num" id="totalPorcentajeDia">0,00%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-card" style="margin-top:16px;">
+    <div class="table-head">
+      <div class="table-title" id="tituloDetalleMes">Detalle resumido del mes actual</div>
+      <div class="record-count" id="recordCountMes">0 registros</div>
+    </div>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Depósito</th>
+            <th>Origen</th>
+            <th>Cosecha</th>
+            <th>Certificación</th>
+            <th>Producto</th>
+            <th class="num">Promedio densidad</th>
+            <th class="num">Viajes</th>
+            <th class="num">Muestras</th>
+            <th class="num">% Muestreo</th>
+          </tr>
+        </thead>
+        <tbody id="tbodyMes"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="5">Total mes</td>
+            <td class="num" id="totalDensidadMes">0,000</td>
+            <td class="num" id="totalViajesMes">0</td>
+            <td class="num" id="totalMuestrasMes">0</td>
+            <td class="num" id="totalPorcentajeMes">0,00%</td>
           </tr>
         </tfoot>
       </table>
@@ -410,9 +445,6 @@ const JSON_URL = "https://dl.dropbox.com/scl/fi/439wwzcj91fifxlbhi6vy/MuestrasCi
    VARIABLES
    ============================================================ */
 let datosOriginales = [];
-let datosTabla = [];
-let sortKey = "origen";
-let sortAsc = true;
 
 const meses = [
   "",
@@ -438,6 +470,21 @@ function numero(valor, decimales = 0) {
 
 function porcentaje(valor) {
   return `${numero(valor, 2)}%`;
+}
+
+function normalizarCertificacion(valor) {
+  const v = String(valor ?? "").trim();
+  const u = v.toUpperCase();
+
+  if (u === "FSC MIXTO") {
+    return "FSC 100%";
+  }
+
+  if (u === "CONTROLADO FSC") {
+    return "FSC CW";
+  }
+
+  return v;
 }
 
 function fechaUY(valor) {
@@ -629,11 +676,9 @@ function actualizarFiltroSemana() {
 }
 
 function actualizarFiltroFecha() {
-  const actual = $("filtroFecha").value;
-
   const fechas = valoresUnicos(
     datosSegunAnoMesSemana().map(r => String(r.fecha).substring(0,10))
-  ).sort((a,b) => a.localeCompare(b));
+  ).sort((a,b) => b.localeCompare(a));
 
   $("filtroFecha").innerHTML = "";
 
@@ -649,8 +694,11 @@ function actualizarFiltroFecha() {
     $("filtroFecha").appendChild(op);
   });
 
-  if ([...$("filtroFecha").options].some(o => o.value === actual)) {
-    $("filtroFecha").value = actual;
+  // Siempre seleccionar automáticamente la última fecha disponible
+  if (fechas.length > 0) {
+    $("filtroFecha").value = fechas[0];
+  } else {
+    $("filtroFecha").value = "";
   }
 }
 
@@ -688,7 +736,7 @@ function agrupar(registros) {
       r.deposito ?? "",
       r.origen ?? "",
       r.cosecha ?? "",
-      r.certificacion ?? "",
+      normalizarCertificacion(r.certificacion),
       r.nombre_prod ?? ""
     ].join("|||");
 
@@ -697,7 +745,7 @@ function agrupar(registros) {
         deposito: r.deposito ?? "",
         origen: r.origen ?? "",
         cosecha: r.cosecha ?? "",
-        certificacion: r.certificacion ?? "",
+        certificacion: normalizarCertificacion(r.certificacion),
         nombre_prod: r.nombre_prod ?? "",
         viajes: 0,
         muestras: 0,
@@ -791,78 +839,62 @@ function calcularTotales(registrosAgrupados) {
 
 
 /* ============================================================
-   TABLA
+   TABLAS
    ============================================================ */
-function ordenarDatos() {
-  datosTabla.sort((a,b) => {
-    let va = a[sortKey];
-    let vb = b[sortKey];
-
-    const na = Number(va);
-    const nb = Number(vb);
-
-    if (
-      va !== "" &&
-      vb !== "" &&
-      Number.isFinite(na) &&
-      Number.isFinite(nb)
-    ) {
-      return sortAsc ? na - nb : nb - na;
-    }
-
-    va = String(va ?? "").toLocaleLowerCase("es");
-    vb = String(vb ?? "").toLocaleLowerCase("es");
-
-    return sortAsc
-      ? va.localeCompare(vb, "es")
-      : vb.localeCompare(va, "es");
-  });
+function ordenarPorOrigen(registros) {
+  return [...registros].sort((a,b) =>
+    String(a.origen ?? "").localeCompare(String(b.origen ?? ""), "es")
+  );
 }
 
-function renderTabla() {
-  ordenarDatos();
+function renderTablaResumen(registros, tbodyId, countId) {
+  const datos = ordenarPorOrigen(registros);
+  const tbody = $(tbodyId);
 
-  const tbody = $("tbody");
-
-  if (!datosTabla.length) {
+  if (!datos.length) {
     tbody.innerHTML = `
       <tr>
         <td colspan="9" class="empty">
-          No hay registros para los filtros seleccionados.
+          No hay registros para este período.
         </td>
       </tr>
     `;
-
-    $("recordCount").textContent = "0 registros";
+    $(countId).textContent = "0 registros";
     return;
   }
 
-  tbody.innerHTML = datosTabla.map(r => `
+  tbody.innerHTML = datos.map(r => `
     <tr>
       <td>${esc(r.deposito)}</td>
       <td>${esc(r.origen)}</td>
       <td>${esc(r.cosecha)}</td>
       <td>${esc(r.certificacion)}</td>
       <td>${esc(r.nombre_prod)}</td>
-
-      <td class="num">
-        ${r.promedio_densidad == null
-          ? "-"
-          : numero(r.promedio_densidad, 3)}
-      </td>
-
+      <td class="num">${r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3)}</td>
       <td class="num">${numero(r.viajes, 0)}</td>
-
       <td class="num">${numero(r.muestras, 0)}</td>
-
-      <td class="num pct-good">
-        ${porcentaje(r.porcentaje_muestreo)}
-      </td>
+      <td class="num pct-good">${porcentaje(r.porcentaje_muestreo)}</td>
     </tr>
   `).join("");
 
-  $("recordCount").textContent =
-    `${datosTabla.length.toLocaleString("es-UY")} registros`;
+  $(countId).textContent =
+    `${datos.length.toLocaleString("es-UY")} registros`;
+}
+
+function renderTotalesResumen(registros, sufijo) {
+  const total = calcularTotales(registros);
+
+  $(`totalDensidad${sufijo}`).textContent =
+    total.densidad == null ? "-" : numero(total.densidad, 3);
+
+  $(`totalViajes${sufijo}`).textContent =
+    numero(total.viajes, 0);
+
+  $(`totalMuestras${sufijo}`).textContent =
+    numero(total.muestras, 0);
+
+  $(`totalPorcentaje${sufijo}`).textContent =
+    porcentaje(total.porcentaje);
 }
 
 function esc(valor) {
@@ -874,12 +906,32 @@ function esc(valor) {
     .replaceAll("'", "&#039;");
 }
 
+function ultimaFechaGeneral() {
+  const fechas = valoresUnicos(
+    datosOriginales
+      .map(r => String(r.fecha || "").substring(0,10))
+      .filter(Boolean)
+  ).sort((a,b) => b.localeCompare(a));
+
+  return fechas.length ? fechas[0] : "";
+}
+
+function registrosMesActual() {
+  const ultima = ultimaFechaGeneral();
+  if (!ultima) return [];
+
+  const prefijo = ultima.substring(0,7);
+
+  return datosOriginales.filter(r =>
+    String(r.fecha || "").substring(0,7) === prefijo
+  );
+}
 
 /* ============================================================
    KPI + TÍTULO
    ============================================================ */
-function renderTotales() {
-  const total = calcularTotales(datosTabla);
+function renderKpis(registros) {
+  const total = calcularTotales(registros);
 
   $("kpiViajes").textContent =
     numero(total.viajes, 0);
@@ -891,20 +943,6 @@ function renderTotales() {
     porcentaje(total.porcentaje);
 
   $("kpiDensidad").textContent =
-    total.densidad == null
-      ? "-"
-      : numero(total.densidad, 3);
-
-  $("totalViajes").textContent =
-    numero(total.viajes, 0);
-
-  $("totalMuestras").textContent =
-    numero(total.muestras, 0);
-
-  $("totalPorcentaje").textContent =
-    porcentaje(total.porcentaje);
-
-  $("totalDensidad").textContent =
     total.densidad == null
       ? "-"
       : numero(total.densidad, 3);
@@ -939,12 +977,65 @@ function actualizarTitulo() {
    ============================================================ */
 function actualizarTodo() {
   const filtrados = registrosFiltrados();
-
-  datosTabla = agrupar(filtrados);
+  const resumenSeleccionado = agrupar(filtrados);
 
   actualizarTitulo();
-  renderTabla();
-  renderTotales();
+  renderKpis(resumenSeleccionado);
+
+  // --------------------------------------------------------
+  // DETALLE DEL DÍA
+  // --------------------------------------------------------
+  const fechaSeleccionada = $("filtroFecha").value;
+
+  const registrosDia = datosOriginales.filter(r =>
+    String(r.fecha || "").substring(0,10) === fechaSeleccionada
+  );
+
+  const resumenDia = agrupar(registrosDia);
+
+  $("tituloDetalleDia").textContent = fechaSeleccionada
+    ? `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`
+    : "Detalle resumido del día";
+
+  renderTablaResumen(
+    resumenDia,
+    "tbodyDia",
+    "recordCountDia"
+  );
+
+  renderTotalesResumen(
+    resumenDia,
+    "Dia"
+  );
+
+  // --------------------------------------------------------
+  // DETALLE DEL MES ACTUAL
+  // --------------------------------------------------------
+  const ultimaFecha = ultimaFechaGeneral();
+  const registrosMes = registrosMesActual();
+  const resumenMes = agrupar(registrosMes);
+
+  if (ultimaFecha) {
+    const nMes = Number(ultimaFecha.substring(5,7));
+    const anoMes = ultimaFecha.substring(0,4);
+
+    $("tituloDetalleMes").textContent =
+      `Detalle resumido del mes actual - ${meses[nMes]} ${anoMes}`;
+  } else {
+    $("tituloDetalleMes").textContent =
+      "Detalle resumido del mes actual";
+  }
+
+  renderTablaResumen(
+    resumenMes,
+    "tbodyMes",
+    "recordCountMes"
+  );
+
+  renderTotalesResumen(
+    resumenMes,
+    "Mes"
+  );
 }
 
 
@@ -970,21 +1061,6 @@ $("filtroSemana").addEventListener("change", () => {
 });
 
 $("filtroFecha").addEventListener("change", actualizarTodo);
-
-document.querySelectorAll("thead th[data-key]").forEach(th => {
-  th.addEventListener("click", () => {
-    const key = th.dataset.key;
-
-    if (sortKey === key) {
-      sortAsc = !sortAsc;
-    } else {
-      sortKey = key;
-      sortAsc = true;
-    }
-
-    renderTabla();
-  });
-});
 
 
 /* ============================================================
