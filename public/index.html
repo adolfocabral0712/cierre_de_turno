@@ -1830,7 +1830,7 @@ $("filtroFecha").addEventListener("change", actualizarTodo);
    ============================================================ */
 function textoTablaCorreo(registros) {
   if (!registros.length) {
-    return "Sin registros para la fecha seleccionada.";
+    return "No hay registros para la fecha seleccionada.";
   }
 
   return registros.map((r, i) => {
@@ -1841,12 +1841,12 @@ function textoTablaCorreo(registros) {
 
     return [
       `${i + 1}. ${r.origen ?? "-"}`,
-      `   Depósito: ${r.deposito ?? "-"}`,
-      `   Cosecha: ${r.cosecha ?? "-"}`,
-      `   Certificación: ${r.certificacion ?? "-"}`,
-      `   Producto: ${r.nombre_prod ?? "-"}`,
-      `   Prom. densidad: ${densidad}`,
-      `   Viajes: ${numero(r.viajes, 0)} | Muestras: ${numero(r.muestras, 0)} | % Muestreo: ${porcentaje(r.porcentaje_muestreo)}`
+      `Depósito: ${r.deposito ?? "-"}`,
+      `Cosecha: ${r.cosecha ?? "-"}`,
+      `Certificación: ${r.certificacion ?? "-"}`,
+      `Producto: ${r.nombre_prod ?? "-"}`,
+      `Prom. densidad: ${densidad}`,
+      `Viajes: ${numero(r.viajes, 0)} | Muestras: ${numero(r.muestras, 0)} | % Muestreo: ${porcentaje(r.porcentaje_muestreo)}`
     ].join("\n");
   }).join("\n\n");
 }
@@ -1861,13 +1861,109 @@ function bloqueTotalesCorreo(titulo, total) {
   ].join("\n");
 }
 
-function prepararCorreoMuestras() {
+function tablaHtmlCorreo(registros, total, titulo) {
+  const filas = registros.length
+    ? registros.map(r => `
+      <tr>
+        <td>${esc(r.deposito)}</td>
+        <td>${esc(r.origen)}</td>
+        <td>${esc(r.cosecha)}</td>
+        <td>${esc(r.certificacion)}</td>
+        <td>${esc(r.nombre_prod)}</td>
+        <td style="text-align:right;">${r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3)}</td>
+        <td style="text-align:right;">${numero(r.viajes, 0)}</td>
+        <td style="text-align:right;">${numero(r.muestras, 0)}</td>
+        <td style="text-align:right;">${porcentaje(r.porcentaje_muestreo)}</td>
+      </tr>
+    `).join("")
+    : `
+      <tr>
+        <td colspan="9" style="text-align:center;padding:18px;">
+          No hay registros para la fecha seleccionada.
+        </td>
+      </tr>
+    `;
+
+  return `
+    <div style="font-family:Segoe UI,Arial,sans-serif;color:#111827;margin:0 0 24px 0;">
+      <div style="
+        font-size:16px;
+        font-weight:700;
+        color:#198754;
+        margin-bottom:8px;
+      ">
+        ${esc(titulo)}
+      </div>
+
+      <table cellpadding="0" cellspacing="0" style="
+        border-collapse:collapse;
+        width:100%;
+        font-size:12px;
+        border:1px solid #cbd5e1;
+      ">
+        <thead>
+          <tr style="background:#e9eef3;">
+            <th style="border:1px solid #cbd5e1;padding:7px;">Depósito</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Origen</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Cosecha</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Certificación</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Producto</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Promedio densidad</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Viajes</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">Muestras</th>
+            <th style="border:1px solid #cbd5e1;padding:7px;">% Muestreo</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          ${filas}
+        </tbody>
+
+        <tfoot>
+          <tr style="background:#e9eef3;font-weight:700;">
+            <td colspan="5" style="border:1px solid #cbd5e1;padding:7px;">
+              Total
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
+              ${total.densidad == null ? "-" : numero(total.densidad, 3)}
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
+              ${numero(total.viajes, 0)}
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
+              ${numero(total.muestras, 0)}
+            </td>
+            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
+              ${porcentaje(total.porcentaje)}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
+
+async function copiarCorreoHtml(htmlCorreo, textoPlano) {
+  if (
+    navigator.clipboard &&
+    window.ClipboardItem
+  ) {
+    const item = new ClipboardItem({
+      "text/html": new Blob([htmlCorreo], { type: "text/html" }),
+      "text/plain": new Blob([textoPlano], { type: "text/plain" })
+    });
+
+    await navigator.clipboard.write([item]);
+    return true;
+  }
+
+  return false;
+}
+
+async function prepararCorreoMuestras() {
   const fechaSeleccionada = $("filtroFecha").value;
   const periodoActual = periodoOperativoActual();
 
-  // ----------------------------------------------------------
-  // DETALLE DÍA
-  // ----------------------------------------------------------
   let resumenDia = [];
 
   if (fechaSeleccionada) {
@@ -1880,9 +1976,6 @@ function prepararCorreoMuestras() {
 
   const totalDia = calcularTotales(resumenDia);
 
-  // ----------------------------------------------------------
-  // DETALLE MES ACTUAL
-  // ----------------------------------------------------------
   const registrosMes = registrosMesActual();
   const resumenMes = agrupar(registrosMes);
   const totalMes = calcularTotales(resumenMes);
@@ -1895,41 +1988,84 @@ function prepararCorreoMuestras() {
     ? `${periodoActual.mes} ${periodoActual.ano}`
     : "Sin información";
 
-  const separador = "────────────────────────────────────────";
+  const asunto = `Muestras al cierre - ${tituloFecha}`;
 
-  const cuerpo = [
+  const htmlCorreo = `
+    <div style="font-family:Segoe UI,Arial,sans-serif;color:#111827;">
+      <div style="
+        font-size:18px;
+        font-weight:700;
+        margin-bottom:18px;
+      ">
+        MUESTRAS AL CIERRE - ${esc(tituloFecha)}
+      </div>
+
+      ${tablaHtmlCorreo(
+        resumenDia,
+        totalDia,
+        `Detalle resumido del día - ${tituloFecha}`
+      )}
+
+      ${tablaHtmlCorreo(
+        resumenMes,
+        totalMes,
+        `Detalle resumido del mes actual - ${tituloMes}`
+      )}
+
+      <div style="margin-top:22px;">
+        Saludos.
+      </div>
+    </div>
+  `;
+
+  const textoPlano = [
     `MUESTRAS AL CIERRE - ${tituloFecha}`,
-    separador,
     "",
-    `DETALLE RESUMIDO DEL DÍA`,
-    `Fecha: ${tituloFecha}`,
+    `DETALLE RESUMIDO DEL DÍA - ${tituloFecha}`,
     "",
     textoTablaCorreo(resumenDia),
     "",
     bloqueTotalesCorreo("TOTAL DÍA", totalDia),
     "",
-    separador,
-    "",
-    `DETALLE RESUMIDO DEL MES ACTUAL`,
-    `Período: ${tituloMes}`,
+    `DETALLE RESUMIDO DEL MES ACTUAL - ${tituloMes}`,
     "",
     textoTablaCorreo(resumenMes),
     "",
     bloqueTotalesCorreo("TOTAL MES", totalMes),
     "",
-    separador,
-    "",
     "Saludos."
   ].join("\n");
 
-  const asunto = `Muestras al cierre - ${tituloFecha}`;
+  let copiadoHtml = false;
+
+  try {
+    copiadoHtml = await copiarCorreoHtml(
+      htmlCorreo,
+      textoPlano
+    );
+  } catch (error) {
+    console.warn("No fue posible copiar HTML al portapapeles:", error);
+  }
 
   const mailto =
     `mailto:` +
-    `?subject=${encodeURIComponent(asunto)}` +
-    `&body=${encodeURIComponent(cuerpo)}`;
+    `?subject=${encodeURIComponent(asunto)}`;
 
   window.location.href = mailto;
+
+  setTimeout(() => {
+    if (copiadoHtml) {
+      alert(
+        "El resumen fue copiado con formato de tabla.\n\n" +
+        "En el cuerpo del correo presioná Ctrl+V para pegarlo."
+      );
+    } else {
+      alert(
+        "No fue posible copiar el formato enriquecido.\n" +
+        "Podés copiar el resumen manualmente desde el dashboard."
+      );
+    }
+  }, 600);
 }
 
 $("btnPrepararCorreoMuestras").addEventListener(
