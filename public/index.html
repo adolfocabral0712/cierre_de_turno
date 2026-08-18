@@ -748,6 +748,142 @@
       transform:translateY(1px);
     }
 
+  
+    /* ============================================================
+       PANTALLA PRINCIPAL - INFORMACIÓN AL CIERRE DE TURNO
+       ============================================================ */
+    .home-screen{
+      min-height:78vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:28px 16px;
+    }
+
+    .home-title{
+      margin:0 0 10px 0;
+      color:lime;
+      font-size:32px;
+      font-weight:800;
+      letter-spacing:.8px;
+      text-align:center;
+      text-transform:uppercase;
+    }
+
+    .home-subtitle{
+      color:var(--muted);
+      font-size:14px;
+      text-align:center;
+      margin-bottom:30px;
+    }
+
+    .home-buttons{
+      width:min(1100px,100%);
+      display:grid;
+      grid-template-columns:repeat(3, minmax(220px,1fr));
+      gap:18px;
+    }
+
+    .home-btn{
+      min-height:150px;
+      background:var(--panel);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px 18px;
+      cursor:pointer;
+      transition:.2s ease;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .home-btn:hover{
+      border-color:lime;
+      transform:translateY(-2px);
+      background:#151e27;
+    }
+
+    .home-btn-title{
+      color:lime;
+      font-size:18px;
+      font-weight:800;
+      letter-spacing:.5px;
+      text-transform:uppercase;
+    }
+
+    .home-btn-note{
+      margin-top:8px;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+    }
+
+    .section-view{
+      display:none;
+    }
+
+    .section-view.active{
+      display:block;
+    }
+
+    .section-nav{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      margin:0 0 18px 0;
+      padding:10px 12px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-nav-title{
+      font-weight:800;
+      color:lime;
+      text-transform:uppercase;
+      font-size:13px;
+      letter-spacing:.5px;
+    }
+
+    .section-nav-btns{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .nav-btn{
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:8px 11px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .nav-btn:hover{
+      border-color:lime;
+    }
+
+    @media(max-width:800px){
+      .home-buttons{
+        grid-template-columns:1fr;
+      }
+
+      .home-title{
+        font-size:25px;
+      }
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
@@ -755,6 +891,40 @@
 <body>
 <div class="dashboard">
 
+<div class="home-screen" id="homeScreen">
+  <h1 class="home-title">INFORMACIÓN AL CIERRE DE TURNO</h1>
+  <div class="home-subtitle">
+    Seleccioná la información que querés consultar.
+  </div>
+
+  <div class="home-buttons">
+    <button class="home-btn" type="button" data-section="muestrasView">
+      <div class="home-btn-title">MUESTRAS AL CIERRE</div>
+      <div class="home-btn-note">Resumen diario y mensual de muestreo.</div>
+    </button>
+
+    <button class="home-btn" type="button" data-section="pendientesView">
+      <div class="home-btn-title">PENDIENTES DE DESCARGA</div>
+      <div class="home-btn-note">Camiones que restan descargar por destino.</div>
+    </button>
+
+    <button class="home-btn" type="button" data-section="cierreView">
+      <div class="home-btn-title">DESCARGA AL CIERRE</div>
+      <div class="home-btn-note">Descargas realizadas, tiempos y toneladas.</div>
+    </button>
+  </div>
+</div>
+
+
+  <div class="section-view" id="muestrasView">
+    <div class="section-nav">
+      <div class="section-nav-title">Muestras al cierre</div>
+      <div class="section-nav-btns">
+        <button type="button" class="nav-btn" data-home>Inicio</button>
+        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
+        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+      </div>
+    </div>
   <div class="topbar">
     <div class="title-wrap">
       <h1 id="titulo">Muestras al cierre</h1>
@@ -899,6 +1069,17 @@
   </div>
 
 
+  </div>
+
+  <div class="section-view" id="pendientesView">
+    <div class="section-nav">
+      <div class="section-nav-title">Pendientes de descarga</div>
+      <div class="section-nav-btns">
+        <button type="button" class="nav-btn" data-home>Inicio</button>
+        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
+        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+      </div>
+    </div>
   <div class="descargas-section">
     <div class="update-box" style="margin-bottom:18px;">
       <div class="update-label">Última actualización</div>
@@ -933,6 +1114,17 @@
   </div>
 
 
+  </div>
+
+  <div class="section-view" id="cierreView">
+    <div class="section-nav">
+      <div class="section-nav-title">Descarga al cierre</div>
+      <div class="section-nav-btns">
+        <button type="button" class="nav-btn" data-home>Inicio</button>
+        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
+        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
+      </div>
+    </div>
   <div class="cierre-section">
     <div class="update-box" style="margin-bottom:18px;">
       <div class="update-label">Última actualización</div>
@@ -1026,10 +1218,51 @@
       </div>
     </div>
   </div>
-
+  </div>
 </div>
 
 <script>
+
+/* ============================================================
+   NAVEGACIÓN PRINCIPAL
+   ============================================================ */
+function mostrarPantallaPrincipal() {
+  $("homeScreen").style.display = "flex";
+
+  document.querySelectorAll(".section-view").forEach(section => {
+    section.classList.remove("active");
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+function mostrarSeccion(id) {
+  $("homeScreen").style.display = "none";
+
+  document.querySelectorAll(".section-view").forEach(section => {
+    section.classList.toggle("active", section.id === id);
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+}
+
+document.querySelectorAll("[data-section]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    mostrarSeccion(btn.dataset.section);
+  });
+});
+
+document.querySelectorAll("[data-home]").forEach(btn => {
+  btn.addEventListener("click", mostrarPantallaPrincipal);
+});
+
+
 /* ============================================================
    CONFIGURACIÓN
    ============================================================
