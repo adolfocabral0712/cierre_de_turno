@@ -884,6 +884,403 @@
       }
     }
 
+  
+    /* ============================================================
+       NORMALIZACIÓN DE ENCABEZADOS DE LAS 3 SECCIONES
+       ============================================================ */
+
+    .section-view{
+      padding-top:0;
+    }
+
+    .section-view .section-nav{
+      margin:0 0 28px 0;
+    }
+
+    /* Quitar las líneas antiguas heredadas entre secciones */
+    .descargas-section,
+    .cierre-section{
+      margin-top:0;
+      padding-top:0;
+      border-top:none !important;
+    }
+
+    /* ------------------------------------------------------------
+       MUESTRAS
+       Orden visual:
+       1) navegación
+       2) última actualización
+       3) título centrado
+       ------------------------------------------------------------ */
+    #muestrasView .topbar{
+      display:flex;
+      flex-direction:column;
+      align-items:stretch;
+      gap:0;
+      margin-bottom:18px;
+    }
+
+    #muestrasView .update-box{
+      order:1;
+      width:250px;
+      min-width:250px;
+      margin:0 0 28px 0;
+    }
+
+    #muestrasView .title-wrap{
+      order:2;
+      width:100%;
+      padding-top:0;
+      margin:0 0 18px 0;
+      text-align:center;
+    }
+
+    #muestrasView .title-wrap h1{
+      margin:0;
+    }
+
+    /* ------------------------------------------------------------
+       PENDIENTES DE DESCARGA
+       ------------------------------------------------------------ */
+    #pendientesView .descargas-section > .update-box{
+      width:250px;
+      min-width:250px;
+      margin:0 0 28px 0 !important;
+    }
+
+    #pendientesView .descargas-title{
+      margin:0 0 18px 0;
+      text-align:center;
+    }
+
+    /* ------------------------------------------------------------
+       DESCARGA AL CIERRE
+       ------------------------------------------------------------ */
+    #cierreView .cierre-section > .update-box{
+      width:250px;
+      min-width:250px;
+      margin:0 0 28px 0 !important;
+    }
+
+    #cierreView .cierre-title{
+      margin:0 0 18px 0;
+      text-align:center;
+    }
+
+    /* Todos los títulos principales con la misma escala */
+    #muestrasView .title-wrap h1,
+    #pendientesView .descargas-title,
+    #cierreView .cierre-title{
+      font-size:30px;
+      line-height:1.15;
+      font-weight:800;
+      letter-spacing:.7px;
+      color:lime;
+      text-transform:uppercase;
+    }
+
+    /* Alinear las cajas de actualización a la misma izquierda */
+    #muestrasView .update-box,
+    #pendientesView .descargas-section > .update-box,
+    #cierreView .cierre-section > .update-box{
+      margin-left:0 !important;
+      margin-right:auto !important;
+    }
+
+    @media(max-width:560px){
+      #muestrasView .update-box,
+      #pendientesView .descargas-section > .update-box,
+      #cierreView .cierre-section > .update-box{
+        width:100%;
+        min-width:0;
+      }
+
+      #muestrasView .title-wrap h1,
+      #pendientesView .descargas-title,
+      #cierreView .cierre-title{
+        font-size:23px;
+      }
+    }
+
+  
+    /* ============================================================
+       AJUSTES ESPECÍFICOS PARA CELULARES
+       ============================================================ */
+    @media(max-width:700px){
+
+      body{
+        padding:8px;
+        overflow-x:hidden;
+      }
+
+      .dashboard{
+        width:100%;
+        max-width:100%;
+      }
+
+      /* PANTALLA PRINCIPAL */
+      .home-screen{
+        min-height:auto;
+        padding:24px 4px 18px;
+      }
+
+      .home-title{
+        font-size:24px;
+        line-height:1.2;
+        margin-bottom:8px;
+      }
+
+      .home-subtitle{
+        font-size:13px;
+        margin-bottom:20px;
+      }
+
+      .home-buttons{
+        grid-template-columns:1fr;
+        gap:12px;
+      }
+
+      .home-btn{
+        min-height:105px;
+        padding:16px 14px;
+      }
+
+      .home-btn-title{
+        font-size:16px;
+      }
+
+      .home-btn-note{
+        font-size:11px;
+      }
+
+      /* NAVEGACIÓN INTERNA */
+      .section-nav{
+        padding:10px;
+        margin-bottom:18px;
+        align-items:stretch;
+        flex-direction:column;
+      }
+
+      .section-nav-title{
+        text-align:center;
+        font-size:13px;
+        margin-bottom:2px;
+      }
+
+      .section-nav-btns{
+        display:grid;
+        grid-template-columns:repeat(3,1fr);
+        gap:6px;
+        width:100%;
+      }
+
+      .nav-btn{
+        width:100%;
+        padding:9px 5px;
+        font-size:10px;
+        line-height:1.2;
+        min-height:42px;
+      }
+
+      /* ACTUALIZACIÓN */
+      #muestrasView .update-box,
+      #pendientesView .descargas-section > .update-box,
+      #cierreView .cierre-section > .update-box{
+        width:100% !important;
+        min-width:0 !important;
+        margin:0 0 18px 0 !important;
+      }
+
+      .update-box{
+        padding:10px 12px;
+      }
+
+      .update-label{
+        font-size:10px;
+      }
+
+      #actualizado,
+      #descargasActualizado,
+      #cierreActualizado{
+        font-size:13px;
+      }
+
+      /* TÍTULOS */
+      #muestrasView .title-wrap h1,
+      #pendientesView .descargas-title,
+      #cierreView .cierre-title{
+        font-size:22px;
+        line-height:1.2;
+        margin-bottom:8px;
+      }
+
+      .title-wrap .subtitle{
+        font-size:11px;
+      }
+
+      /* FILTROS */
+      .filters,
+      .cierre-filters{
+        grid-template-columns:1fr;
+        gap:9px;
+        padding:11px;
+      }
+
+      .filter{
+        gap:5px;
+      }
+
+      .filter label{
+        font-size:10px;
+      }
+
+      .filter select{
+        padding:10px;
+        font-size:14px;
+      }
+
+      /* INFORMACIÓN SECUNDARIA */
+      .month-info{
+        padding:9px 10px;
+        font-size:12px;
+      }
+
+      .fecha-info,
+      .ultimo-registro-info,
+      .cierre-ultimo-registro{
+        font-size:11px;
+        line-height:1.35;
+      }
+
+      /* KPIs */
+      .kpis,
+      .descargas-kpis,
+      .cierre-kpis,
+      .cierre-toneladas-resumen{
+        grid-template-columns:1fr;
+        gap:10px;
+      }
+
+      .kpi,
+      .descarga-kpi,
+      .cierre-kpi{
+        padding:14px 12px;
+      }
+
+      .kpi-value,
+      .descarga-kpi .value,
+      .cierre-kpi .value{
+        font-size:28px;
+      }
+
+      .cierre-toneladas-item{
+        font-size:12px;
+        padding:10px 12px;
+      }
+
+      /* BOTONES DE ACCIÓN */
+      .muestras-correo-wrap,
+      .cierre-export-wrap{
+        justify-content:stretch;
+      }
+
+      .muestras-correo-btn,
+      .cierre-export-btn{
+        width:100%;
+        padding:11px 12px;
+        font-size:13px;
+      }
+
+      /* TARJETAS / TABLAS */
+      .table-card{
+        border-radius:10px;
+        overflow:hidden;
+      }
+
+      .table-head{
+        padding:11px 10px;
+        flex-direction:column;
+        align-items:flex-start;
+        gap:4px;
+      }
+
+      .table-title{
+        font-size:14px;
+      }
+
+      .record-count{
+        font-size:10px;
+      }
+
+      /* En escritorio se dejó sin scroll interno.
+         En celular sí conviene scroll horizontal solamente. */
+      .table-scroll{
+        overflow-x:auto;
+        overflow-y:visible;
+        max-height:none;
+        -webkit-overflow-scrolling:touch;
+      }
+
+      table{
+        width:max-content;
+        min-width:900px;
+      }
+
+      thead th{
+        position:static;
+        font-size:10px;
+        padding:8px 6px;
+      }
+
+      tbody td,
+      tfoot td{
+        font-size:11px;
+        padding:8px 6px;
+      }
+
+      /* Secciones */
+      .descargas-section,
+      .cierre-section{
+        margin-top:0;
+        padding-top:0;
+      }
+
+      .descargas-title,
+      .cierre-title{
+        margin-top:0;
+      }
+
+      .sin-pendientes{
+        padding:14px 10px;
+        font-size:12px;
+      }
+    }
+
+    @media(max-width:430px){
+      .section-nav-btns{
+        grid-template-columns:1fr;
+      }
+
+      .nav-btn{
+        min-height:38px;
+        font-size:11px;
+      }
+
+      .home-title{
+        font-size:21px;
+      }
+
+      #muestrasView .title-wrap h1,
+      #pendientesView .descargas-title,
+      #cierreView .cierre-title{
+        font-size:20px;
+      }
+
+      table{
+        min-width:840px;
+      }
+    }
+
   </style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
