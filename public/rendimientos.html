@@ -820,7 +820,7 @@ function cargarFiltroNombreFas(){
     select.value;
 
 
-  let registrosLista =
+  const registrosLista =
     registrosOriginales.filter(
       registro => {
 
@@ -1335,6 +1335,17 @@ function dibujarTabla(registros){
 
 
 
+/* ============================================================
+   PENDIENTES / EMERGENTES
+
+   REGLA:
+   1) ACTIVO = SI y último ingreso menor a 30 días
+      O
+   2) último ingreso mayor a 365 días
+
+   La segunda condición NO exige ACTIVO = SI.
+   ============================================================ */
+
 function obtenerPendientes(tipo){
 
   return registrosOriginales
@@ -1345,6 +1356,7 @@ function obtenerPendientes(tipo){
           normalizar(
             registro.nombre_fas
           );
+
 
         const especie =
           normalizar(
@@ -1376,8 +1388,21 @@ function obtenerPendientes(tipo){
           diasUltimoIngreso > 365;
 
 
+        /*
+         * IMPORTANTE
+         *
+         * ACTIVO = SI solamente se exige
+         * para ingresos recientes.
+         *
+         * Si el último ingreso es de hace
+         * más de un año, se muestra aunque
+         * ACTIVO no sea SI.
+         */
         const cumpleCondicionIngreso =
-          ingresoMenor30Dias ||
+          (
+            activoSi &&
+            ingresoMenor30Dias
+          ) ||
           ingresoMayor1Ano;
 
 
@@ -1420,7 +1445,6 @@ function obtenerPendientes(tipo){
 
 
         if(
-          !activoSi ||
           !cumpleCondicionIngreso ||
           excluirSinEspecie ||
           excluirTroza ||
@@ -1459,6 +1483,7 @@ function obtenerPendientes(tipo){
             a.nombre_fas
           );
 
+
         const monteB =
           normalizar(
             b.nombre_fas
@@ -1468,10 +1493,12 @@ function obtenerPendientes(tipo){
         if(
           monteA !== monteB
         ){
+
           return monteA.localeCompare(
             monteB,
             "es"
           );
+
         }
 
 
@@ -1686,10 +1713,12 @@ async function cargarDatos(){
     if(
       !respuesta.ok
     ){
+
       throw new Error(
         "HTTP " +
         respuesta.status
       );
+
     }
 
 
@@ -1701,8 +1730,10 @@ async function cargarDatos(){
       Array.isArray(
         datos.registros
       )
-        ? datos.registros
-        : [];
+        ?
+        datos.registros
+        :
+        [];
 
 
     document.getElementById(
@@ -1932,7 +1963,9 @@ document.getElementById(
       event.target.id ===
       "modalNecesidad"
     ){
+
       cerrarModalNecesidad();
+
     }
 
   }
@@ -1948,7 +1981,9 @@ document.addEventListener(
       event.key ===
       "Escape"
     ){
+
       cerrarModalNecesidad();
+
     }
 
   }
