@@ -224,8 +224,19 @@
 
     /* ============================================================
        BARCOS
-       La tabla compacta usa las mismas columnas.
        ============================================================ */
+
+    body.modo-barcos th:nth-child(6),
+    body.modo-barcos td:nth-child(6),
+    body.modo-barcos th:nth-child(8),
+    body.modo-barcos td:nth-child(8),
+    body.modo-barcos th:nth-child(11),
+    body.modo-barcos td:nth-child(11),
+    body.modo-barcos th:nth-child(13),
+    body.modo-barcos td:nth-child(13){
+      display:none;
+    }
+
 
     /* ============================================================
        MODAL
@@ -310,132 +321,7 @@
 
 
     /* ============================================================
-       TABLA COMPACTA / COBERTURA
-       ============================================================ */
-
-    .tabla-principal{
-      min-width:980px;
-    }
-
-    .barra-wrap{
-      display:flex;
-      align-items:center;
-      gap:8px;
-      min-width:145px;
-    }
-
-    .barra-track{
-      position:relative;
-      flex:1;
-      height:9px;
-      background:#252a32;
-      border-radius:999px;
-      overflow:hidden;
-      border:1px solid #323843;
-    }
-
-    .barra-fill{
-      height:100%;
-      border-radius:999px;
-    }
-
-    .barra-fill.bajo{
-      background:#ff4d4f;
-    }
-
-    .barra-fill.medio{
-      background:#e6c34f;
-    }
-
-    .barra-fill.alto{
-      background:#d7ff5f;
-    }
-
-    .barra-texto{
-      min-width:48px;
-      text-align:right;
-      font-weight:700;
-    }
-
-    .btn-detalle{
-      border:1px solid #353b46;
-      background:#101319;
-      color:#d7ff5f;
-      border-radius:6px;
-      padding:7px 12px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .btn-detalle:hover{
-      background:#1a1f27;
-      border-color:#d7ff5f;
-    }
-
-    .fila-detalle{
-      display:none;
-      background:#0d1015;
-    }
-
-    .fila-detalle.visible{
-      display:table-row;
-    }
-
-    .fila-detalle td{
-      padding:0;
-      white-space:normal;
-      text-align:left;
-    }
-
-    .detalle-grid{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(180px,1fr));
-      gap:10px;
-      padding:14px 16px 16px;
-      border-top:1px solid #292e36;
-    }
-
-    .detalle-item{
-      background:#15181e;
-      border:1px solid #2c313b;
-      border-radius:8px;
-      padding:10px 12px;
-    }
-
-    .detalle-label{
-      color:#8f97a2;
-      font-size:10px;
-      font-weight:700;
-      text-transform:uppercase;
-      margin-bottom:5px;
-    }
-
-    .detalle-valor{
-      color:#f4f4f4;
-      font-size:13px;
-      font-weight:700;
-    }
-
-    .detalle-valor.lima{
-      color:#d7ff5f;
-    }
-
-    @media(max-width:900px){
-      .detalle-grid{
-        grid-template-columns:repeat(2,minmax(160px,1fr));
-      }
-    }
-
-    @media(max-width:560px){
-      .detalle-grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-
-    /* ============================================================
-       GUIA DE TIEMPO
+       LINEA DE TIEMPO - ULTIMO INGRESO
        ============================================================ */
 
     .tiempo-panel{
@@ -488,11 +374,9 @@
     }
 
     @media(max-width:700px){
-
       .tiempo-marcas{
         font-size:8px;
       }
-
     }
 
   </style>
@@ -659,51 +543,135 @@
 
 <div class="tabla-contenedor">
 
-    <table class="tabla-principal">
+
+    <table>
+
 
       <thead>
+
         <tr>
 
-          <th class="sortable" data-campo="nombre_fas">
+          <th
+            class="sortable"
+            data-campo="nombre_fas"
+          >
             NOMBRE FAS
           </th>
 
-          <th class="sortable" data-campo="especie">
+          <th
+            class="sortable"
+            data-campo="especie"
+          >
             ESPECIE
           </th>
 
-          <th class="sortable" data-campo="total_remitos">
-            TOTAL REMITOS
+          <th
+            class="sortable"
+            data-campo="total_remitos"
+          >
+            Total Remitos
           </th>
 
-          <th class="sortable" data-campo="porcentaje_rendimiento">
-            % REND.
+          <th
+            class="sortable"
+            data-campo="porcentaje_rendimiento"
+          >
+            % Rend.
           </th>
 
-          <th class="sortable" data-campo="porcentaje_densidad_basica">
-            % DENS. BASICA
+          <th
+            class="sortable"
+            data-campo="porcentaje_densidad_basica"
+          >
+            % Dens. Basica
           </th>
 
-          <th class="sortable" data-campo="activo">
+          <th
+            class="sortable"
+            data-campo="cantidad_pps"
+          >
+            Cant. Rend.
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="cantidad_densidad_basica"
+          >
+            Cant. Dens. Basica
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="promedio_rendimiento_con_merma"
+          >
+            Prom. Rend.
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="promedio_pps"
+          >
+            Prom. PPS
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="promedio_densidad_basica"
+          >
+            Prom. Dens. Basica
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_pps"
+          >
+            Ultimo Rend.
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_densidad_basica"
+          >
+            Ultima Dens. Basica
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_remito"
+          >
+            Ultimo Ingreso
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="activo"
+          >
             ACTIVO
           </th>
 
-          <th>
-            DETALLE
-          </th>
-
         </tr>
+
       </thead>
 
+
       <tbody id="tablaBody">
+
         <tr>
-          <td colspan="7" class="mensaje">
+
+          <td
+            colspan="14"
+            class="mensaje"
+          >
             Cargando datos...
           </td>
+
         </tr>
+
       </tbody>
 
+
     </table>
+
 
   </div>
 
@@ -996,88 +964,6 @@ function porcentajePPS(valor){
 
 
 
-function claseCobertura(porcentaje){
-
-  if(
-    porcentaje === null ||
-    porcentaje === undefined ||
-    !Number.isFinite(
-      Number(porcentaje)
-    )
-  ){
-    return "";
-  }
-
-  const valor =
-    Number(porcentaje);
-
-  if(valor < 10){
-    return "bajo";
-  }
-
-  if(valor < 25){
-    return "medio";
-  }
-
-  return "alto";
-}
-
-
-
-function barraCobertura(cantidad, total){
-
-  const porcentaje =
-    calcularPorcentajeCobertura(
-      cantidad,
-      total
-    );
-
-  if(
-    porcentaje === null
-  ){
-    return '<span class="sin-dato">-</span>';
-  }
-
-  const valorBarra =
-    Math.max(
-      0,
-      Math.min(
-        100,
-        porcentaje
-      )
-    );
-
-  const clase =
-    claseCobertura(
-      porcentaje
-    );
-
-  const texto =
-    porcentaje.toLocaleString(
-      "es-UY",
-      {
-        minimumFractionDigits:1,
-        maximumFractionDigits:1
-      }
-    ) + "%";
-
-  return `
-    <div class="barra-wrap">
-      <div class="barra-track">
-        <div
-          class="barra-fill ${clase}"
-          style="width:${valorBarra}%"
-        ></div>
-      </div>
-      <div class="barra-texto">
-        ${texto}
-      </div>
-    </div>
-  `;
-}
-
-
-
 function porcentajeCobertura(cantidad, total){
 
   const cantidadNumero =
@@ -1182,12 +1068,10 @@ function fechaSolo(valor){
   const texto =
     String(valor).trim();
 
-
   const iso =
     texto.match(
       /^(\d{4})-(\d{2})-(\d{2})/
     );
-
 
   if(iso){
 
@@ -1208,10 +1092,8 @@ function fechaSolo(valor){
     return fecha;
   }
 
-
   const fecha =
     new Date(valor);
-
 
   if(
     isNaN(
@@ -1220,7 +1102,6 @@ function fechaSolo(valor){
   ){
     return null;
   }
-
 
   fecha.setHours(
     0,
@@ -1241,7 +1122,6 @@ function cumpleFiltroTiempo(registro){
       filtroTiempoSeleccionado
     ];
 
-
   if(
     !opcion ||
     opcion.dias === null
@@ -1249,21 +1129,17 @@ function cumpleFiltroTiempo(registro){
     return true;
   }
 
-
   const fechaIngreso =
     fechaSolo(
       registro.ultima_fecha_remito
     );
 
-
   if(!fechaIngreso){
     return false;
   }
 
-
   const hoy =
     new Date();
-
 
   hoy.setHours(
     0,
@@ -1271,7 +1147,6 @@ function cumpleFiltroTiempo(registro){
     0,
     0
   );
-
 
   if(
     opcion.dias === 0
@@ -1282,16 +1157,13 @@ function cumpleFiltroTiempo(registro){
     );
   }
 
-
   const fechaLimite =
     new Date(hoy);
-
 
   fechaLimite.setDate(
     fechaLimite.getDate() -
     opcion.dias
   );
-
 
   return (
     fechaIngreso >=
@@ -1307,7 +1179,6 @@ function actualizarGuiaTiempo(){
     opcionesTiempo[
       filtroTiempoSeleccionado
     ];
-
 
   document
     .querySelectorAll(
@@ -1327,10 +1198,8 @@ function actualizarGuiaTiempo(){
       }
     );
 
-
   let texto =
     "TODOS LOS REGISTROS";
-
 
   if(
     opcion &&
@@ -1348,7 +1217,6 @@ function actualizarGuiaTiempo(){
       const hoy =
         new Date();
 
-
       hoy.setHours(
         0,
         0,
@@ -1356,16 +1224,13 @@ function actualizarGuiaTiempo(){
         0
       );
 
-
       const fechaLimite =
         new Date(hoy);
-
 
       fechaLimite.setDate(
         fechaLimite.getDate() -
         opcion.dias
       );
-
 
       texto =
         "DESDE " +
@@ -1380,7 +1245,6 @@ function actualizarGuiaTiempo(){
     }
 
   }
-
 
   document.getElementById(
     "tiempoInfo"
@@ -1850,12 +1714,14 @@ function dibujarTabla(registros){
     tbody.innerHTML =
       `
       <tr>
+
         <td
-          colspan="7"
+          colspan="14"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
         </td>
+
       </tr>
       `;
 
@@ -1865,7 +1731,7 @@ function dibujarTabla(registros){
 
   tbody.innerHTML =
     registros.map(
-      (registro, indice) => {
+      registro => {
 
         const activo =
           normalizar(
@@ -1893,10 +1759,6 @@ function dibujarTabla(registros){
           );
 
 
-        const idDetalle =
-          `detalle_${indice}`;
-
-
         return `
           <tr>
 
@@ -1922,16 +1784,64 @@ function dibujarTabla(registros){
             </td>
 
             <td>
-              ${barraCobertura(
+              ${porcentajeCobertura(
                 registro.cantidad_pps,
                 registro.total_remitos
               )}
             </td>
 
             <td>
-              ${barraCobertura(
+              ${porcentajeCobertura(
                 registro.cantidad_densidad_basica,
                 registro.total_remitos
+              )}
+            </td>
+
+            <td>
+              ${contadorSeguro(
+                registro.cantidad_pps
+              )}
+            </td>
+
+            <td>
+              ${contadorSeguro(
+                registro.cantidad_densidad_basica
+              )}
+            </td>
+
+            <td>
+              ${numeroDecimal(
+                registro.promedio_rendimiento_con_merma
+              )}
+            </td>
+
+            <td>
+              ${porcentajePPS(
+                registro.promedio_pps
+              )}
+            </td>
+
+            <td>
+              ${numeroDecimal(
+                registro.promedio_densidad_basica
+              )}
+            </td>
+
+            <td>
+              ${formatearFecha(
+                registro.ultima_fecha_pps
+              )}
+            </td>
+
+            <td>
+              ${formatearFecha(
+                registro.ultima_fecha_densidad_basica
+              )}
+            </td>
+
+            <td>
+              ${formatearFecha(
+                registro.ultima_fecha_remito
               )}
             </td>
 
@@ -1939,119 +1849,6 @@ function dibujarTabla(registros){
               ${valorSeguro(
                 registro.activo
               )}
-            </td>
-
-            <td>
-              <button
-                type="button"
-                class="btn-detalle"
-                data-detalle="${idDetalle}"
-              >
-                VER DETALLE
-              </button>
-            </td>
-
-          </tr>
-
-          <tr
-            class="fila-detalle"
-            id="${idDetalle}"
-          >
-
-            <td colspan="7">
-
-              <div class="detalle-grid">
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Cant. Rend.
-                  </div>
-                  <div class="detalle-valor">
-                    ${contadorSeguro(
-                      registro.cantidad_pps
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Cant. Dens. Básica
-                  </div>
-                  <div class="detalle-valor">
-                    ${contadorSeguro(
-                      registro.cantidad_densidad_basica
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Prom. Rend.
-                  </div>
-                  <div class="detalle-valor lima">
-                    ${numeroDecimal(
-                      registro.promedio_rendimiento_con_merma
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Prom. PPS
-                  </div>
-                  <div class="detalle-valor">
-                    ${porcentajePPS(
-                      registro.promedio_pps
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Prom. Dens. Básica
-                  </div>
-                  <div class="detalle-valor">
-                    ${numeroDecimal(
-                      registro.promedio_densidad_basica
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Último Rend.
-                  </div>
-                  <div class="detalle-valor">
-                    ${formatearFecha(
-                      registro.ultima_fecha_pps
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Última Dens. Básica
-                  </div>
-                  <div class="detalle-valor">
-                    ${formatearFecha(
-                      registro.ultima_fecha_densidad_basica
-                    )}
-                  </div>
-                </div>
-
-                <div class="detalle-item">
-                  <div class="detalle-label">
-                    Último Ingreso
-                  </div>
-                  <div class="detalle-valor">
-                    ${formatearFecha(
-                      registro.ultima_fecha_remito
-                    )}
-                  </div>
-                </div>
-
-              </div>
-
             </td>
 
           </tr>
@@ -2582,7 +2379,6 @@ document.getElementById(
         event.target.value
       );
 
-
     actualizarGuiaTiempo();
 
     aplicarFiltros();
@@ -2799,46 +2595,6 @@ document.getElementById(
   "click",
   event => {
 
-    const botonDetalle =
-      event.target.closest(
-        ".btn-detalle"
-      );
-
-
-    if(
-      botonDetalle
-    ){
-
-      const idDetalle =
-        botonDetalle.dataset.detalle;
-
-
-      const fila =
-        document.getElementById(
-          idDetalle
-        );
-
-
-      if(fila){
-
-        const visible =
-          fila.classList.toggle(
-            "visible"
-          );
-
-
-        botonDetalle.textContent =
-          visible
-            ? "OCULTAR"
-            : "VER DETALLE";
-
-      }
-
-
-      return;
-    }
-
-
     const celda =
       event.target.closest(
         ".nombre-fas-click"
@@ -2886,6 +2642,7 @@ document.getElementById(
 
   }
 );
+
 
 
 document.querySelectorAll(
