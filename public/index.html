@@ -4005,15 +4005,191 @@ $("btnExportarCierreExcel")
 
 
       const registros =
-        cierreDatos.filter(
-          r =>
-            r.fechaISO ===
-            fecha
+        cierreDatos
+          .filter(
+            r =>
+              r.fechaISO === fecha
+          )
+          .sort(
+            (a,b) =>
+              String(
+                a.hora_rto
+              ).localeCompare(
+                String(
+                  b.hora_rto
+                )
+              )
+          );
+
+
+      // ======================================================
+      // CALCULAR RESUMEN
+      // ======================================================
+
+      const totalCamiones =
+        registros.length;
+
+
+      const tiempos =
+        registros
+          .map(
+            r =>
+              segundosDesdeHHMMSS(
+                r.tiempo_descarga
+              )
+          )
+          .filter(
+            Number.isFinite
+          );
+
+
+      const promedioSegundos =
+        tiempos.length
+          ?
+          tiempos.reduce(
+            (a,b) =>
+              a + b,
+            0
+          ) /
+          tiempos.length
+          :
+          0;
+
+
+      const promedioTexto =
+        hhmmss(
+          promedioSegundos
         );
 
 
+      let directo = 0;
+      let acopio = 0;
+
+
+      registros.forEach(
+        r => {
+
+          const neto =
+            Number(
+              String(
+                r.neto_ton ?? 0
+              ).replace(
+                ",",
+                "."
+              )
+            ) || 0;
+
+
+          if(
+            normalizarTexto(
+              r.primero_de_pila
+            ) ===
+            "FFU"
+          ){
+            directo += neto;
+          }
+          else{
+            acopio += neto;
+          }
+
+        }
+      );
+
+
+      // ======================================================
+      // DATOS DEL EXCEL
+      // ======================================================
+
       const filas =
         [
+          [
+            "DESCARGA CIERRE DE TURNO - FRIMOSA",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "Fecha",
+            fechaUY(fecha),
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "Total camiones",
+            totalCamiones,
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "Prom. descarga",
+            promedioTexto,
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "DIRECTO - Neto ton Pila FFU",
+            directo,
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "ACOPIO - Neto ton diferente FFU",
+            acopio,
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+
           [
             "Fecha",
             "Hora Ingreso",
@@ -4027,40 +4203,70 @@ $("btnExportarCierreExcel")
         ];
 
 
-      registros.forEach(
-        r => {
+      if(
+        registros.length
+      ){
 
-          filas.push(
-            [
-              fechaUY(
-                r.fechaISO
-              ),
+        registros.forEach(
+          r => {
 
-              r.hora_rto,
+            filas.push(
+              [
+                fechaUY(
+                  r.fechaISO
+                ),
 
-              r.hora_salida,
+                r.hora_rto ||
+                  "00:00:00",
 
-              r.tiempo_descarga,
+                r.hora_salida ||
+                  "00:00:00",
 
-              r.primero_de_pila,
+                r.tiempo_descarga ||
+                  "00:00:00",
 
-              r.nombre_prod,
+                r.primero_de_pila ||
+                  "",
 
-              r.matricula,
+                r.nombre_prod ||
+                  "",
 
-              Number(
-                String(
-                  r.neto_ton ?? 0
-                ).replace(
-                  ",",
-                  "."
-                )
-              ) || 0
-            ]
-          );
+                r.matricula ||
+                  "",
 
-        }
-      );
+                Number(
+                  String(
+                    r.neto_ton ?? 0
+                  ).replace(
+                    ",",
+                    "."
+                  )
+                ) || 0
+              ]
+            );
+
+          }
+        );
+
+      }
+      else{
+
+        // Aunque no haya descargas, generar la fila de control
+        // con la fecha seleccionada y valores en cero.
+        filas.push(
+          [
+            fechaUY(fecha),
+            "00:00:00",
+            "00:00:00",
+            "00:00:00",
+            "",
+            "",
+            "",
+            0
+          ]
+        );
+
+      }
 
 
       const ws =
@@ -4068,6 +4274,468 @@ $("btnExportarCierreExcel")
           filas
         );
 
+
+      // ======================================================
+      // COMBINAR TÍTULO
+      // ======================================================
+
+      ws["!merges"] =
+        [
+          {
+            s:{
+              r:0,
+              c:0
+            },
+            e:{
+              r:0,
+              c:7
+            }
+          }
+        ];
+
+
+      // ======================================================
+      // ESTILOS
+      // ======================================================
+
+      const borde =
+        {
+          top:{
+            style:"thin",
+            color:{
+              rgb:"344250"
+            }
+          },
+
+          bottom:{
+            style:"thin",
+            color:{
+              rgb:"344250"
+            }
+          },
+
+          left:{
+            style:"thin",
+            color:{
+              rgb:"344250"
+            }
+          },
+
+          right:{
+            style:"thin",
+            color:{
+              rgb:"344250"
+            }
+          }
+        };
+
+
+      const estiloTitulo =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:18,
+            bold:true,
+            color:{
+              rgb:"7CFC00"
+            }
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"111820"
+            }
+          },
+
+          alignment:{
+            horizontal:"center",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      const estiloEtiquetaResumen =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:11,
+            bold:true,
+            color:{
+              rgb:"F3F6F8"
+            }
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"202A35"
+            }
+          },
+
+          alignment:{
+            horizontal:"left",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      const estiloValorResumen =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:11,
+            bold:true,
+            color:{
+              rgb:"7CFC00"
+            }
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"202A35"
+            }
+          },
+
+          alignment:{
+            horizontal:"center",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      const estiloEncabezado =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:11,
+            bold:true,
+            color:{
+              rgb:"C7F7D4"
+            }
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"202A35"
+            }
+          },
+
+          alignment:{
+            horizontal:"center",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      const estiloDirecto =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:10
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"EAF8E8"
+            }
+          },
+
+          alignment:{
+            horizontal:"center",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      const estiloAcopio =
+        {
+          font:{
+            name:"Segoe UI",
+            sz:10
+          },
+
+          fill:{
+            fgColor:{
+              rgb:"EAF2FB"
+            }
+          },
+
+          alignment:{
+            horizontal:"center",
+            vertical:"center"
+          },
+
+          border:borde
+        };
+
+
+      // Título A1:H1
+      for(
+        let c = 0;
+        c <= 7;
+        c++
+      ){
+
+        const direccion =
+          XLSX.utils.encode_cell(
+            {
+              r:0,
+              c
+            }
+          );
+
+
+        if(
+          !ws[direccion]
+        ){
+          ws[direccion] =
+            {
+              t:"s",
+              v:""
+            };
+        }
+
+
+        ws[direccion].s =
+          estiloTitulo;
+
+      }
+
+
+      // Resumen A3:B7
+      for(
+        let r = 2;
+        r <= 6;
+        r++
+      ){
+
+        const celdaA =
+          XLSX.utils.encode_cell(
+            {
+              r,
+              c:0
+            }
+          );
+
+        const celdaB =
+          XLSX.utils.encode_cell(
+            {
+              r,
+              c:1
+            }
+          );
+
+
+        ws[celdaA].s =
+          estiloEtiquetaResumen;
+
+        ws[celdaB].s =
+          estiloValorResumen;
+
+      }
+
+
+      // Formato toneladas
+      ws["B6"].z =
+        "0.00";
+
+      ws["B7"].z =
+        "0.00";
+
+
+      // Encabezados fila 9
+      for(
+        let c = 0;
+        c <= 7;
+        c++
+      ){
+
+        const direccion =
+          XLSX.utils.encode_cell(
+            {
+              r:8,
+              c
+            }
+          );
+
+
+        ws[direccion].s =
+          estiloEncabezado;
+
+      }
+
+
+      // Filas de detalle
+      for(
+        let r = 9;
+        r < filas.length;
+        r++
+      ){
+
+        const fila =
+          filas[r];
+
+        const esDirecto =
+          normalizarTexto(
+            fila[4]
+          ) ===
+          "FFU";
+
+
+        const estiloFila =
+          esDirecto
+            ?
+            estiloDirecto
+            :
+            estiloAcopio;
+
+
+        for(
+          let c = 0;
+          c <= 7;
+          c++
+        ){
+
+          const direccion =
+            XLSX.utils.encode_cell(
+              {
+                r,
+                c
+              }
+            );
+
+
+          if(
+            !ws[direccion]
+          ){
+            ws[direccion] =
+              {
+                t:"s",
+                v:""
+              };
+          }
+
+
+          ws[direccion].s =
+            estiloFila;
+
+        }
+
+
+        const celdaNeto =
+          XLSX.utils.encode_cell(
+            {
+              r,
+              c:7
+            }
+          );
+
+
+        ws[celdaNeto].z =
+          "0.00";
+
+      }
+
+
+      // ======================================================
+      // ANCHO AUTOMÁTICO DE COLUMNAS
+      // ======================================================
+
+      const anchosMinimos =
+        [
+          14,
+          13,
+          13,
+          16,
+          18,
+          28,
+          14,
+          12
+        ];
+
+
+      ws["!cols"] =
+        Array.from(
+          {
+            length:8
+          },
+          (_,col) => {
+
+            let maximo =
+              anchosMinimos[col];
+
+
+            filas.forEach(
+              fila => {
+
+                const texto =
+                  String(
+                    fila[col] ?? ""
+                  );
+
+
+                maximo =
+                  Math.max(
+                    maximo,
+                    texto.length +
+                    2
+                  );
+
+              }
+            );
+
+
+            return {
+              wch:
+                Math.min(
+                  maximo,
+                  42
+                )
+            };
+
+          }
+        );
+
+
+      // ======================================================
+      // ALTURA DE FILAS
+      // ======================================================
+
+      ws["!rows"] =
+        [
+          {
+            hpt:28
+          },
+          {
+            hpt:8
+          }
+        ];
+
+
+      // ======================================================
+      // FILTRO DE TABLA
+      // ======================================================
+
+      ws["!autofilter"] =
+        {
+          ref:
+            "A9:H" +
+            filas.length
+        };
+
+
+      // ======================================================
+      // CREAR ARCHIVO
+      // ======================================================
 
       const wb =
         XLSX.utils.book_new();
@@ -4091,6 +4759,10 @@ $("btnExportarCierreExcel")
       );
 
 
+      // ======================================================
+      // PREPARAR CORREO
+      // ======================================================
+
       setTimeout(
         () => {
 
@@ -4098,7 +4770,7 @@ $("btnExportarCierreExcel")
             [
               "laboratorio@ffu.com.uy",
               "a.ruggiero@ffu.com.uy"
-            ].join(",");
+            ].join(";");
 
 
           const cc =
@@ -4107,7 +4779,9 @@ $("btnExportarCierreExcel")
 
           const asunto =
             "Descarga " +
-            fechaUY(fecha);
+            fechaUY(
+              fecha
+            );
 
 
           window.location.href =
