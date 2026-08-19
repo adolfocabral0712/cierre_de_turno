@@ -486,9 +486,16 @@
 
           <th
             class="sortable"
-            data-campo="promedio_pps"
+            data-campo="promedio_rendimiento_con_merma"
           >
             Prom. Rend.
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="promedio_pps"
+          >
+            Prom. PPS
           </th>
 
           <th
@@ -536,7 +543,7 @@
         <tr>
 
           <td
-            colspan="10"
+            colspan="11"
             class="mensaje"
           >
             Cargando datos...
@@ -765,6 +772,38 @@ function numeroDecimal(valor){
       maximumFractionDigits:3
     }
   );
+}
+
+
+
+function porcentajePPS(valor){
+
+  if(
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ){
+    return '<span class="sin-dato">-</span>';
+  }
+
+  const numero =
+    Number(valor);
+
+  if(
+    isNaN(numero)
+  ){
+    return valorSeguro(valor);
+  }
+
+  return (
+    numero * 100
+  ).toLocaleString(
+    "es-UY",
+    {
+      minimumFractionDigits:1,
+      maximumFractionDigits:1
+    }
+  ) + "%";
 }
 
 
@@ -1133,6 +1172,7 @@ function compararValores(
     [
       "cantidad_pps",
       "cantidad_densidad_basica",
+      "promedio_rendimiento_con_merma",
       "promedio_pps",
       "promedio_densidad_basica"
     ];
@@ -1214,7 +1254,7 @@ function dibujarTabla(registros){
       <tr>
 
         <td
-          colspan="10"
+          colspan="11"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
@@ -1289,6 +1329,12 @@ function dibujarTabla(registros){
 
             <td>
               ${numeroDecimal(
+                registro.promedio_rendimiento_con_merma
+              )}
+            </td>
+
+            <td>
+              ${porcentajePPS(
                 registro.promedio_pps
               )}
             </td>
@@ -1822,7 +1868,7 @@ async function cargarDatos(){
       <tr>
 
         <td
-          colspan="10"
+          colspan="11"
           class="mensaje error"
         >
           No fue posible cargar los datos:
