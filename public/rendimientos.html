@@ -224,19 +224,8 @@
 
     /* ============================================================
        BARCOS
+       La tabla compacta usa las mismas columnas.
        ============================================================ */
-
-    body.modo-barcos th:nth-child(6),
-    body.modo-barcos td:nth-child(6),
-    body.modo-barcos th:nth-child(8),
-    body.modo-barcos td:nth-child(8),
-    body.modo-barcos th:nth-child(11),
-    body.modo-barcos td:nth-child(11),
-    body.modo-barcos th:nth-child(13),
-    body.modo-barcos td:nth-child(13){
-      display:none;
-    }
-
 
     /* ============================================================
        MODAL
@@ -315,6 +304,193 @@
 
       .titulo{
         font-size:22px;
+      }
+
+    }
+
+
+    /* ============================================================
+       TABLA COMPACTA / COBERTURA
+       ============================================================ */
+
+    .tabla-principal{
+      min-width:980px;
+    }
+
+    .barra-wrap{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      min-width:145px;
+    }
+
+    .barra-track{
+      position:relative;
+      flex:1;
+      height:9px;
+      background:#252a32;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid #323843;
+    }
+
+    .barra-fill{
+      height:100%;
+      border-radius:999px;
+    }
+
+    .barra-fill.bajo{
+      background:#ff4d4f;
+    }
+
+    .barra-fill.medio{
+      background:#e6c34f;
+    }
+
+    .barra-fill.alto{
+      background:#d7ff5f;
+    }
+
+    .barra-texto{
+      min-width:48px;
+      text-align:right;
+      font-weight:700;
+    }
+
+    .btn-detalle{
+      border:1px solid #353b46;
+      background:#101319;
+      color:#d7ff5f;
+      border-radius:6px;
+      padding:7px 12px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .btn-detalle:hover{
+      background:#1a1f27;
+      border-color:#d7ff5f;
+    }
+
+    .fila-detalle{
+      display:none;
+      background:#0d1015;
+    }
+
+    .fila-detalle.visible{
+      display:table-row;
+    }
+
+    .fila-detalle td{
+      padding:0;
+      white-space:normal;
+      text-align:left;
+    }
+
+    .detalle-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(180px,1fr));
+      gap:10px;
+      padding:14px 16px 16px;
+      border-top:1px solid #292e36;
+    }
+
+    .detalle-item{
+      background:#15181e;
+      border:1px solid #2c313b;
+      border-radius:8px;
+      padding:10px 12px;
+    }
+
+    .detalle-label{
+      color:#8f97a2;
+      font-size:10px;
+      font-weight:700;
+      text-transform:uppercase;
+      margin-bottom:5px;
+    }
+
+    .detalle-valor{
+      color:#f4f4f4;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    .detalle-valor.lima{
+      color:#d7ff5f;
+    }
+
+    @media(max-width:900px){
+      .detalle-grid{
+        grid-template-columns:repeat(2,minmax(160px,1fr));
+      }
+    }
+
+    @media(max-width:560px){
+      .detalle-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+
+    /* ============================================================
+       GUIA DE TIEMPO
+       ============================================================ */
+
+    .tiempo-panel{
+      background:#15181e;
+      border:1px solid #2c313b;
+      border-radius:10px;
+      padding:16px 18px 18px;
+      margin-bottom:18px;
+    }
+
+    .tiempo-titulo{
+      text-align:center;
+      color:#d7ff5f;
+      font-size:12px;
+      font-weight:800;
+      letter-spacing:.5px;
+      margin-bottom:14px;
+    }
+
+    .tiempo-slider{
+      width:100%;
+      accent-color:#d7ff5f;
+      cursor:pointer;
+    }
+
+    .tiempo-marcas{
+      display:grid;
+      grid-template-columns:repeat(8,1fr);
+      gap:4px;
+      margin-top:8px;
+      color:#8f97a2;
+      font-size:10px;
+      font-weight:700;
+      text-align:center;
+    }
+
+    .tiempo-marcas span.activa{
+      color:#d7ff5f;
+    }
+
+    .tiempo-info{
+      margin-top:12px;
+      text-align:center;
+      color:#aeb5bf;
+      font-size:12px;
+    }
+
+    .tiempo-info strong{
+      color:#f4f4f4;
+    }
+
+    @media(max-width:700px){
+
+      .tiempo-marcas{
+        font-size:8px;
       }
 
     }
@@ -446,137 +622,88 @@
   </div>
 
 
-  <div class="tabla-contenedor">
+  
+  <div class="tiempo-panel">
+
+    <div class="tiempo-titulo">
+      GUIA DE TIEMPO - ULTIMO INGRESO
+    </div>
+
+    <input
+      type="range"
+      id="filtroTiempo"
+      class="tiempo-slider"
+      min="0"
+      max="7"
+      step="1"
+      value="0"
+    >
+
+    <div class="tiempo-marcas" id="tiempoMarcas">
+      <span data-tiempo="0" class="activa">TODOS</span>
+      <span data-tiempo="1">5 AÑOS</span>
+      <span data-tiempo="2">2 AÑOS</span>
+      <span data-tiempo="3">1 AÑO</span>
+      <span data-tiempo="4">6 MESES</span>
+      <span data-tiempo="5">3 MESES</span>
+      <span data-tiempo="6">30 DÍAS</span>
+      <span data-tiempo="7">HOY</span>
+    </div>
+
+    <div class="tiempo-info" id="tiempoInfo">
+      Mostrando: <strong>TODOS LOS REGISTROS</strong>
+    </div>
+
+  </div>
 
 
-    <table>
+<div class="tabla-contenedor">
 
+    <table class="tabla-principal">
 
       <thead>
-
         <tr>
 
-          <th
-            class="sortable"
-            data-campo="nombre_fas"
-          >
+          <th class="sortable" data-campo="nombre_fas">
             NOMBRE FAS
           </th>
 
-          <th
-            class="sortable"
-            data-campo="especie"
-          >
+          <th class="sortable" data-campo="especie">
             ESPECIE
           </th>
 
-          <th
-            class="sortable"
-            data-campo="total_remitos"
-          >
-            Total Remitos
+          <th class="sortable" data-campo="total_remitos">
+            TOTAL REMITOS
           </th>
 
-          <th
-            class="sortable"
-            data-campo="porcentaje_rendimiento"
-          >
-            % Rend.
+          <th class="sortable" data-campo="porcentaje_rendimiento">
+            % REND.
           </th>
 
-          <th
-            class="sortable"
-            data-campo="porcentaje_densidad_basica"
-          >
-            % Dens. Basica
+          <th class="sortable" data-campo="porcentaje_densidad_basica">
+            % DENS. BASICA
           </th>
 
-          <th
-            class="sortable"
-            data-campo="cantidad_pps"
-          >
-            Cant. Rend.
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="cantidad_densidad_basica"
-          >
-            Cant. Dens. Basica
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="promedio_rendimiento_con_merma"
-          >
-            Prom. Rend.
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="promedio_pps"
-          >
-            Prom. PPS
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="promedio_densidad_basica"
-          >
-            Prom. Dens. Basica
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_pps"
-          >
-            Ultimo Rend.
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_densidad_basica"
-          >
-            Ultima Dens. Basica
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_remito"
-          >
-            Ultimo Ingreso
-          </th>
-
-          <th
-            class="sortable"
-            data-campo="activo"
-          >
+          <th class="sortable" data-campo="activo">
             ACTIVO
           </th>
 
-        </tr>
+          <th>
+            DETALLE
+          </th>
 
+        </tr>
       </thead>
 
-
       <tbody id="tablaBody">
-
         <tr>
-
-          <td
-            colspan="14"
-            class="mensaje"
-          >
+          <td colspan="7" class="mensaje">
             Cargando datos...
           </td>
-
         </tr>
-
       </tbody>
 
-
     </table>
-
 
   </div>
 
@@ -645,6 +772,46 @@ let campoOrden =
 
 let direccionOrden =
   "asc";
+
+
+let filtroTiempoSeleccionado =
+  0;
+
+
+const opcionesTiempo = [
+  {
+    etiqueta:"TODOS",
+    dias:null
+  },
+  {
+    etiqueta:"5 AÑOS",
+    dias:365 * 5
+  },
+  {
+    etiqueta:"2 AÑOS",
+    dias:365 * 2
+  },
+  {
+    etiqueta:"1 AÑO",
+    dias:365
+  },
+  {
+    etiqueta:"6 MESES",
+    dias:183
+  },
+  {
+    etiqueta:"3 MESES",
+    dias:92
+  },
+  {
+    etiqueta:"30 DÍAS",
+    dias:30
+  },
+  {
+    etiqueta:"HOY",
+    dias:0
+  }
+];
 
 
 
@@ -829,6 +996,88 @@ function porcentajePPS(valor){
 
 
 
+function claseCobertura(porcentaje){
+
+  if(
+    porcentaje === null ||
+    porcentaje === undefined ||
+    !Number.isFinite(
+      Number(porcentaje)
+    )
+  ){
+    return "";
+  }
+
+  const valor =
+    Number(porcentaje);
+
+  if(valor < 10){
+    return "bajo";
+  }
+
+  if(valor < 25){
+    return "medio";
+  }
+
+  return "alto";
+}
+
+
+
+function barraCobertura(cantidad, total){
+
+  const porcentaje =
+    calcularPorcentajeCobertura(
+      cantidad,
+      total
+    );
+
+  if(
+    porcentaje === null
+  ){
+    return '<span class="sin-dato">-</span>';
+  }
+
+  const valorBarra =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        porcentaje
+      )
+    );
+
+  const clase =
+    claseCobertura(
+      porcentaje
+    );
+
+  const texto =
+    porcentaje.toLocaleString(
+      "es-UY",
+      {
+        minimumFractionDigits:1,
+        maximumFractionDigits:1
+      }
+    ) + "%";
+
+  return `
+    <div class="barra-wrap">
+      <div class="barra-track">
+        <div
+          class="barra-fill ${clase}"
+          style="width:${valorBarra}%"
+        ></div>
+      </div>
+      <div class="barra-texto">
+        ${texto}
+      </div>
+    </div>
+  `;
+}
+
+
+
 function porcentajeCobertura(cantidad, total){
 
   const cantidadNumero =
@@ -920,6 +1169,225 @@ function diasDesdeFecha(valor){
     60 *
     24
   );
+}
+
+
+
+function fechaSolo(valor){
+
+  if(!valor){
+    return null;
+  }
+
+  const texto =
+    String(valor).trim();
+
+
+  const iso =
+    texto.match(
+      /^(\d{4})-(\d{2})-(\d{2})/
+    );
+
+
+  if(iso){
+
+    const fecha =
+      new Date(
+        Number(iso[1]),
+        Number(iso[2]) - 1,
+        Number(iso[3])
+      );
+
+    fecha.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+    return fecha;
+  }
+
+
+  const fecha =
+    new Date(valor);
+
+
+  if(
+    isNaN(
+      fecha.getTime()
+    )
+  ){
+    return null;
+  }
+
+
+  fecha.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+  return fecha;
+}
+
+
+
+function cumpleFiltroTiempo(registro){
+
+  const opcion =
+    opcionesTiempo[
+      filtroTiempoSeleccionado
+    ];
+
+
+  if(
+    !opcion ||
+    opcion.dias === null
+  ){
+    return true;
+  }
+
+
+  const fechaIngreso =
+    fechaSolo(
+      registro.ultima_fecha_remito
+    );
+
+
+  if(!fechaIngreso){
+    return false;
+  }
+
+
+  const hoy =
+    new Date();
+
+
+  hoy.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  if(
+    opcion.dias === 0
+  ){
+    return (
+      fechaIngreso.getTime() ===
+      hoy.getTime()
+    );
+  }
+
+
+  const fechaLimite =
+    new Date(hoy);
+
+
+  fechaLimite.setDate(
+    fechaLimite.getDate() -
+    opcion.dias
+  );
+
+
+  return (
+    fechaIngreso >=
+    fechaLimite
+  );
+}
+
+
+
+function actualizarGuiaTiempo(){
+
+  const opcion =
+    opcionesTiempo[
+      filtroTiempoSeleccionado
+    ];
+
+
+  document
+    .querySelectorAll(
+      "#tiempoMarcas [data-tiempo]"
+    )
+    .forEach(
+      marca => {
+
+        marca.classList.toggle(
+          "activa",
+          Number(
+            marca.dataset.tiempo
+          ) ===
+          filtroTiempoSeleccionado
+        );
+
+      }
+    );
+
+
+  let texto =
+    "TODOS LOS REGISTROS";
+
+
+  if(
+    opcion &&
+    opcion.dias !== null
+  ){
+
+    if(
+      opcion.dias === 0
+    ){
+      texto =
+        "SOLO INGRESOS DE HOY";
+    }
+    else{
+
+      const hoy =
+        new Date();
+
+
+      hoy.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+
+      const fechaLimite =
+        new Date(hoy);
+
+
+      fechaLimite.setDate(
+        fechaLimite.getDate() -
+        opcion.dias
+      );
+
+
+      texto =
+        "DESDE " +
+        fechaLimite.toLocaleDateString(
+          "es-UY",
+          {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+          }
+        );
+    }
+
+  }
+
+
+  document.getElementById(
+    "tiempoInfo"
+  ).innerHTML =
+    'Mostrando: <strong>' +
+    texto +
+    '</strong>';
 }
 
 
@@ -1188,10 +1656,17 @@ function aplicarFiltros(){
             "GLOBULUS 3,60";
 
 
+        const coincideTiempo =
+          cumpleFiltroTiempo(
+            registro
+          );
+
+
         return (
           coincideNombre &&
           coincideActivo &&
           coincideTipo &&
+          coincideTiempo &&
           !excluirSinEspecie &&
           !excluirTroza &&
           !excluirBalanza &&
@@ -1375,14 +1850,12 @@ function dibujarTabla(registros){
     tbody.innerHTML =
       `
       <tr>
-
         <td
-          colspan="14"
+          colspan="7"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
         </td>
-
       </tr>
       `;
 
@@ -1392,7 +1865,7 @@ function dibujarTabla(registros){
 
   tbody.innerHTML =
     registros.map(
-      registro => {
+      (registro, indice) => {
 
         const activo =
           normalizar(
@@ -1420,6 +1893,10 @@ function dibujarTabla(registros){
           );
 
 
+        const idDetalle =
+          `detalle_${indice}`;
+
+
         return `
           <tr>
 
@@ -1445,64 +1922,16 @@ function dibujarTabla(registros){
             </td>
 
             <td>
-              ${porcentajeCobertura(
+              ${barraCobertura(
                 registro.cantidad_pps,
                 registro.total_remitos
               )}
             </td>
 
             <td>
-              ${porcentajeCobertura(
+              ${barraCobertura(
                 registro.cantidad_densidad_basica,
                 registro.total_remitos
-              )}
-            </td>
-
-            <td>
-              ${contadorSeguro(
-                registro.cantidad_pps
-              )}
-            </td>
-
-            <td>
-              ${contadorSeguro(
-                registro.cantidad_densidad_basica
-              )}
-            </td>
-
-            <td>
-              ${numeroDecimal(
-                registro.promedio_rendimiento_con_merma
-              )}
-            </td>
-
-            <td>
-              ${porcentajePPS(
-                registro.promedio_pps
-              )}
-            </td>
-
-            <td>
-              ${numeroDecimal(
-                registro.promedio_densidad_basica
-              )}
-            </td>
-
-            <td>
-              ${formatearFecha(
-                registro.ultima_fecha_pps
-              )}
-            </td>
-
-            <td>
-              ${formatearFecha(
-                registro.ultima_fecha_densidad_basica
-              )}
-            </td>
-
-            <td>
-              ${formatearFecha(
-                registro.ultima_fecha_remito
               )}
             </td>
 
@@ -1510,6 +1939,119 @@ function dibujarTabla(registros){
               ${valorSeguro(
                 registro.activo
               )}
+            </td>
+
+            <td>
+              <button
+                type="button"
+                class="btn-detalle"
+                data-detalle="${idDetalle}"
+              >
+                VER DETALLE
+              </button>
+            </td>
+
+          </tr>
+
+          <tr
+            class="fila-detalle"
+            id="${idDetalle}"
+          >
+
+            <td colspan="7">
+
+              <div class="detalle-grid">
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Cant. Rend.
+                  </div>
+                  <div class="detalle-valor">
+                    ${contadorSeguro(
+                      registro.cantidad_pps
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Cant. Dens. Básica
+                  </div>
+                  <div class="detalle-valor">
+                    ${contadorSeguro(
+                      registro.cantidad_densidad_basica
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Prom. Rend.
+                  </div>
+                  <div class="detalle-valor lima">
+                    ${numeroDecimal(
+                      registro.promedio_rendimiento_con_merma
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Prom. PPS
+                  </div>
+                  <div class="detalle-valor">
+                    ${porcentajePPS(
+                      registro.promedio_pps
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Prom. Dens. Básica
+                  </div>
+                  <div class="detalle-valor">
+                    ${numeroDecimal(
+                      registro.promedio_densidad_basica
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Último Rend.
+                  </div>
+                  <div class="detalle-valor">
+                    ${formatearFecha(
+                      registro.ultima_fecha_pps
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Última Dens. Básica
+                  </div>
+                  <div class="detalle-valor">
+                    ${formatearFecha(
+                      registro.ultima_fecha_densidad_basica
+                    )}
+                  </div>
+                </div>
+
+                <div class="detalle-item">
+                  <div class="detalle-label">
+                    Último Ingreso
+                  </div>
+                  <div class="detalle-valor">
+                    ${formatearFecha(
+                      registro.ultima_fecha_remito
+                    )}
+                  </div>
+                </div>
+
+              </div>
+
             </td>
 
           </tr>
@@ -2030,6 +2572,27 @@ async function cargarDatos(){
 
 
 document.getElementById(
+  "filtroTiempo"
+).addEventListener(
+  "input",
+  event => {
+
+    filtroTiempoSeleccionado =
+      Number(
+        event.target.value
+      );
+
+
+    actualizarGuiaTiempo();
+
+    aplicarFiltros();
+
+  }
+);
+
+
+
+document.getElementById(
   "filtroNombreFas"
 ).addEventListener(
   "change",
@@ -2236,6 +2799,46 @@ document.getElementById(
   "click",
   event => {
 
+    const botonDetalle =
+      event.target.closest(
+        ".btn-detalle"
+      );
+
+
+    if(
+      botonDetalle
+    ){
+
+      const idDetalle =
+        botonDetalle.dataset.detalle;
+
+
+      const fila =
+        document.getElementById(
+          idDetalle
+        );
+
+
+      if(fila){
+
+        const visible =
+          fila.classList.toggle(
+            "visible"
+          );
+
+
+        botonDetalle.textContent =
+          visible
+            ? "OCULTAR"
+            : "VER DETALLE";
+
+      }
+
+
+      return;
+    }
+
+
     const celda =
       event.target.closest(
         ".nombre-fas-click"
@@ -2283,7 +2886,6 @@ document.getElementById(
 
   }
 );
-
 
 
 document.querySelectorAll(
@@ -2368,6 +2970,8 @@ function actualizarIndicadoresOrden(){
 
 
 actualizarIndicadoresOrden();
+
+actualizarGuiaTiempo();
 
 cargarDatos();
 
