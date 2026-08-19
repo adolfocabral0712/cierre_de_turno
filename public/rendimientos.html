@@ -226,16 +226,7 @@
        BARCOS
        ============================================================ */
 
-    body.modo-barcos th:nth-child(6),
-    body.modo-barcos td:nth-child(6),
-    body.modo-barcos th:nth-child(8),
-    body.modo-barcos td:nth-child(8),
-    body.modo-barcos th:nth-child(11),
-    body.modo-barcos td:nth-child(11),
-    body.modo-barcos th:nth-child(13),
-    body.modo-barcos td:nth-child(13){
-      display:none;
-    }
+    
 
 
     /* ============================================================
@@ -317,6 +308,37 @@
         font-size:22px;
       }
 
+    }
+
+    /* ============================================================
+       MODO BARCOS
+       SOLO:
+       NOMBRE FAS
+       ESPECIE
+       CANT. DENS. BASICA
+       PROM. DENS. BASICA
+       ULTIMA DENS. BASICA
+       ============================================================ */
+
+    body.modo-barcos th:nth-child(3),
+    body.modo-barcos td:nth-child(3),
+    body.modo-barcos th:nth-child(4),
+    body.modo-barcos td:nth-child(4),
+    body.modo-barcos th:nth-child(5),
+    body.modo-barcos td:nth-child(5),
+    body.modo-barcos th:nth-child(6),
+    body.modo-barcos td:nth-child(6),
+    body.modo-barcos th:nth-child(8),
+    body.modo-barcos td:nth-child(8),
+    body.modo-barcos th:nth-child(9),
+    body.modo-barcos td:nth-child(9),
+    body.modo-barcos th:nth-child(11),
+    body.modo-barcos td:nth-child(11),
+    body.modo-barcos th:nth-child(13),
+    body.modo-barcos td:nth-child(13),
+    body.modo-barcos th:nth-child(14),
+    body.modo-barcos td:nth-child(14){
+      display:none;
     }
 
   </style>
@@ -419,7 +441,7 @@
     </div>
 
 
-    <div class="fila-controles">
+    <div id="bloqueAlertas" class="fila-controles">
 
 
       <button
@@ -1094,7 +1116,95 @@ function actualizarVisibilidadColumnas(){
 
 
 
+function actualizarVisibilidadAlertas(){
+
+  const filtroActivo =
+    document.getElementById(
+      "filtroActivo"
+    );
+
+  const valorActivo =
+    filtroActivo
+      ? normalizar(
+          filtroActivo.value
+        )
+      : "";
+
+
+  const bloqueAlertas =
+    document.getElementById(
+      "bloqueAlertas"
+    );
+
+
+  if(!bloqueAlertas){
+    return;
+  }
+
+
+  /* ACTIVO = NO -> ocultar ambos avisos */
+
+  if(
+    valorActivo === "NO"
+  ){
+    bloqueAlertas.style.display =
+      "none";
+
+    return;
+  }
+
+
+  bloqueAlertas.style.display =
+    "";
+
+
+  /* BARCOS -> ocultar solo aviso de rendimiento */
+
+  const modoBarcos =
+    document.body.classList.contains(
+      "modo-barcos"
+    );
+
+
+  const botones =
+    bloqueAlertas.querySelectorAll(
+      "button"
+    );
+
+
+  botones.forEach(
+    boton => {
+
+      const texto =
+        normalizar(
+          boton.textContent
+        );
+
+
+      if(
+        modoBarcos &&
+        texto.includes(
+          "NECESITA RENDIMIENTO"
+        )
+      ){
+        boton.style.display =
+          "none";
+      }
+      else{
+        boton.style.display =
+          "";
+      }
+
+    }
+  );
+
+}
+
+
+
 function aplicarFiltros(){
+
+  actualizarVisibilidadAlertas();
 
   actualizarVisibilidadColumnas();
 
@@ -2368,6 +2478,37 @@ function actualizarIndicadoresOrden(){
 
 
 actualizarIndicadoresOrden();
+
+
+document.getElementById(
+  "filtroActivo"
+)?.addEventListener(
+  "change",
+  actualizarVisibilidadAlertas
+);
+
+
+
+document.querySelectorAll(
+  "[data-tipo]"
+).forEach(
+  boton => {
+
+    boton.addEventListener(
+      "click",
+      () => {
+
+        setTimeout(
+          actualizarVisibilidadAlertas,
+          0
+        );
+
+      }
+    );
+
+  }
+);
+
 
 cargarDatos();
 
