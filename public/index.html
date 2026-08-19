@@ -781,7 +781,7 @@
     .home-buttons{
       width:min(1100px,100%);
       display:grid;
-      grid-template-columns:repeat(3, minmax(220px,1fr));
+      grid-template-columns:repeat(4, minmax(200px,1fr));
       gap:18px;
     }
 
@@ -1069,7 +1069,7 @@
 
       .section-nav-btns{
         display:grid;
-        grid-template-columns:repeat(3,1fr);
+        grid-template-columns:repeat(4,1fr);
         gap:6px;
         width:100%;
       }
@@ -1281,7 +1281,48 @@
       }
     }
 
-  </style>
+  
+    /* ============================================================
+       RENDIMIENTOS Y DENSIDAD BASICA
+       ============================================================ */
+    .rendimientos-frame-wrap{
+      width:100%;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      overflow:hidden;
+      box-shadow:var(--shadow);
+    }
+
+    .rendimientos-frame{
+      display:block;
+      width:100%;
+      height:calc(100vh - 120px);
+      min-height:760px;
+      border:0;
+      background:#0b0d11;
+    }
+
+    @media(max-width:1100px){
+      .home-buttons{
+        grid-template-columns:repeat(2, minmax(220px,1fr));
+      }
+    }
+
+    @media(max-width:700px){
+      .rendimientos-frame{
+        min-height:900px;
+        height:calc(100vh - 90px);
+      }
+    }
+
+    @media(max-width:560px){
+      .home-buttons{
+        grid-template-columns:1fr;
+      }
+    }
+
+</style>
   <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 </head>
 
@@ -1309,6 +1350,12 @@
       <div class="home-btn-title">DESCARGA AL CIERRE</div>
       <div class="home-btn-note">Descargas realizadas, tiempos y toneladas.</div>
     </button>
+
+    <button class="home-btn" type="button" data-section="rendimientosView">
+      <div class="home-btn-title">RENDIMIENTOS Y DENSIDAD BASICA</div>
+      <div class="home-btn-note">Control de rendimientos, densidad básica y pendientes de muestreo.</div>
+    </button>
+
   </div>
 </div>
 
@@ -1319,7 +1366,10 @@
       <div class="section-nav-btns">
         <button type="button" class="nav-btn" data-home>Inicio</button>
         <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
+        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
         <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
+        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
       </div>
     </div>
   <div class="topbar">
@@ -1616,6 +1666,29 @@
     </div>
   </div>
   </div>
+
+  <div class="section-view" id="rendimientosView">
+    <div class="section-nav">
+      <div class="section-nav-title">Rendimientos y densidad básica</div>
+      <div class="section-nav-btns">
+        <button type="button" class="nav-btn" data-home>Inicio</button>
+        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
+        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
+        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+      </div>
+    </div>
+
+    <div class="rendimientos-frame-wrap">
+      <iframe
+        id="rendimientosFrame"
+        class="rendimientos-frame"
+        src="/rendimientos"
+        title="Rendimientos y densidad básica"
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+
 </div>
 
 <script>
