@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>RENDIMIENTOS Y DENSIDAD BASICA</title>
+
+<style>
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    background:#0b0d11;
+    color:#f4f4f4;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.contenedor{
+    width:min(1800px, 98%);
+    margin:20px auto;
+}
+
+.titulo{
+    text-align:center;
+    font-size:28px;
+    font-weight:800;
+    color:#d7ff5f;
+    margin-bottom:5px;
+}
+
+.actualizado{
+    text-align:center;
+    color:#aeb5bf;
+    margin-bottom:22px;
+}
+
+.filtros{
+    background:#15181e;
+    border:1px solid #2c313b;
+    border-radius:10px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.fila-controles{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    gap:20px;
+    width:100%;
+    margin-bottom:14px;
+}
+
+.fila-controles:last-child{
+    margin-bottom:0;
+}
+
+.tipo-label{
+    grid-column:1 / -1;
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    color:#aeb5bf;
+    margin-bottom:-3px;
+}
+
+.filtro{
+    width:100%;
+    min-width:0;
+}
+
+.filtro label{
+    display:block;
+    text-align:center;
+    font-size:12px;
+    font-weight:700;
+    color:#aeb5bf;
+    margin-bottom:8px;
+}
+
+select,
+.tipo-btn,
+.necesidad-btn{
+    width:100%;
+    height:39px;
+    min-height:39px;
+    border-radius:6px;
+    border:1px solid #353b46;
+    font-size:13px;
+    font-weight:700;
+}
+
+select{
+    background:#0f1115;
+    color:#ffffff;
+    padding:0 12px;
+}
+
+.tipo-btn{
+    background:#101319;
+    color:#d7ff5f;
+    cursor:pointer;
+}
+
+.tipo-btn.activo{
+    background:#d7ff5f;
+    color:#0b0d11;
+    border-color:#d7ff5f;
+}
+
+.necesidad-btn{
+    cursor:pointer;
+}
+
+.necesidad-btn.con-registros{
+    background:#ff4d4f;
+    color:#ffffff;
+    border-color:#ff4d4f;
+}
+
+.necesidad-btn.sin-registros{
+    background:#d7ff5f;
+    color:#0b0d11;
+    border-color:#d7ff5f;
+}
+
+.tabla-contenedor{
+    overflow:auto;
+    border:1px solid #2c313b;
+    border-radius:10px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:#111419;
+    min-width:1050px;
+}
+
+th,
+td{
+    padding:10px 9px;
+    border-bottom:1px solid #292e36;
+    text-align:center;
+    white-space:nowrap;
+}
+
+th{
+    position:sticky;
+    top:0;
+    background:#1a1e25;
+    color:#d7ff5f;
+    font-size:12px;
+    z-index:2;
+}
+
+th.sortable{
+    cursor:pointer;
+}
+
+th.sortable::after{
+    content:" ↕";
+    color:#6f7680;
+}
+
+th.sortable.asc::after{
+    content:" ▲";
+    color:#d7ff5f;
+}
+
+th.sortable.desc::after{
+    content:" ▼";
+    color:#d7ff5f;
+}
+
+td{
+    font-size:12px;
+}
+
+.nombre-fas-click{
+    cursor:pointer;
+    font-weight:700;
+}
+
+.nombre-fas-click:hover{
+    color:#d7ff5f;
+    text-decoration:underline;
+}
+
+.activo-si{
+    color:#d7ff5f;
+    font-weight:700;
+}
+
+.activo-no{
+    color:#ff7171;
+    font-weight:700;
+}
+
+.sin-dato{
+    color:#7d848d;
+}
+
+.mensaje{
+    padding:28px;
+    text-align:center;
+    color:#aeb5bf;
+}
+
+.error{
+    color:#ff7171;
+}
+
+body.modo-barcos th:nth-child(3),
+body.modo-barcos td:nth-child(3),
+body.modo-barcos th:nth-child(5),
+body.modo-barcos td:nth-child(5),
+body.modo-barcos th:nth-child(7),
+body.modo-barcos td:nth-child(7),
+body.modo-barcos th:nth-child(9),
+body.modo-barcos td:nth-child(9){
+    display:none;
+}
+
+/* MODAL */
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.72);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:9999;
+    padding:20px;
+}
+
+.modal-overlay.visible{
+    display:flex;
+}
+
+.modal-contenido{
+    width:min(760px,96vw);
+    max-height:85vh;
+    background:#171a21;
+    border:1px solid #343a46;
+    border-radius:12px;
+    overflow:hidden;
+}
+
+.modal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 18px;
+    border-bottom:1px solid #292e38;
+    background:#20242c;
+}
+
+.modal-titulo{
+    margin:0;
+    font-size:18px;
+    color:#d7ff5f;
+}
+
+.modal-cerrar{
+    border:0;
+    background:transparent;
+    color:#ffffff;
+    font-size:26px;
+    cursor:pointer;
+}
+
+.modal-body{
+    padding:16px;
+    overflow:auto;
+    max-height:calc(85vh - 65px);
+}
+
+.modal-tabla{
+    width:100%;
+    min-width:0;
+}
+
+.modal-tabla th,
+.modal-tabla td{
+    text-align:left;
+}
+
+.modal-vacio{
+    padding:28px 10px;
+    text-align:center;
+    color:#a7adb7;
+}
+
+@media (max-width:800px){
+    .fila-controles{
+        gap:10px;
+    }
+
+    .titulo{
+        font-size:22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <div class="titulo">
+        RENDIMIENTOS Y DENSIDAD BASICA
+    </div>
+
+    <div class="actualizado" id="actualizado">
+        Cargando datos...
+    </div>
+
+    <div class="filtros">
+
+        <div class="fila-controles">
+            <div class="tipo-label">TIPO</div>
+
+            <button type="button" class="tipo-btn" id="btnMontes">
+                MONTES
+            </button>
+
+            <button type="button" class="tipo-btn" id="btnBarcos">
+                BARCOS
+            </button>
+        </div>
+
+        <div class="fila-controles">
+
+            <div class="filtro">
+                <label for="filtroNombreFas">NOMBRE FAS</label>
+                <select id="filtroNombreFas"></select>
+            </div>
+
+            <div class="filtro">
+                <label for="filtroActivo">ACTIVO</label>
+                <select id="filtroActivo">
+                    <option value="">TODOS</option>
+                    <option value="SI" selected>SI</option>
+                    <option value="NO">NO</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div class="fila-controles">
+
+            <button
+                type="button"
+                class="necesidad-btn"
+                id="btnNecesitaRendimiento"
+            >
+                NECESITA RENDIMIENTO?
+            </button>
+
+            <button
+                type="button"
+                class="necesidad-btn"
+                id="btnNecesitaDensidad"
+            >
+                NECESITA DENS. BASICA?
+            </button>
+
+        </div>
+
+    </div>
+
+    <div class="tabla-contenedor">
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="sortable" data-campo="nombre_fas">NOMBRE FAS</th>
+                    <th class="sortable" data-campo="especie">ESPECIE</th>
+                    <th class="sortable" data-campo="cantidad_pps">Cant. Rend.</th>
+                    <th class="sortable" data-campo="cantidad_densidad_basica">Cant. Dens. Basica</th>
+                    <th class="sortable" data-campo="promedio_pps">Prom. Rend.</th>
+                    <th class="sortable" data-campo="promedio_densidad_basica">Prom. Dens. Basica</th>
+                    <th class="sortable" data-campo="ultima_fecha_pps">Ultimo Rend.</th>
+                    <th class="sortable" data-campo="ultima_fecha_densidad_basica">Ultima Dens. Basica</th>
+                    <th class="sortable" data-campo="ultima_fecha_remito">Ultimo Ingreso</th>
+                    <th class="sortable" data-campo="activo">ACTIVO</th>
+                </tr>
+            </thead>
+
+            <tbody id="tablaBody">
+                <tr>
+                    <td colspan="10" class="mensaje">
+                        Cargando datos...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="modal-overlay" id="modalNecesidad">
+    <div class="modal-contenido">
+
+        <div class="modal-header">
+            <h2 class="modal-titulo" id="modalTitulo">
+                Aviso
+            </h2>
+
+            <button
+                class="modal-cerrar"
+                id="modalCerrar"
+                type="button"
+            >
+                &times;
+            </button>
+        </div>
+
+        <div class="modal-body" id="modalBody"></div>
+
+    </div>
+</div>
+
+
+<script>
+const URL_JSON = "/api/rendimientos";
+
+let registrosOriginales = [];
+let tipoSeleccionado = "";
+let campoOrden = "nombre_fas";
+let direccionOrden = "asc";
+
+
+function normalizar(valor){
+    if(
+        valor === null ||
+        valor === undefined
+    ){
+        return "";
+    }
+
+    return String(valor)
+        .trim()
+        .toUpperCase();
+}
+
+
+function formatearFecha(valor){
+    if(!valor){
+        return "-";
+    }
+
+    const fecha = new Date(valor);
+
+    if(isNaN(fecha.getTime())){
+        return valor;
+    }
+
+    return fecha.toLocaleDateString(
+        "es-UY",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric"
+        }
+    );
+}
+
+
+function formatearFechaHora(valor){
+    if(!valor){
+        return "-";
+    }
+
+    const fecha = new Date(valor);
+
+    if(isNaN(fecha.getTime())){
+        return valor;
+    }
+
+    return fecha.toLocaleString(
+        "es-UY",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric",
+            hour:"2-digit",
+            minute:"2-digit",
+            hour12:false
+        }
+    );
+}
+
+
+function valorSeguro(valor){
+    if(
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ){
+        return '<span class="sin-dato">-</span>';
+    }
+
+    return String(valor);
+}
+
+
+function contadorSeguro(valor){
+    if(
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ){
+        return '<span class="sin-dato">-</span>';
+    }
+
+    const numero = Number(valor);
+
+    if(
+        isNaN(numero) ||
+        numero === 0
+    ){
+        return '<span class="sin-dato">-</span>';
+    }
+
+    return numero.toLocaleString("es-UY");
+}
+
+
+function numeroDecimal(valor){
+    if(
+        valor === null ||
+        valor === undefined ||
+        valor === ""
+    ){
+        return '<span class="sin-dato">-</span>';
+    }
+
+    const numero = Number(valor);
+
+    if(isNaN(numero)){
+        return valorSeguro(valor);
+    }
+
+    return numero.toLocaleString(
+        "es-UY",
+        {
+            minimumFractionDigits:3,
+            maximumFractionDigits:3
+        }
+    );
+}
+
+
+function diasDesdeFecha(valor){
+    if(!valor){
+        return null;
+    }
+
+    const fecha = new Date(valor);
+
+    if(isNaN(fecha.getTime())){
+        return null;
+    }
+
+    return (
+        Date.now() -
+        fecha.getTime()
+    ) / (1000 * 60 * 60 * 24);
+}
+
+
+function cargarFiltroNombreFas(){
+
+    const select =
+        document.getElementById(
+            "filtroNombreFas"
+        );
+
+    const activoSeleccionado =
+        normalizar(
+            document.getElementById(
+                "filtroActivo"
+            ).value
+        );
+
+    const valorAnterior =
+        select.value;
+
+    let registrosLista =
+        registrosOriginales.filter(
+            registro => {
+
+                const nombreFas =
+                    normalizar(
+                        registro.nombre_fas
+                    );
+
+                const activo =
+                    normalizar(
+                        registro.activo
+                    );
+
+                /* =========================
+                   FILTRO ACTIVO
+                   ========================= */
+
+                const coincideActivo =
+                    !activoSeleccionado ||
+                    activo ===
+                        activoSeleccionado;
+
+                /* =========================
+                   FILTRO TIPO
+                   ========================= */
+
+                const contieneBarco =
+                    nombreFas.includes(
+                        "BARCO"
+                    );
+
+                const coincideTipo =
+                    !tipoSeleccionado ||
+                    (
+                        tipoSeleccionado ===
+                            "BARCOS" &&
+                        contieneBarco
+                    ) ||
+                    (
+                        tipoSeleccionado ===
+                            "MONTES" &&
+                        !contieneBarco
+                    );
+
+                return (
+                    coincideActivo &&
+                    coincideTipo
+                );
+            }
+        );
+
+    const valores = [
+        ...new Set(
+            registrosLista
+                .map(
+                    registro =>
+                        registro.nombre_fas
+                )
+                .filter(
+                    valor =>
+                        valor !== null &&
+                        valor !== undefined &&
+                        String(valor).trim() !== ""
+                )
+        )
+    ];
+
+    valores.sort(
+        (a,b) =>
+            String(a).localeCompare(
+                String(b),
+                "es",
+                {
+                    sensitivity:"base"
+                }
+            )
+    );
+
+    select.innerHTML = "";
+
+    /* =======================================================
+       Placeholder vacío.
+       NO es "TODOS" y evita seleccionar el primer NOMBRE FAS
+       ======================================================= */
+
+    const placeholder =
+        document.createElement(
+            "option"
+        );
+
+    placeholder.value = "";
+    placeholder.textContent =
+        "SELECCIONAR NOMBRE FAS";
+
+    select.appendChild(
+        placeholder
+    );
+
+    valores.forEach(
+        valor => {
+
+            const option =
+                document.createElement(
+                    "option"
+                );
+
+            option.value =
+                String(valor);
+
+            option.textContent =
+                String(valor);
+
+            select.appendChild(
+                option
+            );
+        }
+    );
+
+    /* Mantener selección anterior si todavía es válida */
+    if(
+        valorAnterior &&
+        valores.some(
+            valor =>
+                String(valor) ===
+                valorAnterior
+        )
+    ){
+        select.value =
+            valorAnterior;
+    }else{
+        select.value = "";
+    }
+}
+function actualizarVisibilidadColumnas(){
+    document.body.classList.toggle(
+        "modo-barcos",
+        tipoSeleccionado === "BARCOS"
+    );
+}
+
+
+function aplicarFiltros(){
+
+    actualizarVisibilidadColumnas();
+
+    const nombreSeleccionado =
+        normalizar(
+            document.getElementById(
+                "filtroNombreFas"
+            ).value
+        );
+
+    const activoSeleccionado =
+        normalizar(
+            document.getElementById(
+                "filtroActivo"
+            ).value
+        );
+
+    const registros =
+        registrosOriginales.filter(
+            registro => {
+
+                const nombreFas =
+                    normalizar(
+                        registro.nombre_fas
+                    );
+
+                const especie =
+                    normalizar(
+                        registro.especie
+                    );
+
+                const coincideNombre =
+                    !nombreSeleccionado ||
+                    nombreFas ===
+                        nombreSeleccionado;
+
+                const coincideActivo =
+                    !activoSeleccionado ||
+                    normalizar(
+                        registro.activo
+                    ) ===
+                        activoSeleccionado;
+
+                const esBarco =
+                    nombreFas.includes(
+                        "BARCO"
+                    );
+
+                const coincideTipo =
+                    !tipoSeleccionado ||
+                    (
+                        tipoSeleccionado ===
+                            "BARCOS" &&
+                        esBarco
+                    ) ||
+                    (
+                        tipoSeleccionado ===
+                            "MONTES" &&
+                        !esBarco
+                    );
+
+                const excluirSinEspecie =
+                    !especie ||
+                    especie === "-";
+
+                const excluirTroza =
+                    especie.includes(
+                        "TROZA"
+                    );
+
+                const excluirBalanza =
+                    nombreFas.includes(
+                        "BALANZA"
+                    );
+
+                const excluirQuebrachoAlmedo =
+                    nombreFas ===
+                        "QUEBRACHO - ALMEDO SAS" &&
+                    especie ===
+                        "GLOBULUS 3,60";
+
+                return (
+                    coincideNombre &&
+                    coincideActivo &&
+                    coincideTipo &&
+                    !excluirSinEspecie &&
+                    !excluirTroza &&
+                    !excluirBalanza &&
+                    !excluirQuebrachoAlmedo
+                );
+            }
+        );
+
+    registros.sort(
+        (a,b) =>
+            compararValores(
+                a[campoOrden],
+                b[campoOrden],
+                campoOrden
+            )
+    );
+
+    dibujarTabla(
+        registros
+    );
+}
+
+
+function compararValores(a,b,campo){
+
+    const multiplicador =
+        direccionOrden === "asc"
+            ? 1
+            : -1;
+
+    if(
+        a === null ||
+        a === undefined ||
+        a === ""
+    ){
+        return 1 * multiplicador;
+    }
+
+    if(
+        b === null ||
+        b === undefined ||
+        b === ""
+    ){
+        return -1 * multiplicador;
+    }
+
+    const camposNumericos = [
+        "cantidad_pps",
+        "cantidad_densidad_basica",
+        "promedio_pps",
+        "promedio_densidad_basica"
+    ];
+
+    const camposFecha = [
+        "ultima_fecha_pps",
+        "ultima_fecha_densidad_basica",
+        "ultima_fecha_remito"
+    ];
+
+    if(
+        camposNumericos.includes(
+            campo
+        )
+    ){
+        const na = Number(a);
+        const nb = Number(b);
+
+        if(na < nb){
+            return -1 * multiplicador;
+        }
+
+        if(na > nb){
+            return 1 * multiplicador;
+        }
+
+        return 0;
+    }
+
+    if(
+        camposFecha.includes(
+            campo
+        )
+    ){
+        const fa =
+            new Date(a).getTime();
+
+        const fb =
+            new Date(b).getTime();
+
+        if(fa < fb){
+            return -1 * multiplicador;
+        }
+
+        if(fa > fb){
+            return 1 * multiplicador;
+        }
+
+        return 0;
+    }
+
+    return String(a).localeCompare(
+        String(b),
+        "es",
+        {
+            sensitivity:"base"
+        }
+    ) * multiplicador;
+}
+
+
+function dibujarTabla(registros){
+
+    const tbody =
+        document.getElementById(
+            "tablaBody"
+        );
+
+    if(registros.length === 0){
+
+        tbody.innerHTML =
+            '<tr>' +
+            '<td colspan="10" class="mensaje">' +
+            'No hay registros para los filtros seleccionados.' +
+            '</td>' +
+            '</tr>';
+
+        return;
+    }
+
+    tbody.innerHTML =
+        registros.map(
+            registro => {
+
+                const activo =
+                    normalizar(
+                        registro.activo
+                    );
+
+                const claseActivo =
+                    activo === "SI"
+                        ? "activo-si"
+                        : "activo-no";
+
+                const nombreAttr =
+                    String(
+                        registro.nombre_fas || ""
+                    )
+                    .replace(
+                        /&/g,
+                        "&amp;"
+                    )
+                    .replace(
+                        /"/g,
+                        "&quot;"
+                    );
+
+                return `
+                    <tr>
+
+                        <td
+                            class="nombre-fas-click"
+                            data-nombre="${nombreAttr}"
+                        >
+                            ${valorSeguro(
+                                registro.nombre_fas
+                            )}
+                        </td>
+
+                        <td>
+                            ${valorSeguro(
+                                registro.especie
+                            )}
+                        </td>
+
+                        <td>
+                            ${contadorSeguro(
+                                registro.cantidad_pps
+                            )}
+                        </td>
+
+                        <td>
+                            ${contadorSeguro(
+                                registro.cantidad_densidad_basica
+                            )}
+                        </td>
+
+                        <td>
+                            ${numeroDecimal(
+                                registro.promedio_pps
+                            )}
+                        </td>
+
+                        <td>
+                            ${numeroDecimal(
+                                registro.promedio_densidad_basica
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatearFecha(
+                                registro.ultima_fecha_pps
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatearFecha(
+                                registro.ultima_fecha_densidad_basica
+                            )}
+                        </td>
+
+                        <td>
+                            ${formatearFecha(
+                                registro.ultima_fecha_remito
+                            )}
+                        </td>
+
+                        <td class="${claseActivo}">
+                            ${valorSeguro(
+                                registro.activo
+                            )}
+                        </td>
+
+                    </tr>
+                `;
+            }
+        ).join("");
+}
+
+
+function obtenerPendientes(tipo){
+
+    return registrosOriginales
+        .filter(
+            registro => {
+
+                const nombreFas =
+                    normalizar(
+                        registro.nombre_fas
+                    );
+
+                const especie =
+                    normalizar(
+                        registro.especie
+                    );
+
+                const activoSi =
+                    normalizar(
+                        registro.activo
+                    ) === "SI";
+
+                const diasUltimoIngreso =
+                    diasDesdeFecha(
+                        registro.ultima_fecha_remito
+                    );
+
+                const ingresoMenor30Dias =
+                    diasUltimoIngreso !== null &&
+                    diasUltimoIngreso >= 0 &&
+                    diasUltimoIngreso < 30;
+
+                const ingresoMayor1Ano =
+                    diasUltimoIngreso !== null &&
+                    diasUltimoIngreso > 365;
+
+                const cumpleCondicionIngreso =
+                    ingresoMenor30Dias ||
+                    ingresoMayor1Ano;
+
+                const sinRendimiento =
+                    Number(
+                        registro.cantidad_pps || 0
+                    ) === 0;
+
+                const sinDensidad =
+                    Number(
+                        registro.cantidad_densidad_basica || 0
+                    ) === 0;
+
+                const excluirSinEspecie =
+                    !especie ||
+                    especie === "-";
+
+                const excluirTroza =
+                    especie.includes(
+                        "TROZA"
+                    );
+
+                const excluirBalanza =
+                    nombreFas.includes(
+                        "BALANZA"
+                    );
+
+                const excluirQuebrachoAlmedo =
+                    nombreFas ===
+                        "QUEBRACHO - ALMEDO SAS" &&
+                    especie ===
+                        "GLOBULUS 3,60";
+
+                if(
+                    !activoSi ||
+                    !cumpleCondicionIngreso ||
+                    excluirSinEspecie ||
+                    excluirTroza ||
+                    excluirBalanza ||
+                    excluirQuebrachoAlmedo
+                ){
+                    return false;
+                }
+
+                if(
+                    tipo === "RENDIMIENTO"
+                ){
+                    return sinRendimiento;
+                }
+
+                if(
+                    tipo === "DENSIDAD"
+                ){
+                    return sinDensidad;
+                }
+
+                return false;
+            }
+        )
+        .sort(
+            (a,b) => {
+
+                const monteA =
+                    normalizar(
+                        a.nombre_fas
+                    );
+
+                const monteB =
+                    normalizar(
+                        b.nombre_fas
+                    );
+
+                if(
+                    monteA !== monteB
+                ){
+                    return monteA.localeCompare(
+                        monteB,
+                        "es"
+                    );
+                }
+
+                return normalizar(
+                    a.especie
+                ).localeCompare(
+                    normalizar(
+                        b.especie
+                    ),
+                    "es"
+                );
+            }
+        );
+}
+
+
+function actualizarEstadoBotonesNecesidad(){
+
+    const cantidadRendimiento =
+        obtenerPendientes(
+            "RENDIMIENTO"
+        ).length;
+
+    const cantidadDensidad =
+        obtenerPendientes(
+            "DENSIDAD"
+        ).length;
+
+    actualizarColorBoton(
+        "btnNecesitaRendimiento",
+        cantidadRendimiento
+    );
+
+    actualizarColorBoton(
+        "btnNecesitaDensidad",
+        cantidadDensidad
+    );
+}
+
+
+function actualizarColorBoton(id,cantidad){
+
+    const boton =
+        document.getElementById(
+            id
+        );
+
+    boton.classList.remove(
+        "con-registros",
+        "sin-registros"
+    );
+
+    boton.classList.add(
+        cantidad > 0
+            ? "con-registros"
+            : "sin-registros"
+    );
+}
+
+
+function abrirModalNecesidad(tipo){
+
+    const registros =
+        obtenerPendientes(
+            tipo
+        );
+
+    const titulo =
+        tipo === "RENDIMIENTO"
+            ? "NECESITA RENDIMIENTO"
+            : "NECESITA DENS. BASICA";
+
+    document.getElementById(
+        "modalTitulo"
+    ).textContent =
+        titulo +
+        " (" +
+        registros.length +
+        ")";
+
+    const body =
+        document.getElementById(
+            "modalBody"
+        );
+
+    if(registros.length === 0){
+
+        body.innerHTML =
+            '<div class="modal-vacio">' +
+            'No hay pendientes para mostrar.' +
+            '</div>';
+
+    }else{
+
+        body.innerHTML = `
+            <table class="modal-tabla">
+                <thead>
+                    <tr>
+                        <th>MONTE</th>
+                        <th>PRODUCTO</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    ${registros.map(
+                        registro => `
+                            <tr>
+                                <td>
+                                    ${valorSeguro(
+                                        registro.nombre_fas
+                                    )}
+                                </td>
+
+                                <td>
+                                    ${valorSeguro(
+                                        registro.especie
+                                    )}
+                                </td>
+                            </tr>
+                        `
+                    ).join("")}
+                </tbody>
+            </table>
+        `;
+    }
+
+    document.getElementById(
+        "modalNecesidad"
+    ).classList.add(
+        "visible"
+    );
+}
+
+
+function cerrarModalNecesidad(){
+    document.getElementById(
+        "modalNecesidad"
+    ).classList.remove(
+        "visible"
+    );
+}
+
+
+async function cargarDatos(){
+
+    try{
+
+        const separador =
+            URL_JSON.includes("?")
+                ? "&"
+                : "?";
+
+        const url =
+            URL_JSON +
+            separador +
+            "t=" +
+            Date.now();
+
+        const respuesta =
+            await fetch(
+                url,
+                {
+                    cache:"no-store"
+                }
+            );
+
+        if(!respuesta.ok){
+            throw new Error(
+                "HTTP " +
+                respuesta.status
+            );
+        }
+
+        const texto =
+            await respuesta.text();
+
+        let datos;
+
+        try{
+            datos =
+                JSON.parse(
+                    texto
+                );
+
+        }catch(errorJson){
+            throw new Error(
+                "JSON inválido: " +
+                errorJson.message
+            );
+        }
+
+        registrosOriginales =
+            Array.isArray(
+                datos.registros
+            )
+                ? datos.registros
+                : [];
+
+        document.getElementById(
+            "actualizado"
+        ).textContent =
+            "Actualizado: " +
+            formatearFechaHora(
+                datos.actualizado
+            );
+
+        cargarFiltroNombreFas();
+
+        aplicarFiltros();
+
+        actualizarEstadoBotonesNecesidad();
+
+    }catch(error){
+
+        console.error(
+            "Error cargando dashboard:",
+            error
+        );
+
+        document.getElementById(
+            "actualizado"
+        ).textContent =
+            "No fue posible cargar los datos";
+
+        document.getElementById(
+            "tablaBody"
+        ).innerHTML =
+            '<tr>' +
+            '<td colspan="10" class="mensaje error">' +
+            'No fue posible cargar los datos: ' +
+            valorSeguro(
+                error.message
+            ) +
+            '</td>' +
+            '</tr>';
+    }
+}
+
+
+/* EVENTOS */
+
+document.getElementById(
+    "filtroNombreFas"
+).addEventListener(
+    "change",
+    aplicarFiltros
+);
+
+
+document.getElementById(
+    "filtroActivo"
+).addEventListener(
+    "change",
+    () => {
+
+        cargarFiltroNombreFas();
+
+        aplicarFiltros();
+    }
+);
+
+
+document.getElementById(
+    "btnMontes"
+).addEventListener(
+    "click",
+    () => {
+
+        if(
+            tipoSeleccionado ===
+            "MONTES"
+        ){
+            tipoSeleccionado = "";
+
+            document.getElementById(
+                "btnMontes"
+            ).classList.remove(
+                "activo"
+            );
+
+        }else{
+            tipoSeleccionado =
+                "MONTES";
+
+            document.getElementById(
+                "btnMontes"
+            ).classList.add(
+                "activo"
+            );
+
+            document.getElementById(
+                "btnBarcos"
+            ).classList.remove(
+                "activo"
+            );
+        }
+
+        cargarFiltroNombreFas();
+        aplicarFiltros();
+    }
+);
+
+
+document.getElementById(
+    "btnBarcos"
+).addEventListener(
+    "click",
+    () => {
+
+        if(
+            tipoSeleccionado ===
+            "BARCOS"
+        ){
+            tipoSeleccionado = "";
+
+            document.getElementById(
+                "btnBarcos"
+            ).classList.remove(
+                "activo"
+            );
+
+        }else{
+            tipoSeleccionado =
+                "BARCOS";
+
+            document.getElementById(
+                "btnBarcos"
+            ).classList.add(
+                "activo"
+            );
+
+            document.getElementById(
+                "btnMontes"
+            ).classList.remove(
+                "activo"
+            );
+
+            document.getElementById(
+                "filtroActivo"
+            ).value = "";
+
+            cargarFiltroNombreFas();
+        }
+
+        aplicarFiltros();
+    }
+);
+
+
+document.getElementById(
+    "btnNecesitaRendimiento"
+).addEventListener(
+    "click",
+    () => {
+        abrirModalNecesidad(
+            "RENDIMIENTO"
+        );
+    }
+);
+
+
+document.getElementById(
+    "btnNecesitaDensidad"
+).addEventListener(
+    "click",
+    () => {
+        abrirModalNecesidad(
+            "DENSIDAD"
+        );
+    }
+);
+
+
+document.getElementById(
+    "modalCerrar"
+).addEventListener(
+    "click",
+    cerrarModalNecesidad
+);
+
+
+document.getElementById(
+    "modalNecesidad"
+).addEventListener(
+    "click",
+    event => {
+
+        if(
+            event.target.id ===
+            "modalNecesidad"
+        ){
+            cerrarModalNecesidad();
+        }
+    }
+);
+
+
+document.addEventListener(
+    "keydown",
+    event => {
+
+        if(event.key === "Escape"){
+            cerrarModalNecesidad();
+        }
+    }
+);
+
+
+document.getElementById(
+    "tablaBody"
+).addEventListener(
+    "click",
+    event => {
+
+        const celda =
+            event.target.closest(
+                ".nombre-fas-click"
+            );
+
+        if(!celda){
+            return;
+        }
+
+        const nombre =
+            celda.dataset.nombre || "";
+
+        const select =
+            document.getElementById(
+                "filtroNombreFas"
+            );
+
+        const existe =
+            [...select.options]
+                .some(
+                    option =>
+                        option.value ===
+                        nombre
+                );
+
+        if(existe){
+            select.value =
+                nombre;
+
+            aplicarFiltros();
+
+            select.scrollIntoView(
+                {
+                    behavior:"smooth",
+                    block:"center"
+                }
+            );
+        }
+    }
+);
+
+
+document.querySelectorAll(
+    "th.sortable"
+).forEach(
+    th => {
+
+        th.addEventListener(
+            "click",
+            () => {
+
+                const nuevoCampo =
+                    th.dataset.campo;
+
+                if(
+                    campoOrden ===
+                    nuevoCampo
+                ){
+                    direccionOrden =
+                        direccionOrden ===
+                            "asc"
+                            ? "desc"
+                            : "asc";
+
+                }else{
+                    campoOrden =
+                        nuevoCampo;
+
+                    direccionOrden =
+                        "asc";
+                }
+
+                actualizarIndicadoresOrden();
+
+                aplicarFiltros();
+            }
+        );
+    }
+);
+
+
+function actualizarIndicadoresOrden(){
+
+    document.querySelectorAll(
+        "th.sortable"
+    ).forEach(
+        th => {
+
+            th.classList.remove(
+                "asc",
+                "desc"
+            );
+
+            if(
+                th.dataset.campo ===
+                campoOrden
+            ){
+                th.classList.add(
+                    direccionOrden
+                );
+            }
+        }
+    );
+}
+
+
+actualizarIndicadoresOrden();
+
+cargarDatos();
+</script>
+
+</body>
+</html>
