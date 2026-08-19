@@ -1391,7 +1391,7 @@
     <div class="kpi">
       <div class="kpi-label">Promedio de densidad</div>
       <div class="kpi-value" id="kpiDensidad">0,000</div>
-      <div class="kpi-note">Promedio ponderado del mes actual</div>
+      <div class="kpi-note">Promedio real del mes actual</div>
     </div>
   </div>
 
@@ -2053,6 +2053,14 @@ function registrosFiltrados() {
 
 
 /* ============================================================
+   PROMEDIO DE DENSIDAD
+   Se calcula SIEMPRE como:
+   suma_densidad / cantidad_densidades
+
+   No se utiliza promedio_densidad ponderado por viajes.
+   ============================================================ */
+
+/* ============================================================
    AGRUPACIÓN
    ============================================================ */
 function agrupar(registros) {
@@ -2074,30 +2082,30 @@ function agrupar(registros) {
         cosecha: r.cosecha ?? "",
         certificacion: normalizarCertificacion(r.certificacion),
         nombre_prod: r.nombre_prod ?? "",
+
         viajes: 0,
         muestras: 0,
-        sumaDensidadPonderada: 0,
-        pesoDensidad: 0
+
+        // Para calcular el promedio REAL sin promedio de promedios
+        suma_densidad: 0,
+        cantidad_densidades: 0
       });
     }
 
     const g = mapa.get(key);
 
-    const viajes = Number(r.viajes) || 0;
-    const muestras = Number(r.muestras) || 0;
-    const densidad = Number(r.promedio_densidad);
+    g.viajes += Number(r.viajes) || 0;
+    g.muestras += Number(r.muestras) || 0;
 
-    g.viajes += viajes;
-    g.muestras += muestras;
+    const suma = Number(r.suma_densidad);
+    const cantidad = Number(r.cantidad_densidades);
 
-    if (Number.isFinite(densidad)) {
-      /*
-        Ponderamos por viajes porque el JSON ya viene resumido por fecha.
-        Esto evita que un día con 2 viajes pese igual que uno con 100.
-      */
-      const peso = viajes > 0 ? viajes : 1;
-      g.sumaDensidadPonderada += densidad * peso;
-      g.pesoDensidad += peso;
+    if (Number.isFinite(suma)) {
+      g.suma_densidad += suma;
+    }
+
+    if (Number.isFinite(cantidad)) {
+      g.cantidad_densidades += cantidad;
     }
   });
 
@@ -2108,10 +2116,14 @@ function agrupar(registros) {
     certificacion: g.certificacion,
     nombre_prod: g.nombre_prod,
 
+    // Promedio exacto del filtro/grupo seleccionado
     promedio_densidad:
-      g.pesoDensidad > 0
-        ? g.sumaDensidadPonderada / g.pesoDensidad
+      g.cantidad_densidades > 0
+        ? g.suma_densidad / g.cantidad_densidades
         : null,
+
+    suma_densidad: g.suma_densidad,
+    cantidad_densidades: g.cantidad_densidades,
 
     viajes: g.viajes,
     muestras: g.muestras,
@@ -2131,20 +2143,21 @@ function calcularTotales(registrosAgrupados) {
   let viajes = 0;
   let muestras = 0;
   let sumaDensidad = 0;
-  let pesoDensidad = 0;
+  let cantidadDensidades = 0;
 
   registrosAgrupados.forEach(r => {
-    const v = Number(r.viajes) || 0;
-    const m = Number(r.muestras) || 0;
-    const d = Number(r.promedio_densidad);
+    viajes += Number(r.viajes) || 0;
+    muestras += Number(r.muestras) || 0;
 
-    viajes += v;
-    muestras += m;
+    const suma = Number(r.suma_densidad);
+    const cantidad = Number(r.cantidad_densidades);
 
-    if (Number.isFinite(d)) {
-      const peso = v > 0 ? v : 1;
-      sumaDensidad += d * peso;
-      pesoDensidad += peso;
+    if (Number.isFinite(suma)) {
+      sumaDensidad += suma;
+    }
+
+    if (Number.isFinite(cantidad)) {
+      cantidadDensidades += cantidad;
     }
   });
 
@@ -2158,9 +2171,12 @@ function calcularTotales(registrosAgrupados) {
         : 0,
 
     densidad:
-      pesoDensidad > 0
-        ? sumaDensidad / pesoDensidad
-        : null
+      cantidadDensidades > 0
+        ? sumaDensidad / cantidadDensidades
+        : null,
+
+    suma_densidad: sumaDensidad,
+    cantidad_densidades: cantidadDensidades
   };
 }
 
