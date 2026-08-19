@@ -25,8 +25,36 @@ export default {
     }
 
     // =========================================================
+    // API - RENDIMIENTOS Y DENSIDAD BASICA
+    // =========================================================
+    if (url.pathname === "/api/rendimientos") {
+      return proxyJSON(env.JSON_RENDIMIENTOS);
+    }
+
+    // =========================================================
+    // PAGINA RENDIMIENTOS
+    // /rendimientos -> /rendimientos.html
+    // =========================================================
+    if (
+      url.pathname === "/rendimientos" ||
+      url.pathname === "/rendimientos/"
+    ) {
+
+      const assetUrl = new URL(request.url);
+
+      assetUrl.pathname =
+        "/rendimientos.html";
+
+      return env.ASSETS.fetch(
+        new Request(
+          assetUrl.toString(),
+          request
+        )
+      );
+    }
+
+    // =========================================================
     // ARCHIVOS ESTÁTICOS
-    // index.html, css, etc.
     // =========================================================
     return env.ASSETS.fetch(request);
   }
@@ -49,7 +77,8 @@ async function proxyJSON(urlOrigen) {
       {
         status: 500,
         headers: {
-          "Content-Type": "application/json; charset=utf-8"
+          "Content-Type":
+            "application/json; charset=utf-8"
         }
       }
     );
@@ -58,11 +87,28 @@ async function proxyJSON(urlOrigen) {
 
   try {
 
+    const url =
+      new URL(urlOrigen);
+
+    // Forzar descarga directa Dropbox
+    url.searchParams.set(
+      "dl",
+      "1"
+    );
+
+    // Evitar caché
+    url.searchParams.set(
+      "t",
+      Date.now().toString()
+    );
+
+
     const respuesta = await fetch(
-      urlOrigen,
+      url.toString(),
       {
         headers: {
-          "User-Agent": "Cloudflare-Worker"
+          "User-Agent":
+            "Cloudflare-Worker"
         }
       }
     );
@@ -73,13 +119,16 @@ async function proxyJSON(urlOrigen) {
       return new Response(
         JSON.stringify({
           error: true,
-          mensaje: "No fue posible obtener el JSON.",
-          statusOrigen: respuesta.status
+          mensaje:
+            "No fue posible obtener el JSON.",
+          statusOrigen:
+            respuesta.status
         }),
         {
           status: 502,
           headers: {
-            "Content-Type": "application/json; charset=utf-8"
+            "Content-Type":
+              "application/json; charset=utf-8"
           }
         }
       );
@@ -118,7 +167,12 @@ async function proxyJSON(urlOrigen) {
     return new Response(
       JSON.stringify({
         error: true,
-        mensaje: "Error interno al consultar la fuente."
+        mensaje:
+          "Error interno al consultar la fuente.",
+        detalle:
+          error instanceof Error
+            ? error.message
+            : String(error)
       }),
       {
         status: 500,
