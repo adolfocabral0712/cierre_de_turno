@@ -2,320 +2,324 @@
 <html lang="es">
 
 <head>
+  <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0"
->
+  <title>
+    RENDIMIENTOS Y DENSIDAD BASICA
+  </title>
 
-<title>RENDIMIENTOS Y DENSIDAD BASICA</title>
+  <style>
 
-<style>
+    *{
+      box-sizing:border-box;
+    }
 
-*{
-  box-sizing:border-box;
-}
+    body{
+      margin:0;
+      background:#0b0d11;
+      color:#f4f4f4;
+      font-family:Segoe UI, Arial, sans-serif;
+    }
 
-body{
-  margin:0;
-  background:#0b0d11;
-  color:#f4f4f4;
-  font-family:Segoe UI, Arial, sans-serif;
-}
+    .contenedor{
+      width:min(1800px,98%);
+      margin:20px auto;
+    }
 
-.contenedor{
-  width:min(1800px,98%);
-  margin:20px auto;
-}
+    .titulo{
+      text-align:center;
+      font-size:28px;
+      font-weight:800;
+      color:#d7ff5f;
+      margin-bottom:5px;
+    }
 
-.titulo{
-  text-align:center;
-  font-size:28px;
-  font-weight:800;
-  color:#d7ff5f;
-  margin-bottom:5px;
-}
+    .actualizado{
+      text-align:center;
+      color:#aeb5bf;
+      margin-bottom:22px;
+    }
 
-.actualizado{
-  text-align:center;
-  color:#aeb5bf;
-  margin-bottom:22px;
-}
+    .filtros{
+      background:#15181e;
+      border:1px solid #2c313b;
+      border-radius:10px;
+      padding:18px;
+      margin-bottom:18px;
+    }
 
-.filtros{
-  background:#15181e;
-  border:1px solid #2c313b;
-  border-radius:10px;
-  padding:18px;
-  margin-bottom:18px;
-}
+    .fila-controles{
+      display:grid;
+      grid-template-columns:
+        minmax(0,1fr)
+        minmax(0,1fr);
+      gap:20px;
+      width:100%;
+      margin-bottom:14px;
+    }
 
-.fila-controles{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
-  gap:20px;
-  width:100%;
-  margin-bottom:14px;
-}
+    .fila-controles:last-child{
+      margin-bottom:0;
+    }
 
-.fila-controles:last-child{
-  margin-bottom:0;
-}
+    .tipo-label{
+      grid-column:1 / -1;
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+      color:#aeb5bf;
+    }
 
-.tipo-label{
-  grid-column:1 / -1;
-  text-align:center;
-  font-size:12px;
-  font-weight:700;
-  color:#aeb5bf;
-}
+    .filtro{
+      width:100%;
+      min-width:0;
+    }
 
-.filtro{
-  width:100%;
-  min-width:0;
-}
+    .filtro label{
+      display:block;
+      text-align:center;
+      font-size:12px;
+      font-weight:700;
+      color:#aeb5bf;
+      margin-bottom:8px;
+    }
 
-.filtro label{
-  display:block;
-  text-align:center;
-  font-size:12px;
-  font-weight:700;
-  color:#aeb5bf;
-  margin-bottom:8px;
-}
+    select,
+    .tipo-btn,
+    .necesidad-btn{
+      width:100%;
+      height:39px;
+      border-radius:6px;
+      border:1px solid #353b46;
+      font-size:13px;
+      font-weight:700;
+    }
 
-select,
-.tipo-btn,
-.necesidad-btn{
-  width:100%;
-  height:39px;
-  border-radius:6px;
-  border:1px solid #353b46;
-  font-size:13px;
-  font-weight:700;
-}
+    select{
+      background:#0f1115;
+      color:#fff;
+      padding:0 12px;
+    }
 
-select{
-  background:#0f1115;
-  color:#fff;
-  padding:0 12px;
-}
+    .tipo-btn{
+      background:#101319;
+      color:#d7ff5f;
+      cursor:pointer;
+    }
 
-.tipo-btn{
-  background:#101319;
-  color:#d7ff5f;
-  cursor:pointer;
-}
+    .tipo-btn.activo{
+      background:#d7ff5f;
+      color:#0b0d11;
+      border-color:#d7ff5f;
+    }
 
-.tipo-btn.activo{
-  background:#d7ff5f;
-  color:#0b0d11;
-  border-color:#d7ff5f;
-}
+    .necesidad-btn{
+      cursor:pointer;
+    }
 
-.necesidad-btn{
-  cursor:pointer;
-}
+    .necesidad-btn.con-registros{
+      background:#ff4d4f;
+      color:#fff;
+      border-color:#ff4d4f;
+    }
 
-.necesidad-btn.con-registros{
-  background:#ff4d4f;
-  color:#fff;
-  border-color:#ff4d4f;
-}
+    .necesidad-btn.sin-registros{
+      background:#d7ff5f;
+      color:#0b0d11;
+      border-color:#d7ff5f;
+    }
 
-.necesidad-btn.sin-registros{
-  background:#d7ff5f;
-  color:#0b0d11;
-  border-color:#d7ff5f;
-}
+    .tabla-contenedor{
+      overflow:auto;
+      border:1px solid #2c313b;
+      border-radius:10px;
+    }
 
-.tabla-contenedor{
-  overflow:auto;
-  border:1px solid #2c313b;
-  border-radius:10px;
-}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#111419;
+      min-width:1050px;
+    }
 
-table{
-  width:100%;
-  border-collapse:collapse;
-  background:#111419;
-  min-width:1050px;
-}
+    th,
+    td{
+      padding:10px 9px;
+      border-bottom:1px solid #292e36;
+      text-align:center;
+      white-space:nowrap;
+    }
 
-th,
-td{
-  padding:10px 9px;
-  border-bottom:1px solid #292e36;
-  text-align:center;
-  white-space:nowrap;
-}
+    th{
+      position:sticky;
+      top:0;
+      background:#1a1e25;
+      color:#d7ff5f;
+      font-size:12px;
+      z-index:2;
+    }
 
-th{
-  position:sticky;
-  top:0;
-  background:#1a1e25;
-  color:#d7ff5f;
-  font-size:12px;
-  z-index:2;
-}
+    th.sortable{
+      cursor:pointer;
+    }
 
-th.sortable{
-  cursor:pointer;
-}
+    th.sortable::after{
+      content:" ↕";
+      color:#6f7680;
+    }
 
-th.sortable::after{
-  content:" ↕";
-  color:#6f7680;
-}
+    th.sortable.asc::after{
+      content:" ▲";
+      color:#d7ff5f;
+    }
 
-th.sortable.asc::after{
-  content:" ▲";
-  color:#d7ff5f;
-}
+    th.sortable.desc::after{
+      content:" ▼";
+      color:#d7ff5f;
+    }
 
-th.sortable.desc::after{
-  content:" ▼";
-  color:#d7ff5f;
-}
+    td{
+      font-size:12px;
+    }
 
-td{
-  font-size:12px;
-}
+    .nombre-fas-click{
+      cursor:pointer;
+      font-weight:700;
+    }
 
-.nombre-fas-click{
-  cursor:pointer;
-  font-weight:700;
-}
+    .nombre-fas-click:hover{
+      color:#d7ff5f;
+      text-decoration:underline;
+    }
 
-.nombre-fas-click:hover{
-  color:#d7ff5f;
-  text-decoration:underline;
-}
+    .activo-si{
+      color:#d7ff5f;
+      font-weight:700;
+    }
 
-.activo-si{
-  color:#d7ff5f;
-  font-weight:700;
-}
+    .activo-no{
+      color:#ff7171;
+      font-weight:700;
+    }
 
-.activo-no{
-  color:#ff7171;
-  font-weight:700;
-}
+    .sin-dato{
+      color:#7d848d;
+    }
 
-.sin-dato{
-  color:#7d848d;
-}
+    .mensaje{
+      padding:28px;
+      text-align:center;
+      color:#aeb5bf;
+    }
 
-.mensaje{
-  padding:28px;
-  text-align:center;
-  color:#aeb5bf;
-}
-
-.error{
-  color:#ff7171;
-}
-
-
-/* ============================================================
-   BARCOS
-   ============================================================ */
-
-body.modo-barcos th:nth-child(3),
-body.modo-barcos td:nth-child(3),
-body.modo-barcos th:nth-child(5),
-body.modo-barcos td:nth-child(5),
-body.modo-barcos th:nth-child(7),
-body.modo-barcos td:nth-child(7),
-body.modo-barcos th:nth-child(9),
-body.modo-barcos td:nth-child(9){
-  display:none;
-}
+    .error{
+      color:#ff7171;
+    }
 
 
-/* ============================================================
-   MODAL
-   ============================================================ */
+    /* ============================================================
+       BARCOS
+       ============================================================ */
 
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.72);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  padding:20px;
-}
+    body.modo-barcos th:nth-child(3),
+    body.modo-barcos td:nth-child(3),
+    body.modo-barcos th:nth-child(5),
+    body.modo-barcos td:nth-child(5),
+    body.modo-barcos th:nth-child(7),
+    body.modo-barcos td:nth-child(7),
+    body.modo-barcos th:nth-child(9),
+    body.modo-barcos td:nth-child(9){
+      display:none;
+    }
 
-.modal-overlay.visible{
-  display:flex;
-}
 
-.modal-contenido{
-  width:min(760px,96vw);
-  max-height:85vh;
-  background:#171a21;
-  border:1px solid #343a46;
-  border-radius:12px;
-  overflow:hidden;
-}
+    /* ============================================================
+       MODAL
+       ============================================================ */
 
-.modal-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:16px 18px;
-  border-bottom:1px solid #292e38;
-  background:#20242c;
-}
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.72);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+      padding:20px;
+    }
 
-.modal-titulo{
-  margin:0;
-  font-size:18px;
-  color:#d7ff5f;
-}
+    .modal-overlay.visible{
+      display:flex;
+    }
 
-.modal-cerrar{
-  border:0;
-  background:transparent;
-  color:#fff;
-  font-size:26px;
-  cursor:pointer;
-}
+    .modal-contenido{
+      width:min(760px,96vw);
+      max-height:85vh;
+      background:#171a21;
+      border:1px solid #343a46;
+      border-radius:12px;
+      overflow:hidden;
+    }
 
-.modal-body{
-  padding:16px;
-  overflow:auto;
-  max-height:calc(85vh - 65px);
-}
+    .modal-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:16px 18px;
+      border-bottom:1px solid #292e38;
+      background:#20242c;
+    }
 
-.modal-tabla{
-  width:100%;
-  min-width:0;
-}
+    .modal-titulo{
+      margin:0;
+      font-size:18px;
+      color:#d7ff5f;
+    }
 
-.modal-vacio{
-  padding:28px 10px;
-  text-align:center;
-  color:#a7adb7;
-}
+    .modal-cerrar{
+      border:0;
+      background:transparent;
+      color:#fff;
+      font-size:26px;
+      cursor:pointer;
+    }
 
-@media(max-width:800px){
+    .modal-body{
+      padding:16px;
+      overflow:auto;
+      max-height:calc(85vh - 65px);
+    }
 
-  .fila-controles{
-    gap:10px;
-  }
+    .modal-tabla{
+      width:100%;
+      min-width:0;
+    }
 
-  .titulo{
-    font-size:22px;
-  }
+    .modal-vacio{
+      padding:28px 10px;
+      text-align:center;
+      color:#a7adb7;
+    }
 
-}
 
-</style>
+    @media(max-width:800px){
+
+      .fila-controles{
+        gap:10px;
+      }
+
+      .titulo{
+        font-size:22px;
+      }
+
+    }
+
+  </style>
 
 </head>
 
@@ -325,9 +329,11 @@ body.modo-barcos td:nth-child(9){
 
 <div class="contenedor">
 
+
   <div class="titulo">
     RENDIMIENTOS Y DENSIDAD BASICA
   </div>
+
 
   <div
     class="actualizado"
@@ -346,6 +352,7 @@ body.modo-barcos td:nth-child(9){
         TIPO
       </div>
 
+
       <button
         type="button"
         class="tipo-btn"
@@ -353,6 +360,7 @@ body.modo-barcos td:nth-child(9){
       >
         MONTES
       </button>
+
 
       <button
         type="button"
@@ -366,6 +374,7 @@ body.modo-barcos td:nth-child(9){
 
 
     <div class="fila-controles">
+
 
       <div class="filtro">
 
@@ -406,10 +415,12 @@ body.modo-barcos td:nth-child(9){
 
       </div>
 
+
     </div>
 
 
     <div class="fila-controles">
+
 
       <button
         type="button"
@@ -419,6 +430,7 @@ body.modo-barcos td:nth-child(9){
         NECESITA RENDIMIENTO?
       </button>
 
+
       <button
         type="button"
         class="necesidad-btn"
@@ -427,56 +439,90 @@ body.modo-barcos td:nth-child(9){
         NECESITA DENS. BASICA?
       </button>
 
+
     </div>
+
 
   </div>
 
 
   <div class="tabla-contenedor">
 
+
     <table>
+
 
       <thead>
 
         <tr>
 
-          <th class="sortable" data-campo="nombre_fas">
+          <th
+            class="sortable"
+            data-campo="nombre_fas"
+          >
             NOMBRE FAS
           </th>
 
-          <th class="sortable" data-campo="especie">
+          <th
+            class="sortable"
+            data-campo="especie"
+          >
             ESPECIE
           </th>
 
-          <th class="sortable" data-campo="cantidad_pps">
+          <th
+            class="sortable"
+            data-campo="cantidad_pps"
+          >
             Cant. Rend.
           </th>
 
-          <th class="sortable" data-campo="cantidad_densidad_basica">
+          <th
+            class="sortable"
+            data-campo="cantidad_densidad_basica"
+          >
             Cant. Dens. Basica
           </th>
 
-          <th class="sortable" data-campo="promedio_pps">
+          <th
+            class="sortable"
+            data-campo="promedio_pps"
+          >
             Prom. Rend.
           </th>
 
-          <th class="sortable" data-campo="promedio_densidad_basica">
+          <th
+            class="sortable"
+            data-campo="promedio_densidad_basica"
+          >
             Prom. Dens. Basica
           </th>
 
-          <th class="sortable" data-campo="ultima_fecha_pps">
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_pps"
+          >
             Ultimo Rend.
           </th>
 
-          <th class="sortable" data-campo="ultima_fecha_densidad_basica">
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_densidad_basica"
+          >
             Ultima Dens. Basica
           </th>
 
-          <th class="sortable" data-campo="ultima_fecha_remito">
+          <th
+            class="sortable"
+            data-campo="ultima_fecha_remito"
+          >
             Ultimo Ingreso
           </th>
 
-          <th class="sortable" data-campo="activo">
+          <th
+            class="sortable"
+            data-campo="activo"
+          >
             ACTIVO
           </th>
 
@@ -500,9 +546,12 @@ body.modo-barcos td:nth-child(9){
 
       </tbody>
 
+
     </table>
 
+
   </div>
+
 
 </div>
 
@@ -515,7 +564,9 @@ body.modo-barcos td:nth-child(9){
 
   <div class="modal-contenido">
 
+
     <div class="modal-header">
+
 
       <h2
         class="modal-titulo"
@@ -523,6 +574,7 @@ body.modo-barcos td:nth-child(9){
       >
         Aviso
       </h2>
+
 
       <button
         class="modal-cerrar"
@@ -532,6 +584,7 @@ body.modo-barcos td:nth-child(9){
         &times;
       </button>
 
+
     </div>
 
 
@@ -540,6 +593,7 @@ body.modo-barcos td:nth-child(9){
       id="modalBody"
     >
     </div>
+
 
   </div>
 
@@ -1284,10 +1338,11 @@ function dibujarTabla(registros){
 
    SOLO ACTIVO = SI
 
-   Y además:
-   - último ingreso menor a 30 días
-   O
-   - último ingreso mayor a 365 días
+   REGLA:
+   - último ingreso < 30 días:
+       mostrar si falta el análisis
+   - último ingreso > 365 días:
+       mostrar siempre, aunque tenga históricos
    ============================================================ */
 
 function obtenerPendientes(tipo){
@@ -1315,11 +1370,6 @@ function obtenerPendientes(tipo){
           "SI";
 
 
-        /*
-         * REGLA OBLIGATORIA:
-         * si no es ACTIVO = SI,
-         * nunca entra al emergente.
-         */
         if(!activoSi){
           return false;
         }
@@ -1331,39 +1381,53 @@ function obtenerPendientes(tipo){
           );
 
 
+        if(
+          diasUltimoIngreso ===
+          null
+        ){
+          return false;
+        }
+
+
         const ingresoMenor30Dias =
-          diasUltimoIngreso !== null &&
           diasUltimoIngreso >= 0 &&
           diasUltimoIngreso < 30;
 
 
         const ingresoMayor1Ano =
-          diasUltimoIngreso !== null &&
           diasUltimoIngreso > 365;
 
 
-        const cumpleCondicionIngreso =
-          ingresoMenor30Dias ||
-          ingresoMayor1Ano;
-
-
-        if(!cumpleCondicionIngreso){
+        if(
+          !ingresoMenor30Dias &&
+          !ingresoMayor1Ano
+        ){
           return false;
         }
 
 
-        const sinRendimiento =
+        const cantidadRendimiento =
           Number(
             registro.cantidad_pps ||
             0
-          ) === 0;
+          );
 
 
-        const sinDensidad =
+        const cantidadDensidad =
           Number(
             registro.cantidad_densidad_basica ||
             0
-          ) === 0;
+          );
+
+
+        const sinRendimiento =
+          cantidadRendimiento ===
+          0;
+
+
+        const sinDensidad =
+          cantidadDensidad ===
+          0;
 
 
         const excluirSinEspecie =
@@ -1404,7 +1468,23 @@ function obtenerPendientes(tipo){
           tipo ===
           "RENDIMIENTO"
         ){
-          return sinRendimiento;
+
+          if(
+            ingresoMayor1Ano
+          ){
+            return true;
+          }
+
+
+          if(
+            ingresoMenor30Dias &&
+            sinRendimiento
+          ){
+            return true;
+          }
+
+
+          return false;
         }
 
 
@@ -1412,7 +1492,23 @@ function obtenerPendientes(tipo){
           tipo ===
           "DENSIDAD"
         ){
-          return sinDensidad;
+
+          if(
+            ingresoMayor1Ano
+          ){
+            return true;
+          }
+
+
+          if(
+            ingresoMenor30Dias &&
+            sinDensidad
+          ){
+            return true;
+          }
+
+
+          return false;
         }
 
 
@@ -1436,7 +1532,8 @@ function obtenerPendientes(tipo){
 
 
         if(
-          monteA !== monteB
+          monteA !==
+          monteB
         ){
 
           return monteA.localeCompare(
@@ -1447,12 +1544,20 @@ function obtenerPendientes(tipo){
         }
 
 
-        return normalizar(
-          a.especie
-        ).localeCompare(
+        const productoA =
+          normalizar(
+            a.especie
+          );
+
+
+        const productoB =
           normalizar(
             b.especie
-          ),
+          );
+
+
+        return productoA.localeCompare(
+          productoB,
           "es"
         );
 
