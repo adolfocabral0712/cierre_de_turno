@@ -319,66 +319,6 @@
 
     }
 
-
-    /* ============================================================
-       LINEA DE TIEMPO - ULTIMO INGRESO
-       ============================================================ */
-
-    .tiempo-panel{
-      background:#15181e;
-      border:1px solid #2c313b;
-      border-radius:10px;
-      padding:16px 18px 18px;
-      margin-bottom:18px;
-    }
-
-    .tiempo-titulo{
-      text-align:center;
-      color:#d7ff5f;
-      font-size:12px;
-      font-weight:800;
-      letter-spacing:.5px;
-      margin-bottom:14px;
-    }
-
-    .tiempo-slider{
-      width:100%;
-      accent-color:#d7ff5f;
-      cursor:pointer;
-    }
-
-    .tiempo-marcas{
-      display:grid;
-      grid-template-columns:repeat(8,1fr);
-      gap:4px;
-      margin-top:8px;
-      color:#8f97a2;
-      font-size:10px;
-      font-weight:700;
-      text-align:center;
-    }
-
-    .tiempo-marcas span.activa{
-      color:#d7ff5f;
-    }
-
-    .tiempo-info{
-      margin-top:12px;
-      text-align:center;
-      color:#aeb5bf;
-      font-size:12px;
-    }
-
-    .tiempo-info strong{
-      color:#f4f4f4;
-    }
-
-    @media(max-width:700px){
-      .tiempo-marcas{
-        font-size:8px;
-      }
-    }
-
   </style>
 
 </head>
@@ -496,7 +436,7 @@
         class="necesidad-btn"
         id="btnNecesitaDensidad"
       >
-        NECESITA DENS. BASICA?
+        NECESITA DENSIDAD BASICA?
       </button>
 
 
@@ -506,42 +446,7 @@
   </div>
 
 
-  
-  <div class="tiempo-panel">
-
-    <div class="tiempo-titulo">
-      GUIA DE TIEMPO - ULTIMO INGRESO
-    </div>
-
-    <input
-      type="range"
-      id="filtroTiempo"
-      class="tiempo-slider"
-      min="0"
-      max="7"
-      step="1"
-      value="0"
-    >
-
-    <div class="tiempo-marcas" id="tiempoMarcas">
-      <span data-tiempo="0" class="activa">TODOS</span>
-      <span data-tiempo="1">5 AÑOS</span>
-      <span data-tiempo="2">2 AÑOS</span>
-      <span data-tiempo="3">1 AÑO</span>
-      <span data-tiempo="4">6 MESES</span>
-      <span data-tiempo="5">3 MESES</span>
-      <span data-tiempo="6">30 DÍAS</span>
-      <span data-tiempo="7">HOY</span>
-    </div>
-
-    <div class="tiempo-info" id="tiempoInfo">
-      Mostrando: <strong>TODOS LOS REGISTROS</strong>
-    </div>
-
-  </div>
-
-
-<div class="tabla-contenedor">
+  <div class="tabla-contenedor">
 
 
     <table>
@@ -740,46 +645,6 @@ let campoOrden =
 
 let direccionOrden =
   "asc";
-
-
-let filtroTiempoSeleccionado =
-  0;
-
-
-const opcionesTiempo = [
-  {
-    etiqueta:"TODOS",
-    dias:null
-  },
-  {
-    etiqueta:"5 AÑOS",
-    dias:365 * 5
-  },
-  {
-    etiqueta:"2 AÑOS",
-    dias:365 * 2
-  },
-  {
-    etiqueta:"1 AÑO",
-    dias:365
-  },
-  {
-    etiqueta:"6 MESES",
-    dias:183
-  },
-  {
-    etiqueta:"3 MESES",
-    dias:92
-  },
-  {
-    etiqueta:"30 DÍAS",
-    dias:30
-  },
-  {
-    etiqueta:"HOY",
-    dias:0
-  }
-];
 
 
 
@@ -1059,203 +924,6 @@ function diasDesdeFecha(valor){
 
 
 
-function fechaSolo(valor){
-
-  if(!valor){
-    return null;
-  }
-
-  const texto =
-    String(valor).trim();
-
-  const iso =
-    texto.match(
-      /^(\d{4})-(\d{2})-(\d{2})/
-    );
-
-  if(iso){
-
-    const fecha =
-      new Date(
-        Number(iso[1]),
-        Number(iso[2]) - 1,
-        Number(iso[3])
-      );
-
-    fecha.setHours(
-      0,
-      0,
-      0,
-      0
-    );
-
-    return fecha;
-  }
-
-  const fecha =
-    new Date(valor);
-
-  if(
-    isNaN(
-      fecha.getTime()
-    )
-  ){
-    return null;
-  }
-
-  fecha.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-  return fecha;
-}
-
-
-
-function cumpleFiltroTiempo(registro){
-
-  const opcion =
-    opcionesTiempo[
-      filtroTiempoSeleccionado
-    ];
-
-  if(
-    !opcion ||
-    opcion.dias === null
-  ){
-    return true;
-  }
-
-  const fechaIngreso =
-    fechaSolo(
-      registro.ultima_fecha_remito
-    );
-
-  if(!fechaIngreso){
-    return false;
-  }
-
-  const hoy =
-    new Date();
-
-  hoy.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-  if(
-    opcion.dias === 0
-  ){
-    return (
-      fechaIngreso.getTime() ===
-      hoy.getTime()
-    );
-  }
-
-  const fechaLimite =
-    new Date(hoy);
-
-  fechaLimite.setDate(
-    fechaLimite.getDate() -
-    opcion.dias
-  );
-
-  return (
-    fechaIngreso >=
-    fechaLimite
-  );
-}
-
-
-
-function actualizarGuiaTiempo(){
-
-  const opcion =
-    opcionesTiempo[
-      filtroTiempoSeleccionado
-    ];
-
-  document
-    .querySelectorAll(
-      "#tiempoMarcas [data-tiempo]"
-    )
-    .forEach(
-      marca => {
-
-        marca.classList.toggle(
-          "activa",
-          Number(
-            marca.dataset.tiempo
-          ) ===
-          filtroTiempoSeleccionado
-        );
-
-      }
-    );
-
-  let texto =
-    "TODOS LOS REGISTROS";
-
-  if(
-    opcion &&
-    opcion.dias !== null
-  ){
-
-    if(
-      opcion.dias === 0
-    ){
-      texto =
-        "SOLO INGRESOS DE HOY";
-    }
-    else{
-
-      const hoy =
-        new Date();
-
-      hoy.setHours(
-        0,
-        0,
-        0,
-        0
-      );
-
-      const fechaLimite =
-        new Date(hoy);
-
-      fechaLimite.setDate(
-        fechaLimite.getDate() -
-        opcion.dias
-      );
-
-      texto =
-        "DESDE " +
-        fechaLimite.toLocaleDateString(
-          "es-UY",
-          {
-            day:"2-digit",
-            month:"2-digit",
-            year:"numeric"
-          }
-        );
-    }
-
-  }
-
-  document.getElementById(
-    "tiempoInfo"
-  ).innerHTML =
-    'Mostrando: <strong>' +
-    texto +
-    '</strong>';
-}
-
-
-
 function cargarFiltroNombreFas(){
 
   const select =
@@ -1520,17 +1188,10 @@ function aplicarFiltros(){
             "GLOBULUS 3,60";
 
 
-        const coincideTiempo =
-          cumpleFiltroTiempo(
-            registro
-          );
-
-
         return (
           coincideNombre &&
           coincideActivo &&
           coincideTipo &&
-          coincideTiempo &&
           !excluirSinEspecie &&
           !excluirTroza &&
           !excluirBalanza &&
@@ -2158,7 +1819,7 @@ function abrirModalNecesidad(tipo){
       ?
       "NECESITA RENDIMIENTO"
       :
-      "NECESITA DENS. BASICA";
+      "NECESITA DENSIDAD BASICA";
 
 
   document.getElementById(
@@ -2365,26 +2026,6 @@ async function cargarDatos(){
   }
 
 }
-
-
-
-document.getElementById(
-  "filtroTiempo"
-).addEventListener(
-  "input",
-  event => {
-
-    filtroTiempoSeleccionado =
-      Number(
-        event.target.value
-      );
-
-    actualizarGuiaTiempo();
-
-    aplicarFiltros();
-
-  }
-);
 
 
 
@@ -2727,8 +2368,6 @@ function actualizarIndicadoresOrden(){
 
 
 actualizarIndicadoresOrden();
-
-actualizarGuiaTiempo();
 
 cargarDatos();
 
