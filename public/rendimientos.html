@@ -10,10 +10,7 @@
   content="width=device-width, initial-scale=1.0"
 >
 
-<title>
-RENDIMIENTOS Y DENSIDAD BASICA
-</title>
-
+<title>RENDIMIENTOS Y DENSIDAD BASICA</title>
 
 <style>
 
@@ -57,9 +54,7 @@ body{
 
 .fila-controles{
   display:grid;
-  grid-template-columns:
-    minmax(0,1fr)
-    minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
   gap:20px;
   width:100%;
   margin-bottom:14px;
@@ -308,7 +303,6 @@ body.modo-barcos td:nth-child(9){
   color:#a7adb7;
 }
 
-
 @media(max-width:800px){
 
   .fila-controles{
@@ -331,11 +325,9 @@ body.modo-barcos td:nth-child(9){
 
 <div class="contenedor">
 
-
   <div class="titulo">
     RENDIMIENTOS Y DENSIDAD BASICA
   </div>
-
 
   <div
     class="actualizado"
@@ -354,7 +346,6 @@ body.modo-barcos td:nth-child(9){
         TIPO
       </div>
 
-
       <button
         type="button"
         class="tipo-btn"
@@ -362,7 +353,6 @@ body.modo-barcos td:nth-child(9){
       >
         MONTES
       </button>
-
 
       <button
         type="button"
@@ -376,7 +366,6 @@ body.modo-barcos td:nth-child(9){
 
 
     <div class="fila-controles">
-
 
       <div class="filtro">
 
@@ -417,12 +406,10 @@ body.modo-barcos td:nth-child(9){
 
       </div>
 
-
     </div>
 
 
     <div class="fila-controles">
-
 
       <button
         type="button"
@@ -432,7 +419,6 @@ body.modo-barcos td:nth-child(9){
         NECESITA RENDIMIENTO?
       </button>
 
-
       <button
         type="button"
         class="necesidad-btn"
@@ -441,90 +427,56 @@ body.modo-barcos td:nth-child(9){
         NECESITA DENS. BASICA?
       </button>
 
-
     </div>
-
 
   </div>
 
 
   <div class="tabla-contenedor">
 
-
     <table>
-
 
       <thead>
 
         <tr>
 
-          <th
-            class="sortable"
-            data-campo="nombre_fas"
-          >
+          <th class="sortable" data-campo="nombre_fas">
             NOMBRE FAS
           </th>
 
-          <th
-            class="sortable"
-            data-campo="especie"
-          >
+          <th class="sortable" data-campo="especie">
             ESPECIE
           </th>
 
-          <th
-            class="sortable"
-            data-campo="cantidad_pps"
-          >
+          <th class="sortable" data-campo="cantidad_pps">
             Cant. Rend.
           </th>
 
-          <th
-            class="sortable"
-            data-campo="cantidad_densidad_basica"
-          >
+          <th class="sortable" data-campo="cantidad_densidad_basica">
             Cant. Dens. Basica
           </th>
 
-          <th
-            class="sortable"
-            data-campo="promedio_pps"
-          >
+          <th class="sortable" data-campo="promedio_pps">
             Prom. Rend.
           </th>
 
-          <th
-            class="sortable"
-            data-campo="promedio_densidad_basica"
-          >
+          <th class="sortable" data-campo="promedio_densidad_basica">
             Prom. Dens. Basica
           </th>
 
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_pps"
-          >
+          <th class="sortable" data-campo="ultima_fecha_pps">
             Ultimo Rend.
           </th>
 
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_densidad_basica"
-          >
+          <th class="sortable" data-campo="ultima_fecha_densidad_basica">
             Ultima Dens. Basica
           </th>
 
-          <th
-            class="sortable"
-            data-campo="ultima_fecha_remito"
-          >
+          <th class="sortable" data-campo="ultima_fecha_remito">
             Ultimo Ingreso
           </th>
 
-          <th
-            class="sortable"
-            data-campo="activo"
-          >
+          <th class="sortable" data-campo="activo">
             ACTIVO
           </th>
 
@@ -548,12 +500,9 @@ body.modo-barcos td:nth-child(9){
 
       </tbody>
 
-
     </table>
 
-
   </div>
-
 
 </div>
 
@@ -566,9 +515,7 @@ body.modo-barcos td:nth-child(9){
 
   <div class="modal-contenido">
 
-
     <div class="modal-header">
-
 
       <h2
         class="modal-titulo"
@@ -576,7 +523,6 @@ body.modo-barcos td:nth-child(9){
       >
         Aviso
       </h2>
-
 
       <button
         class="modal-cerrar"
@@ -586,7 +532,6 @@ body.modo-barcos td:nth-child(9){
         &times;
       </button>
 
-
     </div>
 
 
@@ -595,7 +540,6 @@ body.modo-barcos td:nth-child(9){
       id="modalBody"
     >
     </div>
-
 
   </div>
 
@@ -1336,14 +1280,14 @@ function dibujarTabla(registros){
 
 
 /* ============================================================
-   PENDIENTES / EMERGENTES
+   EMERGENTES
 
-   REGLA:
-   1) ACTIVO = SI y último ingreso menor a 30 días
-      O
-   2) último ingreso mayor a 365 días
+   SOLO ACTIVO = SI
 
-   La segunda condición NO exige ACTIVO = SI.
+   Y además:
+   - último ingreso menor a 30 días
+   O
+   - último ingreso mayor a 365 días
    ============================================================ */
 
 function obtenerPendientes(tipo){
@@ -1371,6 +1315,16 @@ function obtenerPendientes(tipo){
           "SI";
 
 
+        /*
+         * REGLA OBLIGATORIA:
+         * si no es ACTIVO = SI,
+         * nunca entra al emergente.
+         */
+        if(!activoSi){
+          return false;
+        }
+
+
         const diasUltimoIngreso =
           diasDesdeFecha(
             registro.ultima_fecha_remito
@@ -1388,22 +1342,14 @@ function obtenerPendientes(tipo){
           diasUltimoIngreso > 365;
 
 
-        /*
-         * IMPORTANTE
-         *
-         * ACTIVO = SI solamente se exige
-         * para ingresos recientes.
-         *
-         * Si el último ingreso es de hace
-         * más de un año, se muestra aunque
-         * ACTIVO no sea SI.
-         */
         const cumpleCondicionIngreso =
-          (
-            activoSi &&
-            ingresoMenor30Dias
-          ) ||
+          ingresoMenor30Dias ||
           ingresoMayor1Ano;
+
+
+        if(!cumpleCondicionIngreso){
+          return false;
+        }
 
 
         const sinRendimiento =
@@ -1445,7 +1391,6 @@ function obtenerPendientes(tipo){
 
 
         if(
-          !cumpleCondicionIngreso ||
           excluirSinEspecie ||
           excluirTroza ||
           excluirBalanza ||
