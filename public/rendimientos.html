@@ -226,14 +226,14 @@
        BARCOS
        ============================================================ */
 
-    body.modo-barcos th:nth-child(3),
-    body.modo-barcos td:nth-child(3),
-    body.modo-barcos th:nth-child(5),
-    body.modo-barcos td:nth-child(5),
-    body.modo-barcos th:nth-child(7),
-    body.modo-barcos td:nth-child(7),
-    body.modo-barcos th:nth-child(9),
-    body.modo-barcos td:nth-child(9){
+    body.modo-barcos th:nth-child(6),
+    body.modo-barcos td:nth-child(6),
+    body.modo-barcos th:nth-child(8),
+    body.modo-barcos td:nth-child(8),
+    body.modo-barcos th:nth-child(11),
+    body.modo-barcos td:nth-child(11),
+    body.modo-barcos th:nth-child(13),
+    body.modo-barcos td:nth-child(13){
       display:none;
     }
 
@@ -472,6 +472,27 @@
 
           <th
             class="sortable"
+            data-campo="total_remitos"
+          >
+            Total Remitos
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="porcentaje_rendimiento"
+          >
+            % Rend.
+          </th>
+
+          <th
+            class="sortable"
+            data-campo="porcentaje_densidad_basica"
+          >
+            % Dens. Basica
+          </th>
+
+          <th
+            class="sortable"
             data-campo="cantidad_pps"
           >
             Cant. Rend.
@@ -543,7 +564,7 @@
         <tr>
 
           <td
-            colspan="11"
+            colspan="14"
             class="mensaje"
           >
             Cargando datos...
@@ -804,6 +825,70 @@ function porcentajePPS(valor){
       maximumFractionDigits:1
     }
   ) + "%";
+}
+
+
+
+function porcentajeCobertura(cantidad, total){
+
+  const cantidadNumero =
+    Number(cantidad);
+
+  const totalNumero =
+    Number(total);
+
+
+  if(
+    !Number.isFinite(cantidadNumero) ||
+    !Number.isFinite(totalNumero) ||
+    totalNumero <= 0
+  ){
+    return '<span class="sin-dato">-</span>';
+  }
+
+
+  const porcentaje =
+    (
+      cantidadNumero /
+      totalNumero
+    ) *
+    100;
+
+
+  return porcentaje.toLocaleString(
+    "es-UY",
+    {
+      minimumFractionDigits:1,
+      maximumFractionDigits:1
+    }
+  ) + "%";
+}
+
+
+
+function calcularPorcentajeCobertura(cantidad, total){
+
+  const cantidadNumero =
+    Number(cantidad);
+
+  const totalNumero =
+    Number(total);
+
+
+  if(
+    !Number.isFinite(cantidadNumero) ||
+    !Number.isFinite(totalNumero) ||
+    totalNumero <= 0
+  ){
+    return null;
+  }
+
+
+  return (
+    cantidadNumero /
+    totalNumero
+  ) *
+  100;
 }
 
 
@@ -1120,8 +1205,14 @@ function aplicarFiltros(){
   registros.sort(
     (a,b) =>
       compararValores(
-        a[campoOrden],
-        b[campoOrden],
+        obtenerValorOrden(
+          a,
+          campoOrden
+        ),
+        obtenerValorOrden(
+          b,
+          campoOrden
+        ),
         campoOrden
       )
   );
@@ -1131,6 +1222,35 @@ function aplicarFiltros(){
     registros
   );
 
+}
+
+
+
+function obtenerValorOrden(registro, campo){
+
+  if(
+    campo ===
+    "porcentaje_rendimiento"
+  ){
+    return calcularPorcentajeCobertura(
+      registro.cantidad_pps,
+      registro.total_remitos
+    );
+  }
+
+
+  if(
+    campo ===
+    "porcentaje_densidad_basica"
+  ){
+    return calcularPorcentajeCobertura(
+      registro.cantidad_densidad_basica,
+      registro.total_remitos
+    );
+  }
+
+
+  return registro[campo];
 }
 
 
@@ -1174,7 +1294,10 @@ function compararValores(
       "cantidad_densidad_basica",
       "promedio_rendimiento_con_merma",
       "promedio_pps",
-      "promedio_densidad_basica"
+      "promedio_densidad_basica",
+      "total_remitos",
+      "porcentaje_rendimiento",
+      "porcentaje_densidad_basica"
     ];
 
 
@@ -1254,7 +1377,7 @@ function dibujarTabla(registros){
       <tr>
 
         <td
-          colspan="11"
+          colspan="14"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
@@ -1312,6 +1435,26 @@ function dibujarTabla(registros){
             <td>
               ${valorSeguro(
                 registro.especie
+              )}
+            </td>
+
+            <td>
+              ${contadorSeguro(
+                registro.total_remitos
+              )}
+            </td>
+
+            <td>
+              ${porcentajeCobertura(
+                registro.cantidad_pps,
+                registro.total_remitos
+              )}
+            </td>
+
+            <td>
+              ${porcentajeCobertura(
+                registro.cantidad_densidad_basica,
+                registro.total_remitos
               )}
             </td>
 
@@ -1868,7 +2011,7 @@ async function cargarDatos(){
       <tr>
 
         <td
-          colspan="11"
+          colspan="14"
           class="mensaje error"
         >
           No fue posible cargar los datos:
