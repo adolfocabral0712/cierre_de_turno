@@ -14,7 +14,8 @@
     "required": [
       "JSON_MUESTRAS",
       "JSON_DESCARGAS",
-      "JSON_CIERRE_TURNO"
+      "JSON_CIERRE_TURNO",
+      "JSON_RENDIMIENTOS"
     ]
   }
 }
