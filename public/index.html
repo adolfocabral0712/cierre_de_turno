@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Muestras al cierre</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Información al cierre de turno</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
   <style>
     :root{
       --bg:#0b0f14;
       --panel:#111820;
-      --panel-2:#161f29;
+      --panel2:#161f29;
       --line:#2a3542;
       --text:#f3f6f8;
       --muted:#95a1ad;
-      --accent:#27c2a0;
-      --accent-2:#1d8e78;
+      --lime:#7cfc00;
+      --lime-soft:#c7f7d4;
       --danger:#dc5656;
       --shadow:0 12px 28px rgba(0,0,0,.22);
       --radius:14px;
@@ -24,16 +27,22 @@
       box-sizing:border-box;
     }
 
-    html,body{
+    html,
+    body{
       margin:0;
       min-height:100%;
       background:var(--bg);
       color:var(--text);
-      font-family:Segoe UI, Arial, Helvetica, sans-serif;
+      font-family:"Segoe UI",Arial,Helvetica,sans-serif;
     }
 
     body{
       padding:18px;
+    }
+
+    button,
+    select{
+      font-family:inherit;
     }
 
     .dashboard{
@@ -41,44 +50,149 @@
       margin:0 auto;
     }
 
-    .topbar{
+    /* ============================================================
+       HOME
+       ============================================================ */
+
+    .home-screen{
+      min-height:82vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      padding:30px 15px;
+    }
+
+    .home-title{
+      margin:0 0 10px;
+      color:var(--lime);
+      font-size:32px;
+      font-weight:800;
+      text-align:center;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+    }
+
+    .home-subtitle{
+      color:var(--muted);
+      text-align:center;
+      margin-bottom:30px;
+    }
+
+    .home-buttons{
+      width:min(1350px,100%);
+      display:grid;
+      grid-template-columns:repeat(4,minmax(200px,1fr));
+      gap:18px;
+    }
+
+    .home-btn{
+      min-height:150px;
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--panel);
+      color:var(--text);
+      box-shadow:var(--shadow);
+      padding:20px;
+      cursor:pointer;
+      transition:.2s ease;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+
+    .home-btn:hover{
+      border-color:var(--lime);
+      transform:translateY(-2px);
+      background:#151e27;
+    }
+
+    .home-btn-title{
+      color:var(--lime);
+      font-size:18px;
+      line-height:1.25;
+      font-weight:800;
+      text-transform:uppercase;
+    }
+
+    .home-btn-note{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.4;
+      margin-top:8px;
+    }
+
+    /* ============================================================
+       SECCIONES / NAVEGACIÓN
+       ============================================================ */
+
+    .section-view{
+      display:none;
+    }
+
+    .section-view.active{
+      display:block;
+    }
+
+    .section-nav{
       display:flex;
       justify-content:space-between;
-      align-items:flex-start;
-      gap:16px;
-      margin-bottom:18px;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+
+      padding:10px 12px;
+      margin-bottom:28px;
+
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      box-shadow:var(--shadow);
+    }
+
+    .section-nav-title{
+      color:var(--lime);
+      font-weight:800;
+      font-size:13px;
+      text-transform:uppercase;
+    }
+
+    .section-nav-btns{
+      display:flex;
+      gap:8px;
       flex-wrap:wrap;
     }
 
-    .title-wrap h1{
-      margin:0;
-      font-size:28px;
-      font-weight:800;
-      letter-spacing:.4px;
-      text-transform:uppercase;
-      color:lime;
-      text-align:center;
+    .nav-btn{
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:8px 11px;
+      font-size:12px;
+      font-weight:700;
+      cursor:pointer;
     }
 
-    .title-wrap{
-      width:100%;
-      text-align:center;
-      padding-top:18px;
+    .nav-btn:hover{
+      border-color:var(--lime);
     }
 
-    .title-wrap .subtitle{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:13px;
-    }
+    /* ============================================================
+       GENERAL
+       ============================================================ */
 
     .update-box{
+      width:250px;
+      max-width:100%;
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:12px;
       padding:10px 14px;
-      min-width:250px;
       box-shadow:var(--shadow);
+      margin-bottom:28px;
     }
 
     .update-label{
@@ -89,20 +203,40 @@
       margin-bottom:3px;
     }
 
-    #actualizado{
+    .update-value{
       font-size:14px;
       font-weight:600;
     }
 
+    .main-title{
+      margin:0 0 18px;
+      color:var(--lime);
+      font-size:30px;
+      line-height:1.15;
+      font-weight:800;
+      text-align:center;
+      text-transform:uppercase;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      text-align:center;
+      margin:-10px 0 18px;
+      font-size:13px;
+    }
+
     .filters{
       display:grid;
-      grid-template-columns:repeat(3, minmax(150px,1fr));
+      grid-template-columns:repeat(3,minmax(150px,1fr));
       gap:12px;
+
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:var(--radius);
+
       padding:14px;
       margin-bottom:16px;
+
       box-shadow:var(--shadow);
     }
 
@@ -113,66 +247,77 @@
     }
 
     .filter label{
-      font-size:11px;
       color:var(--muted);
+      font-size:11px;
+      font-weight:700;
       text-transform:uppercase;
       letter-spacing:.7px;
-      font-weight:700;
     }
 
     .filter select{
       width:100%;
-      background:var(--panel-2);
+      height:40px;
+
+      background:var(--panel2);
       color:var(--text);
+
       border:1px solid var(--line);
       border-radius:9px;
-      padding:10px 12px;
+
+      padding:0 12px;
       outline:none;
-      font-size:14px;
     }
 
-    .filter select:focus{
-      border-color:var(--accent);
-    }
-
-
-    .month-info{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
+    .info-box{
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:12px;
       padding:9px 14px;
       margin-bottom:12px;
+
+      text-align:center;
       color:var(--muted);
-      font-size:13px;
-      text-align:center;
-    }
-
-    .month-info strong{
-      color:var(--text);
-      font-weight:700;
-    }
-
-    .fecha-info{
-      margin:-2px 0 12px 0;
-      text-align:center;
-      color:#a9b4bf;
       font-size:12px;
     }
 
-    .fecha-info strong{
-      color:#c7f7d4;
-      font-weight:700;
+    .info-box strong{
+      color:var(--lime-soft);
     }
+
+    .action-wrap{
+      display:flex;
+      justify-content:flex-end;
+      margin-bottom:12px;
+    }
+
+    .action-btn{
+      background:var(--panel2);
+      color:var(--text);
+      border:1px solid var(--line);
+      border-radius:9px;
+      padding:10px 14px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+
+    .action-btn:hover{
+      border-color:var(--lime);
+    }
+
+    /* ============================================================
+       KPIs
+       ============================================================ */
 
     .kpis{
       display:grid;
-      grid-template-columns:repeat(4, minmax(170px,1fr));
+      grid-template-columns:repeat(4,minmax(170px,1fr));
       gap:12px;
       margin-bottom:16px;
+    }
+
+    .kpis.two{
+      grid-template-columns:repeat(2,minmax(220px,1fr));
     }
 
     .kpi{
@@ -188,125 +333,109 @@
       color:var(--muted);
       font-size:11px;
       text-transform:uppercase;
-      letter-spacing:.75px;
-      margin-bottom:6px;
       font-weight:700;
     }
 
     .kpi-value{
-      font-size:29px;
-      font-weight:750;
+      margin-top:7px;
+      font-size:31px;
       line-height:1;
+      font-weight:800;
     }
 
     .kpi-note{
-      margin-top:8px;
       color:var(--muted);
       font-size:11px;
+      margin-top:8px;
     }
+
+    .lime{
+      color:var(--lime);
+    }
+
+    /* ============================================================
+       TABLAS
+       ============================================================ */
 
     .table-card{
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:var(--radius);
-      overflow:visible;
       box-shadow:var(--shadow);
+      overflow:hidden;
+      margin-bottom:16px;
     }
 
     .table-head{
-      padding:14px 16px;
       display:flex;
       justify-content:space-between;
-      gap:12px;
       align-items:center;
-      border-bottom:1px solid var(--line);
+      gap:12px;
       flex-wrap:wrap;
+
+      padding:14px 16px;
+      border-bottom:1px solid var(--line);
     }
 
     .table-title{
+      color:#8ee8a8;
       font-size:16px;
       font-weight:700;
     }
 
-    #tituloDetalleDia,
-    #tituloDetalleMes{
-      color:#8ee8a8;
-    }
-
     .record-count{
       color:var(--muted);
-      font-size:12px;
+      font-size:11px;
     }
 
     .table-scroll{
-      overflow:visible;
-      max-height:none;
+      overflow-x:auto;
     }
 
     table{
       width:100%;
-      min-width:100%;
       border-collapse:collapse;
-      table-layout:auto;
     }
 
-    thead th{
-      position:static;
+    th{
       background:#202a35;
       color:#f7f9fb;
-      text-align:left;
-      font-size:12px;
       padding:9px 7px;
-      border-bottom:1px solid #3a4654;
+      font-size:12px;
       white-space:nowrap;
-      cursor:pointer;
-      user-select:none;
+      border-bottom:1px solid #3a4654;
     }
 
-    thead th.num,
-    tbody td.num,
-    tfoot td.num{
-      text-align:right;
-    }
-
-    tbody td{
+    td{
       padding:8px 7px;
-      border-bottom:1px solid #202a35;
       font-size:13px;
       white-space:nowrap;
+      border-bottom:1px solid #202a35;
+    }
+
+    th,
+    td{
+      text-align:center;
     }
 
     tbody tr:hover{
       background:#141e28;
     }
 
+    tbody tr.alerta-baja{
+      background:rgba(220,86,86,.24);
+    }
+
     tfoot td{
-      position:static;
       background:#202a35;
-      padding:9px 7px;
       font-weight:700;
       border-top:1px solid #3a4654;
-      font-size:13px;
-    }
-
-
-    tbody tr.alerta-baja{
-      background:rgba(220,86,86,.22);
-    }
-
-    tbody tr.alerta-baja:hover{
-      background:rgba(220,86,86,.32);
-    }
-
-    .pct-good{
-      color:#71d7be;
-      font-weight:700;
     }
 
     .empty,
     .error{
-      padding:38px 18px;
       text-align:center;
+      padding:30px;
       color:var(--muted);
     }
 
@@ -314,65 +443,38 @@
       color:#ff8989;
     }
 
+    /* ============================================================
+       PENDIENTES
+       ============================================================ */
 
-    .descargas-section{
-      margin-top:26px;
-      padding-top:18px;
-      border-top:1px solid lime;
-    }
-
-    .descargas-section > .update-box{
-      width:fit-content;
-      min-width:250px;
-    }
-
-    .descargas-title{
-      text-align:center;
-      color:lime;
-      font-size:30px;
-      font-weight:800;
-      letter-spacing:1px;
-      margin:28px 0 18px 0;
-      text-transform:uppercase;
-    }
-
-    .descargas-kpis{
+    .destinos-kpis{
       display:grid;
-      grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
       gap:12px;
       margin-bottom:16px;
     }
 
-    .descarga-kpi{
+    .destino-card{
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:var(--radius);
       padding:18px;
-      box-shadow:var(--shadow);
       text-align:center;
+      box-shadow:var(--shadow);
     }
 
-    .descarga-kpi .label{
+    .destino-card .label{
       color:var(--muted);
       font-size:11px;
       text-transform:uppercase;
-      letter-spacing:.75px;
       font-weight:700;
-      line-height:1.35;
     }
 
-    .descarga-kpi .value{
-      margin-top:8px;
+    .destino-card .value{
+      color:var(--lime);
       font-size:38px;
       font-weight:800;
-      color:lime;
-      line-height:1;
-    }
-
-    .descarga-kpi .note{
       margin-top:7px;
-      color:var(--muted);
-      font-size:11px;
     }
 
     .sin-pendientes{
@@ -382,909 +484,44 @@
       padding:20px;
       text-align:center;
       color:var(--muted);
+      font-weight:700;
       box-shadow:var(--shadow);
-      font-weight:700;
-    }
-
-    .descargas-table th,
-    .descargas-table td{
-      text-align:center;
-    }
-
-    @media(max-width:900px){
-      body{
-        padding:10px;
-      }
-
-      .filters{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-  
-    .month-info{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:9px 14px;
-      margin-bottom:12px;
-      color:var(--muted);
-      font-size:13px;
-      text-align:center;
-    }
-
-    .month-info strong{
-      color:var(--text);
-      font-weight:700;
-    }
-
-    .kpis{
-        grid-template-columns:repeat(2,1fr);
-      }
-
-      .title-wrap h1{
-        font-size:23px;
-      }
-    }
-
-    @media(max-width:560px){
-      .filters,
-  
-    .month-info{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:9px 14px;
-      margin-bottom:12px;
-      color:var(--muted);
-      font-size:13px;
-      text-align:center;
-    }
-
-    .month-info strong{
-      color:var(--text);
-      font-weight:700;
-    }
-
-    .kpis{
-        grid-template-columns:1fr;
-      }
-
-      .update-box{
-        width:100%;
-      }
-    }
-  
-    /* ============================================================
-       ESTANDARIZACIÓN GENERAL DE TIPOGRAFÍA Y TAMAÑOS
-       ============================================================ */
-    html, body,
-    button, input, select, table {
-      font-family: "Segoe UI", Arial, Helvetica, sans-serif;
-    }
-
-    body {
-      font-size:14px;
-      line-height:1.4;
-    }
-
-    .title-wrap h1,
-    .descargas-title,
-    .cierre-title {
-      font-size:28px;
-      line-height:1.15;
-      font-weight:800;
-      letter-spacing:.6px;
-    }
-
-    .subtitle,
-    .month-info,
-    .fecha-info {
-      font-size:13px;
-    }
-
-    .update-label,
-    .filter label,
-    .kpi-label,
-    .descarga-kpi .label,
-    .cierre-kpi .label {
-      font-size:11px;
-    }
-
-    #actualizado,
-    #descargasActualizado,
-    #cierreActualizado,
-    .filter select {
-      font-size:14px;
-    }
-
-    .kpi-value,
-    .descarga-kpi .value,
-    .cierre-kpi .value {
-      font-size:32px;
-      line-height:1;
-    }
-
-    .kpi-note,
-    .descarga-kpi .note,
-    .cierre-kpi .note,
-    .record-count {
-      font-size:11px;
-    }
-
-    .table-title {
-      font-size:16px;
-    }
-
-    thead th {
-      font-size:12px;
-    }
-
-    tbody td,
-    tfoot td {
-      font-size:13px;
-    }
-
-    /* ============================================================
-       DESCARGA CIERRE DE TURNO
-       ============================================================ */
-    .cierre-section{
-      margin-top:26px;
-      padding-top:18px;
-      border-top:1px solid lime;
-    }
-
-    .cierre-section > .update-box{
-      width:fit-content;
-      min-width:250px;
-    }
-
-    .cierre-title{
-      text-align:center;
-      color:lime;
-      margin:28px 0 18px 0;
-      text-transform:uppercase;
-    }
-
-    .cierre-filters{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(150px,1fr));
-      gap:12px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:14px;
       margin-bottom:16px;
-      box-shadow:var(--shadow);
     }
 
-    .cierre-kpis{
+    /* ============================================================
+       CIERRE
+       ============================================================ */
+
+    .ton-resumen{
       display:grid;
-      grid-template-columns:repeat(2, minmax(220px,1fr));
+      grid-template-columns:repeat(2,minmax(220px,1fr));
       gap:12px;
       margin-bottom:16px;
     }
 
-    .cierre-kpi{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:18px;
-      box-shadow:var(--shadow);
-      text-align:center;
-    }
-
-    .cierre-kpi .label{
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.75px;
-      font-weight:700;
-      line-height:1.35;
-    }
-
-    .cierre-kpi .value{
-      margin-top:8px;
-      font-weight:800;
-      color:lime;
-    }
-
-    .cierre-kpi .note{
-      margin-top:7px;
-      color:var(--muted);
-    }
-
-    .cierre-table th,
-    .cierre-table td{
-      text-align:center;
-    }
-
-    @media(max-width:900px){
-      .cierre-filters{
-        grid-template-columns:repeat(2,1fr);
-      }
-    }
-
-    @media(max-width:560px){
-      .cierre-filters,
-      .cierre-kpis{
-        grid-template-columns:1fr;
-      }
-
-      .title-wrap h1,
-      .descargas-title,
-      .cierre-title{
-        font-size:23px;
-      }
-    }
-
-  
-    .cierre-toneladas-resumen{
-      display:grid;
-      grid-template-columns:repeat(2, minmax(220px,1fr));
-      gap:12px;
-      margin:-4px 0 16px 0;
-    }
-
-    .cierre-toneladas-item{
+    .ton-item{
       background:var(--panel);
       border:1px solid var(--line);
       border-radius:12px;
       padding:11px 14px;
       text-align:center;
-      box-shadow:var(--shadow);
       color:var(--muted);
-      font-size:13px;
     }
 
-    .cierre-toneladas-item strong{
+    .ton-item strong{
       color:var(--text);
+    }
+
+    .ton-item span{
+      color:var(--lime);
       font-weight:800;
     }
 
-    .cierre-toneladas-item .valor-ton{
-      color:lime;
-      font-weight:800;
-      margin-left:4px;
-    }
-
-    @media(max-width:560px){
-      .cierre-toneladas-resumen{
-        grid-template-columns:1fr;
-      }
-    }
-
-  
-    .cierre-export-wrap{
-      display:flex;
-      justify-content:flex-end;
-      margin:0 0 12px 0;
-    }
-
-    .cierre-export-btn{
-      background:var(--panel-2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:9px;
-      padding:10px 14px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-
-    .cierre-export-btn:hover{
-      border-color:var(--accent);
-      background:#1a2530;
-    }
-
-    .cierre-export-btn:active{
-      transform:translateY(1px);
-    }
-
-  
-    .filter select option{
-      background:var(--panel-2);
-      color:var(--text);
-    }
-
-  
-    .ultimo-registro-info{
-      margin:-4px 0 14px 0;
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .ultimo-registro-info strong{
-      color:#c7f7d4;
-      font-weight:700;
-    }
-
-  
-    .cierre-ultimo-registro{
-      margin:-4px 0 16px 0;
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .cierre-ultimo-registro strong{
-      color:#c7f7d4;
-      font-weight:700;
-    }
-
-  
-    .muestras-correo-wrap{
-      display:flex;
-      justify-content:flex-end;
-      margin:0 0 12px 0;
-    }
-
-    .muestras-correo-btn{
-      background:var(--panel-2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:9px;
-      padding:10px 14px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
-      transition:.2s ease;
-    }
-
-    .muestras-correo-btn:hover{
-      border-color:var(--accent);
-      background:#1a2530;
-    }
-
-    .muestras-correo-btn:active{
-      transform:translateY(1px);
-    }
-
-  
     /* ============================================================
-       PANTALLA PRINCIPAL - INFORMACIÓN AL CIERRE DE TURNO
-       ============================================================ */
-    .home-screen{
-      min-height:78vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:28px 16px;
-    }
-
-    .home-title{
-      margin:0 0 10px 0;
-      color:lime;
-      font-size:32px;
-      font-weight:800;
-      letter-spacing:.8px;
-      text-align:center;
-      text-transform:uppercase;
-    }
-
-    .home-subtitle{
-      color:var(--muted);
-      font-size:14px;
-      text-align:center;
-      margin-bottom:30px;
-    }
-
-    .home-buttons{
-      width:min(1100px,100%);
-      display:grid;
-      grid-template-columns:repeat(4, minmax(200px,1fr));
-      gap:18px;
-    }
-
-    .home-btn{
-      min-height:150px;
-      background:var(--panel);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:22px 18px;
-      cursor:pointer;
-      transition:.2s ease;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-    }
-
-    .home-btn:hover{
-      border-color:lime;
-      transform:translateY(-2px);
-      background:#151e27;
-    }
-
-    .home-btn-title{
-      color:lime;
-      font-size:18px;
-      font-weight:800;
-      letter-spacing:.5px;
-      text-transform:uppercase;
-    }
-
-    .home-btn-note{
-      margin-top:8px;
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-    }
-
-    .section-view{
-      display:none;
-    }
-
-    .section-view.active{
-      display:block;
-    }
-
-    .section-nav{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin:0 0 18px 0;
-      padding:10px 12px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      box-shadow:var(--shadow);
-    }
-
-    .section-nav-title{
-      font-weight:800;
-      color:lime;
-      text-transform:uppercase;
-      font-size:13px;
-      letter-spacing:.5px;
-    }
-
-    .section-nav-btns{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .nav-btn{
-      background:var(--panel-2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:8px;
-      padding:8px 11px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .nav-btn:hover{
-      border-color:lime;
-    }
-
-    @media(max-width:800px){
-      .home-buttons{
-        grid-template-columns:1fr;
-      }
-
-      .home-title{
-        font-size:25px;
-      }
-    }
-
-  
-    /* ============================================================
-       NORMALIZACIÓN DE ENCABEZADOS DE LAS 3 SECCIONES
+       RENDIMIENTOS
        ============================================================ */
 
-    .section-view{
-      padding-top:0;
-    }
-
-    .section-view .section-nav{
-      margin:0 0 28px 0;
-    }
-
-    /* Quitar las líneas antiguas heredadas entre secciones */
-    .descargas-section,
-    .cierre-section{
-      margin-top:0;
-      padding-top:0;
-      border-top:none !important;
-    }
-
-    /* ------------------------------------------------------------
-       MUESTRAS
-       Orden visual:
-       1) navegación
-       2) última actualización
-       3) título centrado
-       ------------------------------------------------------------ */
-    #muestrasView .topbar{
-      display:flex;
-      flex-direction:column;
-      align-items:stretch;
-      gap:0;
-      margin-bottom:18px;
-    }
-
-    #muestrasView .update-box{
-      order:1;
-      width:250px;
-      min-width:250px;
-      margin:0 0 28px 0;
-    }
-
-    #muestrasView .title-wrap{
-      order:2;
-      width:100%;
-      padding-top:0;
-      margin:0 0 18px 0;
-      text-align:center;
-    }
-
-    #muestrasView .title-wrap h1{
-      margin:0;
-    }
-
-    /* ------------------------------------------------------------
-       PENDIENTES DE DESCARGA
-       ------------------------------------------------------------ */
-    #pendientesView .descargas-section > .update-box{
-      width:250px;
-      min-width:250px;
-      margin:0 0 28px 0 !important;
-    }
-
-    #pendientesView .descargas-title{
-      margin:0 0 18px 0;
-      text-align:center;
-    }
-
-    /* ------------------------------------------------------------
-       DESCARGA AL CIERRE
-       ------------------------------------------------------------ */
-    #cierreView .cierre-section > .update-box{
-      width:250px;
-      min-width:250px;
-      margin:0 0 28px 0 !important;
-    }
-
-    #cierreView .cierre-title{
-      margin:0 0 18px 0;
-      text-align:center;
-    }
-
-    /* Todos los títulos principales con la misma escala */
-    #muestrasView .title-wrap h1,
-    #pendientesView .descargas-title,
-    #cierreView .cierre-title{
-      font-size:30px;
-      line-height:1.15;
-      font-weight:800;
-      letter-spacing:.7px;
-      color:lime;
-      text-transform:uppercase;
-    }
-
-    /* Alinear las cajas de actualización a la misma izquierda */
-    #muestrasView .update-box,
-    #pendientesView .descargas-section > .update-box,
-    #cierreView .cierre-section > .update-box{
-      margin-left:0 !important;
-      margin-right:auto !important;
-    }
-
-    @media(max-width:560px){
-      #muestrasView .update-box,
-      #pendientesView .descargas-section > .update-box,
-      #cierreView .cierre-section > .update-box{
-        width:100%;
-        min-width:0;
-      }
-
-      #muestrasView .title-wrap h1,
-      #pendientesView .descargas-title,
-      #cierreView .cierre-title{
-        font-size:23px;
-      }
-    }
-
-  
-    /* ============================================================
-       AJUSTES ESPECÍFICOS PARA CELULARES
-       ============================================================ */
-    @media(max-width:700px){
-
-      body{
-        padding:8px;
-        overflow-x:hidden;
-      }
-
-      .dashboard{
-        width:100%;
-        max-width:100%;
-      }
-
-      /* PANTALLA PRINCIPAL */
-      .home-screen{
-        min-height:auto;
-        padding:24px 4px 18px;
-      }
-
-      .home-title{
-        font-size:24px;
-        line-height:1.2;
-        margin-bottom:8px;
-      }
-
-      .home-subtitle{
-        font-size:13px;
-        margin-bottom:20px;
-      }
-
-      .home-buttons{
-        grid-template-columns:1fr;
-        gap:12px;
-      }
-
-      .home-btn{
-        min-height:105px;
-        padding:16px 14px;
-      }
-
-      .home-btn-title{
-        font-size:16px;
-      }
-
-      .home-btn-note{
-        font-size:11px;
-      }
-
-      /* NAVEGACIÓN INTERNA */
-      .section-nav{
-        padding:10px;
-        margin-bottom:18px;
-        align-items:stretch;
-        flex-direction:column;
-      }
-
-      .section-nav-title{
-        text-align:center;
-        font-size:13px;
-        margin-bottom:2px;
-      }
-
-      .section-nav-btns{
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:6px;
-        width:100%;
-      }
-
-      .nav-btn{
-        width:100%;
-        padding:9px 5px;
-        font-size:10px;
-        line-height:1.2;
-        min-height:42px;
-      }
-
-      /* ACTUALIZACIÓN */
-      #muestrasView .update-box,
-      #pendientesView .descargas-section > .update-box,
-      #cierreView .cierre-section > .update-box{
-        width:100% !important;
-        min-width:0 !important;
-        margin:0 0 18px 0 !important;
-      }
-
-      .update-box{
-        padding:10px 12px;
-      }
-
-      .update-label{
-        font-size:10px;
-      }
-
-      #actualizado,
-      #descargasActualizado,
-      #cierreActualizado{
-        font-size:13px;
-      }
-
-      /* TÍTULOS */
-      #muestrasView .title-wrap h1,
-      #pendientesView .descargas-title,
-      #cierreView .cierre-title{
-        font-size:22px;
-        line-height:1.2;
-        margin-bottom:8px;
-      }
-
-      .title-wrap .subtitle{
-        font-size:11px;
-      }
-
-      /* FILTROS */
-      .filters,
-      .cierre-filters{
-        grid-template-columns:1fr;
-        gap:9px;
-        padding:11px;
-      }
-
-      .filter{
-        gap:5px;
-      }
-
-      .filter label{
-        font-size:10px;
-      }
-
-      .filter select{
-        padding:10px;
-        font-size:14px;
-      }
-
-      /* INFORMACIÓN SECUNDARIA */
-      .month-info{
-        padding:9px 10px;
-        font-size:12px;
-      }
-
-      .fecha-info,
-      .ultimo-registro-info,
-      .cierre-ultimo-registro{
-        font-size:11px;
-        line-height:1.35;
-      }
-
-      /* KPIs */
-      .kpis,
-      .descargas-kpis,
-      .cierre-kpis,
-      .cierre-toneladas-resumen{
-        grid-template-columns:1fr;
-        gap:10px;
-      }
-
-      .kpi,
-      .descarga-kpi,
-      .cierre-kpi{
-        padding:14px 12px;
-      }
-
-      .kpi-value,
-      .descarga-kpi .value,
-      .cierre-kpi .value{
-        font-size:28px;
-      }
-
-      .cierre-toneladas-item{
-        font-size:12px;
-        padding:10px 12px;
-      }
-
-      /* BOTONES DE ACCIÓN */
-      .muestras-correo-wrap,
-      .cierre-export-wrap{
-        justify-content:stretch;
-      }
-
-      .muestras-correo-btn,
-      .cierre-export-btn{
-        width:100%;
-        padding:11px 12px;
-        font-size:13px;
-      }
-
-      /* TARJETAS / TABLAS */
-      .table-card{
-        border-radius:10px;
-        overflow:hidden;
-      }
-
-      .table-head{
-        padding:11px 10px;
-        flex-direction:column;
-        align-items:flex-start;
-        gap:4px;
-      }
-
-      .table-title{
-        font-size:14px;
-      }
-
-      .record-count{
-        font-size:10px;
-      }
-
-      /* En escritorio se dejó sin scroll interno.
-         En celular sí conviene scroll horizontal solamente. */
-      .table-scroll{
-        overflow-x:auto;
-        overflow-y:visible;
-        max-height:none;
-        -webkit-overflow-scrolling:touch;
-      }
-
-      table{
-        width:max-content;
-        min-width:900px;
-      }
-
-      thead th{
-        position:static;
-        font-size:10px;
-        padding:8px 6px;
-      }
-
-      tbody td,
-      tfoot td{
-        font-size:11px;
-        padding:8px 6px;
-      }
-
-      /* Secciones */
-      .descargas-section,
-      .cierre-section{
-        margin-top:0;
-        padding-top:0;
-      }
-
-      .descargas-title,
-      .cierre-title{
-        margin-top:0;
-      }
-
-      .sin-pendientes{
-        padding:14px 10px;
-        font-size:12px;
-      }
-    }
-
-    @media(max-width:430px){
-      .section-nav-btns{
-        grid-template-columns:1fr;
-      }
-
-      .nav-btn{
-        min-height:38px;
-        font-size:11px;
-      }
-
-      .home-title{
-        font-size:21px;
-      }
-
-      #muestrasView .title-wrap h1,
-      #pendientesView .descargas-title,
-      #cierreView .cierre-title{
-        font-size:20px;
-      }
-
-      table{
-        min-width:840px;
-      }
-    }
-
-  
-    /* ============================================================
-       RENDIMIENTOS Y DENSIDAD BASICA
-       ============================================================ */
     .rendimientos-frame-wrap{
       width:100%;
       background:var(--panel);
@@ -1298,2451 +535,3616 @@
       display:block;
       width:100%;
       height:calc(100vh - 120px);
-      min-height:760px;
+      min-height:780px;
       border:0;
       background:#0b0d11;
     }
 
+    /* ============================================================
+       RESPONSIVE
+       ============================================================ */
+
     @media(max-width:1100px){
+
       .home-buttons{
-        grid-template-columns:repeat(2, minmax(220px,1fr));
+        grid-template-columns:repeat(2,minmax(220px,1fr));
       }
+
     }
 
-    @media(max-width:700px){
-      .rendimientos-frame{
-        min-height:900px;
-        height:calc(100vh - 90px);
-      }
-    }
+    @media(max-width:800px){
 
-    @media(max-width:560px){
-      .home-buttons{
+      body{
+        padding:8px;
+      }
+
+      .home-buttons,
+      .filters,
+      .kpis,
+      .kpis.two,
+      .ton-resumen{
         grid-template-columns:1fr;
       }
+
+      .home-screen{
+        min-height:auto;
+      }
+
+      .home-title{
+        font-size:24px;
+      }
+
+      .home-btn{
+        min-height:105px;
+      }
+
+      .section-nav{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      .section-nav-title{
+        text-align:center;
+      }
+
+      .section-nav-btns{
+        display:grid;
+        grid-template-columns:repeat(4,1fr);
+      }
+
+      .nav-btn{
+        width:100%;
+        padding:9px 5px;
+        font-size:10px;
+      }
+
+      .main-title{
+        font-size:22px;
+      }
+
+      .update-box{
+        width:100%;
+      }
+
+      .action-wrap{
+        justify-content:stretch;
+      }
+
+      .action-btn{
+        width:100%;
+      }
+
+      table{
+        min-width:850px;
+      }
+
+      .rendimientos-frame{
+        min-height:950px;
+      }
+
     }
 
-</style>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    @media(max-width:480px){
+
+      .section-nav-btns{
+        grid-template-columns:1fr;
+      }
+
+    }
+
+  </style>
 </head>
 
 <body>
+
 <div class="dashboard">
 
-<div class="home-screen" id="homeScreen">
-  <h1 class="home-title">INFORMACIÓN AL CIERRE DE TURNO</h1>
-  <div class="home-subtitle">
-    Seleccioná la información que querés consultar.
+  <!-- ==========================================================
+       PANTALLA PRINCIPAL
+       ========================================================== -->
+
+  <div class="home-screen" id="homeScreen">
+
+    <h1 class="home-title">
+      INFORMACIÓN AL CIERRE DE TURNO
+    </h1>
+
+    <div class="home-subtitle">
+      Seleccioná la información que querés consultar.
+    </div>
+
+    <div class="home-buttons">
+
+      <button
+        type="button"
+        class="home-btn"
+        data-section="muestrasView"
+      >
+        <div class="home-btn-title">
+          MUESTRAS AL CIERRE
+        </div>
+
+        <div class="home-btn-note">
+          Resumen diario y mensual de muestreo.
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="home-btn"
+        data-section="pendientesView"
+      >
+        <div class="home-btn-title">
+          PENDIENTES DE DESCARGA
+        </div>
+
+        <div class="home-btn-note">
+          Camiones que restan descargar por destino.
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="home-btn"
+        data-section="cierreView"
+      >
+        <div class="home-btn-title">
+          DESCARGA AL CIERRE
+        </div>
+
+        <div class="home-btn-note">
+          Descargas realizadas, tiempos y toneladas.
+        </div>
+      </button>
+
+
+      <button
+        type="button"
+        class="home-btn"
+        data-section="rendimientosView"
+      >
+        <div class="home-btn-title">
+          RENDIMIENTOS Y DENSIDAD BASICA
+        </div>
+
+        <div class="home-btn-note">
+          Control de rendimientos, densidad básica y necesidades de muestreo.
+        </div>
+      </button>
+
+    </div>
+
   </div>
 
-  <div class="home-buttons">
-    <button class="home-btn" type="button" data-section="muestrasView">
-      <div class="home-btn-title">MUESTRAS AL CIERRE</div>
-      <div class="home-btn-note">Resumen diario y mensual de muestreo.</div>
-    </button>
 
-    <button class="home-btn" type="button" data-section="pendientesView">
-      <div class="home-btn-title">PENDIENTES DE DESCARGA</div>
-      <div class="home-btn-note">Camiones que restan descargar por destino.</div>
-    </button>
+  <!-- ==========================================================
+       MUESTRAS
+       ========================================================== -->
 
-    <button class="home-btn" type="button" data-section="cierreView">
-      <div class="home-btn-title">DESCARGA AL CIERRE</div>
-      <div class="home-btn-note">Descargas realizadas, tiempos y toneladas.</div>
-    </button>
+  <div
+    class="section-view"
+    id="muestrasView"
+  >
 
-    <button class="home-btn" type="button" data-section="rendimientosView">
-      <div class="home-btn-title">RENDIMIENTOS Y DENSIDAD BASICA</div>
-      <div class="home-btn-note">Control de rendimientos, densidad básica y pendientes de muestreo.</div>
-    </button>
-
-  </div>
-</div>
-
-
-  <div class="section-view" id="muestrasView">
     <div class="section-nav">
-      <div class="section-nav-title">Muestras al cierre</div>
-      <div class="section-nav-btns">
-        <button type="button" class="nav-btn" data-home>Inicio</button>
-        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
-        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
-        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
-        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
-        <button type="button" class="nav-btn" data-section="rendimientosView">Rendimientos y densidad</button>
+
+      <div class="section-nav-title">
+        Muestras al cierre
       </div>
+
+      <div class="section-nav-btns">
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-home
+        >
+          Inicio
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="pendientesView"
+        >
+          Pendientes de descarga
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="cierreView"
+        >
+          Descarga al cierre
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="rendimientosView"
+        >
+          Rendimientos y densidad
+        </button>
+
+      </div>
+
     </div>
-  <div class="topbar">
-    <div class="title-wrap">
-      <h1 id="titulo">Muestras al cierre</h1>
-      <div class="subtitle">FRIMOSA · Resumen de muestreo por período</div>
-    </div>
+
 
     <div class="update-box">
-      <div class="update-label">Última actualización</div>
-      <div id="actualizado">Cargando...</div>
-    </div>
-  </div>
 
-  <div class="filters">
-    <div class="filter">
-      <label for="filtroAno">Año</label>
-      <select id="filtroAno"></select>
-    </div>
-
-    <div class="filter">
-      <label for="filtroMes">Mes</label>
-      <select id="filtroMes"></select>
-    </div>
-<div class="filter">
-      <label for="filtroFecha">Fecha</label>
-      <select id="filtroFecha"></select>
-    </div>
-  </div>
-
-
-  <div class="month-info" id="infoMesActual">
-    Mes operativo actual: <strong>Cargando...</strong>
-  </div>
-
-  <div class="fecha-info">
-    <strong>Nota:</strong> el selector completa las fechas hasta hoy. Si una fecha no tiene datos, se mostrará como día sin registros.
-  </div>
-
-  <div class="ultimo-registro-info">
-    Último día con registro: <strong id="ultimoDiaConRegistro">Cargando...</strong>
-  </div>
-
-  <div class="muestras-correo-wrap">
-    <button type="button" class="muestras-correo-btn" id="btnPrepararCorreoMuestras">
-      Preparar correo
-    </button>
-  </div>
-
-  <div class="kpis">
-    <div class="kpi">
-      <div class="kpi-label">Viajes</div>
-      <div class="kpi-value" id="kpiViajes">0</div>
-      <div class="kpi-note">Remitos del mes operativo actual</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Muestras</div>
-      <div class="kpi-value" id="kpiMuestras">0</div>
-      <div class="kpi-note">Viajes con densidad registrada</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">% Muestreo</div>
-      <div class="kpi-value" id="kpiPorcentaje">0,00%</div>
-      <div class="kpi-note">Muestras / viajes</div>
-    </div>
-
-    <div class="kpi">
-      <div class="kpi-label">Promedio de densidad</div>
-      <div class="kpi-value" id="kpiDensidad">0,000</div>
-      <div class="kpi-note">Promedio real del mes actual</div>
-    </div>
-  </div>
-
-  <div class="table-card">
-    <div class="table-head">
-      <div class="table-title" id="tituloDetalleDia">Detalle resumido del día</div>
-      <div class="record-count" id="recordCountDia">0 registros</div>
-    </div>
-
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Depósito</th>
-            <th>Origen</th>
-            <th>Cosecha</th>
-            <th>Certificación</th>
-            <th>Producto</th>
-            <th class="num">Promedio densidad</th>
-            <th class="num">Viajes</th>
-            <th class="num">Muestras</th>
-            <th class="num">% Muestreo</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyDia"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="5">Total día</td>
-            <td class="num" id="totalDensidadDia">0,000</td>
-            <td class="num" id="totalViajesDia">0</td>
-            <td class="num" id="totalMuestrasDia">0</td>
-            <td class="num" id="totalPorcentajeDia">0,00%</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-
-  <div class="table-card" style="margin-top:16px;">
-    <div class="table-head">
-      <div class="table-title" id="tituloDetalleMes">Detalle resumido del mes actual</div>
-      <div class="record-count" id="recordCountMes">0 registros</div>
-    </div>
-
-    <div class="table-scroll">
-      <table>
-        <thead>
-          <tr>
-            <th>Depósito</th>
-            <th>Origen</th>
-            <th>Cosecha</th>
-            <th>Certificación</th>
-            <th>Producto</th>
-            <th class="num">Promedio densidad</th>
-            <th class="num">Viajes</th>
-            <th class="num">Muestras</th>
-            <th class="num">% Muestreo</th>
-          </tr>
-        </thead>
-        <tbody id="tbodyMes"></tbody>
-        <tfoot>
-          <tr>
-            <td colspan="5">Total mes</td>
-            <td class="num" id="totalDensidadMes">0,000</td>
-            <td class="num" id="totalViajesMes">0</td>
-            <td class="num" id="totalMuestrasMes">0</td>
-            <td class="num" id="totalPorcentajeMes">0,00%</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  </div>
-
-
-  </div>
-
-  <div class="section-view" id="pendientesView">
-    <div class="section-nav">
-      <div class="section-nav-title">Pendientes de descarga</div>
-      <div class="section-nav-btns">
-        <button type="button" class="nav-btn" data-home>Inicio</button>
-        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
-        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+      <div class="update-label">
+        Última actualización
       </div>
+
+      <div
+        class="update-value"
+        id="actualizado"
+      >
+        Cargando...
+      </div>
+
     </div>
-  <div class="descargas-section">
-    <div class="update-box" style="margin-bottom:18px;">
-      <div class="update-label">Última actualización</div>
-      <div id="descargasActualizado">Cargando...</div>
+
+
+    <h1
+      class="main-title"
+      id="tituloMuestras"
+    >
+      MUESTRAS AL CIERRE
+    </h1>
+
+    <div class="subtitle">
+      FRIMOSA · Resumen de muestreo por período
     </div>
 
-    <div class="descargas-title">RESTAN DESCARGAR</div>
 
-    <div class="descargas-kpis" id="descargasTarjetas"></div>
+    <div class="filters">
 
-    <div class="table-card" style="margin-top:16px;">
+      <div class="filter">
+
+        <label for="filtroAno">
+          Año
+        </label>
+
+        <select id="filtroAno">
+        </select>
+
+      </div>
+
+
+      <div class="filter">
+
+        <label for="filtroMes">
+          Mes
+        </label>
+
+        <select id="filtroMes">
+        </select>
+
+      </div>
+
+
+      <div class="filter">
+
+        <label for="filtroFecha">
+          Fecha
+        </label>
+
+        <select id="filtroFecha">
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <div
+      class="info-box"
+      id="infoMesActual"
+    >
+      Mes operativo actual:
+      <strong>Cargando...</strong>
+    </div>
+
+
+    <div class="info-box">
+      Si una fecha no aparece con registros, significa que no hubo ingreso de madera.
+    </div>
+
+
+    <div class="info-box">
+      Último día con registro:
+      <strong id="ultimoDiaConRegistro">
+        Cargando...
+      </strong>
+    </div>
+
+
+    <div class="action-wrap">
+
+      <button
+        type="button"
+        class="action-btn"
+        id="btnPrepararCorreoMuestras"
+      >
+        Preparar correo
+      </button>
+
+    </div>
+
+
+    <div class="kpis">
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          Viajes
+        </div>
+
+        <div
+          class="kpi-value"
+          id="kpiViajes"
+        >
+          0
+        </div>
+
+        <div class="kpi-note">
+          Mes operativo actual
+        </div>
+
+      </div>
+
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          Muestras
+        </div>
+
+        <div
+          class="kpi-value"
+          id="kpiMuestras"
+        >
+          0
+        </div>
+
+        <div class="kpi-note">
+          Viajes con densidad
+        </div>
+
+      </div>
+
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          % Muestreo
+        </div>
+
+        <div
+          class="kpi-value"
+          id="kpiPorcentaje"
+        >
+          0,00%
+        </div>
+
+      </div>
+
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          Promedio densidad
+        </div>
+
+        <div
+          class="kpi-value"
+          id="kpiDensidad"
+        >
+          -
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="table-card">
+
       <div class="table-head">
-        <div class="table-title">Detalle por destino</div>
-        <div class="record-count" id="descargasRecordCount">0 registros</div>
+
+        <div
+          class="table-title"
+          id="tituloDetalleDia"
+        >
+          Detalle resumido del día
+        </div>
+
+        <div
+          class="record-count"
+          id="recordCountDia"
+        >
+          0 registros
+        </div>
+
       </div>
+
 
       <div class="table-scroll">
-        <table class="descargas-table">
+
+        <table>
+
           <thead>
+
             <tr>
+
+              <th>Depósito</th>
+              <th>Origen</th>
+              <th>Cosecha</th>
+              <th>Certificación</th>
+              <th>Producto</th>
+              <th>Promedio densidad</th>
+              <th>Viajes</th>
+              <th>Muestras</th>
+              <th>% Muestreo</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="tbodyDia">
+          </tbody>
+
+
+          <tfoot>
+
+            <tr>
+
+              <td colspan="5">
+                Total día
+              </td>
+
+              <td id="totalDensidadDia">
+                -
+              </td>
+
+              <td id="totalViajesDia">
+                0
+              </td>
+
+              <td id="totalMuestrasDia">
+                0
+              </td>
+
+              <td id="totalPorcentajeDia">
+                0,00%
+              </td>
+
+            </tr>
+
+          </tfoot>
+
+        </table>
+
+      </div>
+
+    </div>
+
+
+    <div class="table-card">
+
+      <div class="table-head">
+
+        <div
+          class="table-title"
+          id="tituloDetalleMes"
+        >
+          Detalle resumido del mes actual
+        </div>
+
+        <div
+          class="record-count"
+          id="recordCountMes"
+        >
+          0 registros
+        </div>
+
+      </div>
+
+
+      <div class="table-scroll">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>Depósito</th>
+              <th>Origen</th>
+              <th>Cosecha</th>
+              <th>Certificación</th>
+              <th>Producto</th>
+              <th>Promedio densidad</th>
+              <th>Viajes</th>
+              <th>Muestras</th>
+              <th>% Muestreo</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody id="tbodyMes">
+          </tbody>
+
+
+          <tfoot>
+
+            <tr>
+
+              <td colspan="5">
+                Total mes
+              </td>
+
+              <td id="totalDensidadMes">
+                -
+              </td>
+
+              <td id="totalViajesMes">
+                0
+              </td>
+
+              <td id="totalMuestrasMes">
+                0
+              </td>
+
+              <td id="totalPorcentajeMes">
+                0,00%
+              </td>
+
+            </tr>
+
+          </tfoot>
+
+        </table>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ==========================================================
+       PENDIENTES
+       ========================================================== -->
+
+  <div
+    class="section-view"
+    id="pendientesView"
+  >
+
+    <div class="section-nav">
+
+      <div class="section-nav-title">
+        Pendientes de descarga
+      </div>
+
+      <div class="section-nav-btns">
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-home
+        >
+          Inicio
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="muestrasView"
+        >
+          Muestras al cierre
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="cierreView"
+        >
+          Descarga al cierre
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="rendimientosView"
+        >
+          Rendimientos y densidad
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="update-box">
+
+      <div class="update-label">
+        Última actualización
+      </div>
+
+      <div
+        class="update-value"
+        id="descargasActualizado"
+      >
+        Cargando...
+      </div>
+
+    </div>
+
+
+    <h1 class="main-title">
+      RESTAN DESCARGAR
+    </h1>
+
+
+    <div
+      class="destinos-kpis"
+      id="descargasTarjetas"
+    >
+    </div>
+
+
+    <div class="table-card">
+
+      <div class="table-head">
+
+        <div class="table-title">
+          Detalle por destino
+        </div>
+
+        <div
+          class="record-count"
+          id="descargasRecordCount"
+        >
+          0 registros
+        </div>
+
+      </div>
+
+
+      <div class="table-scroll">
+
+        <table>
+
+          <thead>
+
+            <tr>
+
               <th>Remito Monte</th>
               <th>Destino</th>
               <th>Predio</th>
               <th>Vehículo</th>
               <th>Fin Carga</th>
+
             </tr>
+
           </thead>
-          <tbody id="descargasTbody"></tbody>
+
+
+          <tbody id="descargasTbody">
+          </tbody>
+
         </table>
+
       </div>
+
     </div>
-  </div>
-
 
   </div>
 
-  <div class="section-view" id="cierreView">
+
+  <!-- ==========================================================
+       DESCARGA CIERRE
+       ========================================================== -->
+
+  <div
+    class="section-view"
+    id="cierreView"
+  >
+
     <div class="section-nav">
-      <div class="section-nav-title">Descarga al cierre</div>
+
+      <div class="section-nav-title">
+        Descarga al cierre
+      </div>
+
       <div class="section-nav-btns">
-        <button type="button" class="nav-btn" data-home>Inicio</button>
-        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
-        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-home
+        >
+          Inicio
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="muestrasView"
+        >
+          Muestras al cierre
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="pendientesView"
+        >
+          Pendientes de descarga
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="rendimientosView"
+        >
+          Rendimientos y densidad
+        </button>
+
       </div>
-    </div>
-  <div class="cierre-section">
-    <div class="update-box" style="margin-bottom:18px;">
-      <div class="update-label">Última actualización</div>
-      <div id="cierreActualizado">Cargando...</div>
+
     </div>
 
-    <div class="cierre-title">DESCARGA CIERRE DE TURNO</div>
 
-    <div class="cierre-filters">
+    <div class="update-box">
+
+      <div class="update-label">
+        Última actualización
+      </div>
+
+      <div
+        class="update-value"
+        id="cierreActualizado"
+      >
+        Cargando...
+      </div>
+
+    </div>
+
+
+    <h1 class="main-title">
+      DESCARGA CIERRE DE TURNO
+    </h1>
+
+
+    <div class="filters">
+
       <div class="filter">
-        <label for="cierreFiltroAno">Año</label>
-        <select id="cierreFiltroAno"></select>
+
+        <label for="cierreFiltroAno">
+          Año
+        </label>
+
+        <select id="cierreFiltroAno">
+        </select>
+
       </div>
+
 
       <div class="filter">
-        <label for="cierreFiltroMes">Mes</label>
-        <select id="cierreFiltroMes"></select>
+
+        <label for="cierreFiltroMes">
+          Mes
+        </label>
+
+        <select id="cierreFiltroMes">
+        </select>
+
       </div>
+
 
       <div class="filter">
-        <label for="cierreFiltroFecha">Fecha</label>
-        <select id="cierreFiltroFecha"></select>
+
+        <label for="cierreFiltroFecha">
+          Fecha
+        </label>
+
+        <select id="cierreFiltroFecha">
+        </select>
+
       </div>
+
     </div>
 
-    <div class="cierre-kpis">
-      <div class="cierre-kpi">
-        <div class="label">TOTAL CAMIONES</div>
-        <div class="value" id="cierreTotalCamiones">0</div>
-        <div class="note">Camiones descargados en la fecha seleccionada</div>
+
+    <div class="kpis two">
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          TOTAL CAMIONES
+        </div>
+
+        <div
+          class="kpi-value lime"
+          id="cierreTotalCamiones"
+        >
+          0
+        </div>
+
       </div>
 
-      <div class="cierre-kpi">
-        <div class="label">PROM. DESCARGA</div>
-        <div class="value" id="cierrePromedioDescarga">00:00:00</div>
-        <div class="note">Promedio de tiempo de descarga</div>
+
+      <div class="kpi">
+
+        <div class="kpi-label">
+          PROM. DESCARGA
+        </div>
+
+        <div
+          class="kpi-value lime"
+          id="cierrePromedioDescarga"
+        >
+          00:00:00
+        </div>
+
       </div>
+
     </div>
 
-    <div class="cierre-toneladas-resumen">
-      <div class="cierre-toneladas-item">
-        <strong>DIRECTO</strong> = Neto ton Pila FFU:
-        <span class="valor-ton" id="cierreTonDirecto">0,00 ton</span>
+
+    <div class="ton-resumen">
+
+      <div class="ton-item">
+
+        <strong>
+          DIRECTO
+        </strong>
+
+        = Neto ton Pila FFU:
+
+        <span id="cierreTonDirecto">
+          0,00 ton
+        </span>
+
       </div>
 
-      <div class="cierre-toneladas-item">
-        <strong>ACOPIO</strong> = Neto ton diferente FFU:
-        <span class="valor-ton" id="cierreTonAcopio">0,00 ton</span>
+
+      <div class="ton-item">
+
+        <strong>
+          ACOPIO
+        </strong>
+
+        = Neto ton diferente FFU:
+
+        <span id="cierreTonAcopio">
+          0,00 ton
+        </span>
+
       </div>
+
     </div>
 
-    <div class="cierre-ultimo-registro">
-      Último día con registro: <strong id="cierreUltimoDiaConRegistro">Cargando...</strong>
+
+    <div class="info-box">
+
+      Último día con registro:
+
+      <strong id="cierreUltimoDiaConRegistro">
+        Cargando...
+      </strong>
+
     </div>
 
-    <div class="sin-pendientes" id="cierreSinDatos" style="display:none; margin-bottom:16px;">
+
+    <div
+      class="sin-pendientes"
+      id="cierreSinDatos"
+      style="display:none;"
+    >
       SIN DESCARGA DE CAMIONES EN PLANTA
     </div>
 
-    <div class="cierre-export-wrap">
-      <button type="button" class="cierre-export-btn" id="btnExportarCierreExcel">
+
+    <div class="action-wrap">
+
+      <button
+        type="button"
+        class="action-btn"
+        id="btnExportarCierreExcel"
+      >
         Exportar y preparar correo
       </button>
+
     </div>
-    <div class="fecha-info" style="margin-top:-6px; margin-bottom:12px;">
-      El botón descarga el Excel y abre un correo nuevo para adjuntarlo.
-    </div>
+
 
     <div class="table-card">
+
       <div class="table-head">
-        <div class="table-title" id="cierreTituloDetalle">Detalle de descargas</div>
-        <div class="record-count" id="cierreRecordCount">0 registros</div>
+
+        <div
+          class="table-title"
+          id="cierreTituloDetalle"
+        >
+          Detalle de descargas
+        </div>
+
+        <div
+          class="record-count"
+          id="cierreRecordCount"
+        >
+          0 registros
+        </div>
+
       </div>
+
 
       <div class="table-scroll">
-        <table class="cierre-table">
+
+        <table>
+
           <thead>
+
             <tr>
+
               <th>Fecha</th>
               <th>Hora Ingreso</th>
-              <th>Hora salida</th>
-              <th>Tiempo descarga</th>
-              <th>Primero de pila</th>
+              <th>Hora Salida</th>
+              <th>Tiempo Descarga</th>
+              <th>Primero de Pila</th>
               <th>Producto</th>
               <th>Matrícula</th>
-              <th class="num">Neto ton</th>
+              <th>Neto ton</th>
+
             </tr>
+
           </thead>
-          <tbody id="cierreTbody"></tbody>
+
+
+          <tbody id="cierreTbody">
+          </tbody>
+
         </table>
+
       </div>
+
     </div>
-  </div>
+
   </div>
 
-  <div class="section-view" id="rendimientosView">
+
+  <!-- ==========================================================
+       RENDIMIENTOS
+       ========================================================== -->
+
+  <div
+    class="section-view"
+    id="rendimientosView"
+  >
+
     <div class="section-nav">
-      <div class="section-nav-title">Rendimientos y densidad básica</div>
-      <div class="section-nav-btns">
-        <button type="button" class="nav-btn" data-home>Inicio</button>
-        <button type="button" class="nav-btn" data-section="muestrasView">Muestras al cierre</button>
-        <button type="button" class="nav-btn" data-section="pendientesView">Pendientes de descarga</button>
-        <button type="button" class="nav-btn" data-section="cierreView">Descarga al cierre</button>
+
+      <div class="section-nav-title">
+        Rendimientos y densidad básica
       </div>
+
+      <div class="section-nav-btns">
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-home
+        >
+          Inicio
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="muestrasView"
+        >
+          Muestras al cierre
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="pendientesView"
+        >
+          Pendientes de descarga
+        </button>
+
+        <button
+          type="button"
+          class="nav-btn"
+          data-section="cierreView"
+        >
+          Descarga al cierre
+        </button>
+
+      </div>
+
     </div>
+
 
     <div class="rendimientos-frame-wrap">
+
       <iframe
-        id="rendimientosFrame"
         class="rendimientos-frame"
         src="/rendimientos"
         title="Rendimientos y densidad básica"
-        loading="lazy"
-      ></iframe>
+      >
+      </iframe>
+
     </div>
+
   </div>
 
 </div>
 
+
 <script>
 
-/* ============================================================
-   NAVEGACIÓN PRINCIPAL
-   ============================================================ */
-function mostrarPantallaPrincipal() {
-  $("homeScreen").style.display = "flex";
+const JSON_MUESTRAS =
+  "/api/muestras";
 
-  document.querySelectorAll(".section-view").forEach(section => {
-    section.classList.remove("active");
-  });
+const JSON_DESCARGAS =
+  "/api/descargas";
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
+const JSON_CIERRE =
+  "/api/cierre";
 
-function mostrarSeccion(id) {
-  $("homeScreen").style.display = "none";
-
-  document.querySelectorAll(".section-view").forEach(section => {
-    section.classList.toggle("active", section.id === id);
-  });
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
-}
-
-document.querySelectorAll("[data-section]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    mostrarSeccion(btn.dataset.section);
-  });
-});
-
-document.querySelectorAll("[data-home]").forEach(btn => {
-  btn.addEventListener("click", mostrarPantallaPrincipal);
-});
-
-
-/* ============================================================
-   CONFIGURACIÓN
-   ============================================================
-
-   Si MuestrasCierre.json está en la misma carpeta/servidor que
-   este index.html, dejá esta ruta tal cual.
-
-   Si después usás Dropbox o Cloudflare, reemplazá solamente
-   esta constante por la URL directa del JSON.
-*/
-const JSON_URL = "/api/muestras";
-
-const JSON_DESCARGAS_URL = "/api/descargas";
-
-
-const JSON_CIERRE_TURNO_URL = "/api/cierre";
-
-
-/* ============================================================
-   VARIABLES
-   ============================================================ */
-let datosOriginales = [];
 
 const meses = [
   "",
-  "Enero","Febrero","Marzo","Abril","Mayo","Junio",
-  "Julio","Agosto","Setiembre","Octubre","Noviembre","Diciembre"
+  "Enero",
+  "Febrero",
+  "Marzo",
+  "Abril",
+  "Mayo",
+  "Junio",
+  "Julio",
+  "Agosto",
+  "Setiembre",
+  "Octubre",
+  "Noviembre",
+  "Diciembre"
 ];
 
-const $ = id => document.getElementById(id);
 
-
-function urlSinCache(url) {
-  const separador = url.includes("?") ? "&" : "?";
-  return `${url}${separador}t=${Date.now()}`;
-}
-
+const $ =
+  id =>
+    document.getElementById(id);
 
 
 /* ============================================================
-   FORMATOS
+   NAVEGACIÓN
    ============================================================ */
-function numero(valor, decimales = 0) {
-  const n = Number(valor);
-  if (!Number.isFinite(n)) return "-";
 
-  return n.toLocaleString("es-UY", {
-    minimumFractionDigits: decimales,
-    maximumFractionDigits: decimales
-  });
+function mostrarInicio(){
+
+  $("homeScreen").style.display =
+    "flex";
+
+  document
+    .querySelectorAll(
+      ".section-view"
+    )
+    .forEach(
+      seccion =>
+        seccion.classList.remove(
+          "active"
+        )
+    );
+
+  window.scrollTo(
+    {
+      top:0
+    }
+  );
 }
 
-function porcentaje(valor) {
-  return `${numero(valor, 2)}%`;
+
+function mostrarSeccion(id){
+
+  $("homeScreen").style.display =
+    "none";
+
+  document
+    .querySelectorAll(
+      ".section-view"
+    )
+    .forEach(
+      seccion => {
+
+        seccion.classList.toggle(
+          "active",
+          seccion.id === id
+        );
+
+      }
+    );
+
+  window.scrollTo(
+    {
+      top:0
+    }
+  );
 }
 
-function normalizarCertificacion(valor) {
-  const v = String(valor ?? "").trim();
-  const u = v.toUpperCase();
 
-  if (u === "FSC MIXTO") {
+document
+  .querySelectorAll(
+    "[data-section]"
+  )
+  .forEach(
+    boton => {
+
+      boton.addEventListener(
+        "click",
+        () =>
+          mostrarSeccion(
+            boton.dataset.section
+          )
+      );
+
+    }
+  );
+
+
+document
+  .querySelectorAll(
+    "[data-home]"
+  )
+  .forEach(
+    boton => {
+
+      boton.addEventListener(
+        "click",
+        mostrarInicio
+      );
+
+    }
+  );
+
+
+/* ============================================================
+   UTILIDADES
+   ============================================================ */
+
+function urlSinCache(url){
+
+  const separador =
+    url.includes("?")
+      ? "&"
+      : "?";
+
+  return (
+    url +
+    separador +
+    "t=" +
+    Date.now()
+  );
+}
+
+
+function esc(valor){
+
+  return String(
+    valor ?? ""
+  )
+  .replaceAll(
+    "&",
+    "&amp;"
+  )
+  .replaceAll(
+    "<",
+    "&lt;"
+  )
+  .replaceAll(
+    ">",
+    "&gt;"
+  )
+  .replaceAll(
+    '"',
+    "&quot;"
+  )
+  .replaceAll(
+    "'",
+    "&#039;"
+  );
+}
+
+
+function numero(
+  valor,
+  decimales = 0
+){
+
+  const n =
+    Number(valor);
+
+  if(
+    !Number.isFinite(n)
+  ){
+    return "-";
+  }
+
+  return n.toLocaleString(
+    "es-UY",
+    {
+      minimumFractionDigits:
+        decimales,
+
+      maximumFractionDigits:
+        decimales
+    }
+  );
+}
+
+
+function porcentaje(valor){
+
+  return (
+    numero(
+      valor,
+      2
+    ) +
+    "%"
+  );
+}
+
+
+function fechaISO(valor){
+
+  if(!valor){
+    return "";
+  }
+
+  const texto =
+    String(valor).trim();
+
+  let m =
+    texto.match(
+      /^(\d{4})-(\d{2})-(\d{2})/
+    );
+
+  if(m){
+
+    return (
+      m[1] +
+      "-" +
+      m[2] +
+      "-" +
+      m[3]
+    );
+  }
+
+  m =
+    texto.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})/
+    );
+
+  if(m){
+
+    return (
+      m[3] +
+      "-" +
+      String(m[2])
+        .padStart(
+          2,
+          "0"
+        ) +
+      "-" +
+      String(m[1])
+        .padStart(
+          2,
+          "0"
+        )
+    );
+  }
+
+  return "";
+}
+
+
+function fechaUY(valor){
+
+  const iso =
+    fechaISO(valor);
+
+  if(!iso){
+    return valor || "";
+  }
+
+  const partes =
+    iso.split("-");
+
+  return (
+    partes[2] +
+    "/" +
+    partes[1] +
+    "/" +
+    partes[0]
+  );
+}
+
+
+function fechaHoraUY(valor){
+
+  if(!valor){
+    return "Sin información";
+  }
+
+  const fecha =
+    new Date(valor);
+
+  if(
+    Number.isNaN(
+      fecha.getTime()
+    )
+  ){
+    return String(valor);
+  }
+
+  return fecha.toLocaleString(
+    "es-UY",
+    {
+      day:"2-digit",
+      month:"2-digit",
+      year:"numeric",
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit",
+      hour12:false
+    }
+  );
+}
+
+
+function normalizarCertificacion(
+  valor
+){
+
+  const texto =
+    String(
+      valor ?? ""
+    ).trim();
+
+  const upper =
+    texto.toUpperCase();
+
+  if(
+    upper ===
+    "FSC MIXTO"
+  ){
     return "FSC 100%";
   }
 
-  if (u === "CONTROLADO FSC") {
+  if(
+    upper ===
+    "CONTROLADO FSC"
+  ){
     return "FSC CW";
   }
 
-  return v;
-}
-
-function fechaUY(valor) {
-  if (!valor) return "";
-
-  const partes = String(valor).substring(0, 10).split("-");
-  if (partes.length !== 3) return valor;
-
-  return `${partes[2]}/${partes[1]}/${partes[0]}`;
-}
-
-
-function fechasCalendarioMes(ano, mesNumero) {
-  const a = Number(ano);
-  const m = Number(mesNumero);
-
-  if (!a || !m) return [];
-
-  const hoy = new Date();
-  hoy.setHours(0, 0, 0, 0);
-
-  const primerDiaMes = new Date(a, m - 1, 1);
-  primerDiaMes.setHours(0, 0, 0, 0);
-
-  // Si el mes seleccionado todavía no comenzó, no mostrar fechas futuras.
-  if (primerDiaMes > hoy) {
-    return [];
-  }
-
-  const ultimoDiaNatural = new Date(a, m, 0).getDate();
-
-  // Para el mes actual, completar solamente hasta hoy.
-  // Para meses anteriores, mostrar el mes completo.
-  let ultimoDia = ultimoDiaNatural;
-
-  if (
-    a === hoy.getFullYear() &&
-    m === hoy.getMonth() + 1
-  ) {
-    ultimoDia = hoy.getDate();
-  }
-
-  const resultado = [];
-
-  for (let dia = 1; dia <= ultimoDia; dia++) {
-    const mm = String(m).padStart(2, "0");
-    const dd = String(dia).padStart(2, "0");
-
-    resultado.push(`${a}-${mm}-${dd}`);
-  }
-
-  return resultado;
-}
-
-function fechaHoraActualizacion(valor) {
-  if (!valor) return "Sin información";
-
-  const d = new Date(valor);
-
-  if (Number.isNaN(d.getTime())) return valor;
-
-  return d.toLocaleString("es-UY", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
-  });
+  return texto;
 }
 
 
 /* ============================================================
-   CARGA JSON
+   MUESTRAS
    ============================================================ */
-async function cargarDatos() {
-  try {
-    const respuesta = await fetch(urlSinCache(JSON_URL), { cache: "no-store" });
 
-    if (!respuesta.ok) {
-      throw new Error(`HTTP ${respuesta.status}`);
+let muestrasDatos = [];
+
+
+function muestrasAgrupar(
+  registros
+){
+
+  const mapa =
+    new Map();
+
+
+  registros.forEach(
+    r => {
+
+      const deposito =
+        r.deposito ?? "";
+
+      const origen =
+        r.origen ?? "";
+
+      const cosecha =
+        r.cosecha ?? "";
+
+      const certificacion =
+        normalizarCertificacion(
+          r.certificacion
+        );
+
+      const producto =
+        r.nombre_prod ?? "";
+
+
+      const clave =
+        [
+          deposito,
+          origen,
+          cosecha,
+          certificacion,
+          producto
+        ].join(
+          "|||"
+        );
+
+
+      if(
+        !mapa.has(
+          clave
+        )
+      ){
+
+        mapa.set(
+          clave,
+          {
+            deposito,
+            origen,
+            cosecha,
+            certificacion,
+            nombre_prod:
+              producto,
+
+            viajes:0,
+            muestras:0,
+            suma_densidad:0,
+            cantidad_densidades:0
+          }
+        );
+      }
+
+
+      const g =
+        mapa.get(
+          clave
+        );
+
+
+      g.viajes +=
+        Number(
+          r.viajes
+        ) || 0;
+
+
+      g.muestras +=
+        Number(
+          r.muestras
+        ) || 0;
+
+
+      g.suma_densidad +=
+        Number(
+          r.suma_densidad
+        ) || 0;
+
+
+      g.cantidad_densidades +=
+        Number(
+          r.cantidad_densidades
+        ) || 0;
+
     }
-
-    const json = await respuesta.json();
-
-    datosOriginales = Array.isArray(json.registros)
-      ? json.registros
-      : [];
-
-    $("actualizado").textContent =
-      fechaHoraActualizacion(json.actualizado);
-
-    const fechasConRegistro = datosOriginales
-      .map(r => String(r.fecha || "").substring(0,10))
-      .filter(Boolean)
-      .sort((a,b) => b.localeCompare(a));
-
-    $("ultimoDiaConRegistro").textContent =
-      fechasConRegistro.length
-        ? fechaUY(fechasConRegistro[0])
-        : "Sin registros";
-
-    inicializarFiltros();
-    actualizarTodo();
-
-  } catch (error) {
-    console.error(error);
-
-    $("actualizado").textContent = "Error de carga";
-    $("ultimoDiaConRegistro").textContent = "Sin información";
-
-    $("tbody").innerHTML = `
-      <tr>
-        <td colspan="9" class="error">
-          No fue posible cargar MuestrasCierre.json
-        </td>
-      </tr>
-    `;
-  }
-}
-
-
-/* ============================================================
-   FILTROS
-   ============================================================ */
-function valoresUnicos(lista) {
-  return [...new Set(lista)]
-    .filter(v => v !== null && v !== undefined && v !== "");
-}
-
-function llenarSelect(select, valores, etiquetaTodos, valorActual = "") {
-  select.innerHTML = "";
-
-  const opTodos = document.createElement("option");
-  opTodos.value = "";
-  opTodos.textContent = etiquetaTodos;
-  select.appendChild(opTodos);
-
-  valores.forEach(v => {
-    const op = document.createElement("option");
-    op.value = String(v);
-    op.textContent = String(v);
-    select.appendChild(op);
-  });
-
-  if ([...select.options].some(o => o.value === String(valorActual))) {
-    select.value = String(valorActual);
-  }
-}
-
-function inicializarFiltros() {
-  const hoy = new Date();
-  const anoHoy = String(hoy.getFullYear());
-  const mesHoy = String(hoy.getMonth() + 1);
-  const fechaHoy = [
-    hoy.getFullYear(),
-    String(hoy.getMonth() + 1).padStart(2, "0"),
-    String(hoy.getDate()).padStart(2, "0")
-  ].join("-");
-
-  const anos = valoresUnicos(
-    datosOriginales.map(r => Number(r.ano))
-  ).sort((a,b) => b-a);
-
-  llenarSelect(
-    $("filtroAno"),
-    anos,
-    "Todos los años"
   );
 
-  if ([...$("filtroAno").options].some(o => o.value === anoHoy)) {
-    $("filtroAno").value = anoHoy;
-  } else if (anos.length) {
-    $("filtroAno").value = String(anos[0]);
-  }
 
-  actualizarFiltroMes();
+  return [
+    ...mapa.values()
+  ].map(
+    g => {
 
-  if ([...$("filtroMes").options].some(o => o.value === mesHoy)) {
-    $("filtroMes").value = mesHoy;
-  }
+      return {
 
-  actualizarFiltroFecha();
+        ...g,
 
-  if ([...$("filtroFecha").options].some(o => o.value === fechaHoy)) {
-    $("filtroFecha").value = fechaHoy;
-  }
-}
+        promedio_densidad:
+          g.cantidad_densidades > 0
+            ?
+            g.suma_densidad /
+            g.cantidad_densidades
+            :
+            null,
 
-function datosSegunAno() {
-  const ano = $("filtroAno").value;
+        porcentaje_muestreo:
+          g.viajes > 0
+            ?
+            (
+              g.muestras /
+              g.viajes
+            ) *
+            100
+            :
+            0
 
-  return datosOriginales.filter(r =>
-    !ano || String(r.ano) === ano
+      };
+
+    }
   );
 }
 
-function datosSegunAnoMes() {
-  const ano = $("filtroAno").value;
-  const mes = $("filtroMes").value;
 
-  return datosOriginales.filter(r =>
-    (!ano || String(r.ano) === ano) &&
-    (!mes || String(r.mes_numero) === mes)
-  );
-}
+function muestrasTotales(
+  registros
+){
 
-function datosSegunAnoMesSemana() {
-  const ano = $("filtroAno").value;
-  const mes = $("filtroMes").value;
-
-  return datosOriginales.filter(r =>
-    (!ano || String(r.ano) === ano) &&
-    (!mes || String(r.mes_numero) === mes)
-  );
-}
-
-function actualizarFiltroMes() {
-  const actual = $("filtroMes").value;
-
-  const nums = valoresUnicos(
-    datosSegunAno().map(r => Number(r.mes_numero))
-  ).sort((a,b) => a-b);
-
-  $("filtroMes").innerHTML = "";
-
-  const todos = document.createElement("option");
-  todos.value = "";
-  todos.textContent = "Todos los meses";
-  $("filtroMes").appendChild(todos);
-
-  nums.forEach(n => {
-    const op = document.createElement("option");
-    op.value = String(n);
-    op.textContent = meses[n] || String(n);
-    $("filtroMes").appendChild(op);
-  });
-
-  if ([...$("filtroMes").options].some(o => o.value === actual)) {
-    $("filtroMes").value = actual;
-  }
-}
-
-
-function actualizarFiltroFecha() {
-  const ano = $("filtroAno").value;
-  const mes = $("filtroMes").value;
-
-  $("filtroFecha").innerHTML = "";
-
-  const todos = document.createElement("option");
-  todos.value = "";
-  todos.textContent = "Todas las fechas";
-  $("filtroFecha").appendChild(todos);
-
-  if (ano && mes) {
-    const hoy = new Date();
-    const hoyISO = [
-      hoy.getFullYear(),
-      String(hoy.getMonth() + 1).padStart(2, "0"),
-      String(hoy.getDate()).padStart(2, "0")
-    ].join("-");
-
-    const fechas = fechasCalendarioMes(ano, mes)
-      .sort((a,b) => b.localeCompare(a));
-
-    // Si HOY pertenece al mes seleccionado, moverlo arriba del todo.
-    const fechasOrdenadas = fechas.includes(hoyISO)
-      ? [hoyISO, ...fechas.filter(f => f !== hoyISO)]
-      : fechas;
-
-    fechasOrdenadas.forEach(f => {
-      const op = document.createElement("option");
-      op.value = f;
-
-      const tieneDatos = datosOriginales.some(r =>
-        String(r.fecha || "").substring(0,10) === f
-      );
-
-      const esHoy = f === hoyISO;
-
-      op.textContent =
-        `${esHoy ? "HOY - " : ""}${fechaUY(f)}`;
-
-      $("filtroFecha").appendChild(op);
-    });
-
-    // Seleccionar HOY por defecto si está en el mes seleccionado.
-    // Si no, usar la fecha más reciente disponible del mes.
-    if (fechasOrdenadas.length > 0) {
-      $("filtroFecha").value = fechasOrdenadas[0];
-    } else {
-      $("filtroFecha").value = "";
-    }
-
-    return;
-  }
-
-  $("filtroFecha").value = "";
-}
-
-
-/* ============================================================
-   FILTRADO PRINCIPAL
-   ============================================================ */
-function registrosFiltrados() {
-  const ano = $("filtroAno").value;
-  const mes = $("filtroMes").value;
-  const fecha = $("filtroFecha").value;
-
-  return datosOriginales.filter(r => {
-    const f = String(r.fecha || "").substring(0,10);
-
-    return (
-      (!ano || String(r.ano) === ano) &&
-      (!mes || String(r.mes_numero) === mes) &&
-      (!fecha || f === fecha)
-    );
-  });
-}
-
-
-/* ============================================================
-   PROMEDIO DE DENSIDAD
-   Se calcula SIEMPRE como:
-   suma_densidad / cantidad_densidades
-
-   No se utiliza promedio_densidad ponderado por viajes.
-   ============================================================ */
-
-/* ============================================================
-   AGRUPACIÓN
-   ============================================================ */
-function agrupar(registros) {
-  const mapa = new Map();
-
-  registros.forEach(r => {
-    const key = [
-      r.deposito ?? "",
-      r.origen ?? "",
-      r.cosecha ?? "",
-      normalizarCertificacion(r.certificacion),
-      r.nombre_prod ?? ""
-    ].join("|||");
-
-    if (!mapa.has(key)) {
-      mapa.set(key, {
-        deposito: r.deposito ?? "",
-        origen: r.origen ?? "",
-        cosecha: r.cosecha ?? "",
-        certificacion: normalizarCertificacion(r.certificacion),
-        nombre_prod: r.nombre_prod ?? "",
-
-        viajes: 0,
-        muestras: 0,
-
-        // Para calcular el promedio REAL sin promedio de promedios
-        suma_densidad: 0,
-        cantidad_densidades: 0
-      });
-    }
-
-    const g = mapa.get(key);
-
-    g.viajes += Number(r.viajes) || 0;
-    g.muestras += Number(r.muestras) || 0;
-
-    const suma = Number(r.suma_densidad);
-    const cantidad = Number(r.cantidad_densidades);
-
-    if (Number.isFinite(suma)) {
-      g.suma_densidad += suma;
-    }
-
-    if (Number.isFinite(cantidad)) {
-      g.cantidad_densidades += cantidad;
-    }
-  });
-
-  return [...mapa.values()].map(g => ({
-    deposito: g.deposito,
-    origen: g.origen,
-    cosecha: g.cosecha,
-    certificacion: g.certificacion,
-    nombre_prod: g.nombre_prod,
-
-    // Promedio exacto del filtro/grupo seleccionado
-    promedio_densidad:
-      g.cantidad_densidades > 0
-        ? g.suma_densidad / g.cantidad_densidades
-        : null,
-
-    suma_densidad: g.suma_densidad,
-    cantidad_densidades: g.cantidad_densidades,
-
-    viajes: g.viajes,
-    muestras: g.muestras,
-
-    porcentaje_muestreo:
-      g.viajes > 0
-        ? (g.muestras / g.viajes) * 100
-        : 0
-  }));
-}
-
-
-/* ============================================================
-   TOTALES
-   ============================================================ */
-function calcularTotales(registrosAgrupados) {
   let viajes = 0;
   let muestras = 0;
-  let sumaDensidad = 0;
-  let cantidadDensidades = 0;
+  let suma = 0;
+  let cantidad = 0;
 
-  registrosAgrupados.forEach(r => {
-    viajes += Number(r.viajes) || 0;
-    muestras += Number(r.muestras) || 0;
 
-    const suma = Number(r.suma_densidad);
-    const cantidad = Number(r.cantidad_densidades);
+  registros.forEach(
+    r => {
 
-    if (Number.isFinite(suma)) {
-      sumaDensidad += suma;
+      viajes +=
+        Number(
+          r.viajes
+        ) || 0;
+
+      muestras +=
+        Number(
+          r.muestras
+        ) || 0;
+
+      suma +=
+        Number(
+          r.suma_densidad
+        ) || 0;
+
+      cantidad +=
+        Number(
+          r.cantidad_densidades
+        ) || 0;
+
     }
+  );
 
-    if (Number.isFinite(cantidad)) {
-      cantidadDensidades += cantidad;
-    }
-  });
 
   return {
+
     viajes,
+
     muestras,
 
     porcentaje:
       viajes > 0
-        ? (muestras / viajes) * 100
-        : 0,
+        ?
+        (
+          muestras /
+          viajes
+        ) *
+        100
+        :
+        0,
 
     densidad:
-      cantidadDensidades > 0
-        ? sumaDensidad / cantidadDensidades
-        : null,
+      cantidad > 0
+        ?
+        suma /
+        cantidad
+        :
+        null
 
-    suma_densidad: sumaDensidad,
-    cantidad_densidades: cantidadDensidades
   };
 }
 
 
-/* ============================================================
-   TABLAS
-   ============================================================ */
-function ordenarPorOrigen(registros) {
-  return [...registros].sort((a,b) =>
-    String(a.origen ?? "").localeCompare(String(b.origen ?? ""), "es")
-  );
-}
+function muestrasRenderTabla(
+  datos,
+  tbodyId,
+  countId
+){
 
-function renderTablaResumen(registros, tbodyId, countId) {
-  const datos = ordenarPorOrigen(registros);
-  const tbody = $(tbodyId);
+  const tbody =
+    $(tbodyId);
 
-  if (!datos.length) {
-    tbody.innerHTML = `
+
+  const ordenados =
+    [
+      ...datos
+    ].sort(
+      (a,b) =>
+        String(
+          a.origen
+        ).localeCompare(
+          String(
+            b.origen
+          ),
+          "es"
+        )
+    );
+
+
+  if(
+    !ordenados.length
+  ){
+
+    tbody.innerHTML =
+      `
       <tr>
-        <td colspan="9" class="empty">
-          No hay registros para la fecha seleccionada.
+        <td
+          colspan="9"
+          class="empty"
+        >
+          No hay registros para la selección.
         </td>
       </tr>
-    `;
-    $(countId).textContent = "0 registros";
+      `;
+
+    $(countId).textContent =
+      "0 registros";
+
     return;
   }
 
-  tbody.innerHTML = datos.map(r => `
-    <tr class="${Number(r.porcentaje_muestreo) < 10 ? 'alerta-baja' : ''}">
-      <td>${esc(r.deposito)}</td>
-      <td>${esc(r.origen)}</td>
-      <td>${esc(r.cosecha)}</td>
-      <td>${esc(r.certificacion)}</td>
-      <td>${esc(r.nombre_prod)}</td>
-      <td class="num">${r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3)}</td>
-      <td class="num">${numero(r.viajes, 0)}</td>
-      <td class="num">${numero(r.muestras, 0)}</td>
-      <td class="num pct-good">${porcentaje(r.porcentaje_muestreo)}</td>
-    </tr>
-  `).join("");
+
+  tbody.innerHTML =
+    ordenados.map(
+      r =>
+        `
+        <tr
+          class="${
+            Number(
+              r.porcentaje_muestreo
+            ) < 10
+              ?
+              "alerta-baja"
+              :
+              ""
+          }"
+        >
+
+          <td>
+            ${esc(r.deposito)}
+          </td>
+
+          <td>
+            ${esc(r.origen)}
+          </td>
+
+          <td>
+            ${esc(r.cosecha)}
+          </td>
+
+          <td>
+            ${esc(r.certificacion)}
+          </td>
+
+          <td>
+            ${esc(r.nombre_prod)}
+          </td>
+
+          <td>
+            ${
+              r.promedio_densidad === null
+                ?
+                "-"
+                :
+                numero(
+                  r.promedio_densidad,
+                  3
+                )
+            }
+          </td>
+
+          <td>
+            ${numero(r.viajes)}
+          </td>
+
+          <td>
+            ${numero(r.muestras)}
+          </td>
+
+          <td>
+            ${porcentaje(
+              r.porcentaje_muestreo
+            )}
+          </td>
+
+        </tr>
+        `
+    ).join("");
+
 
   $(countId).textContent =
-    `${datos.length.toLocaleString("es-UY")} registros`;
+    ordenados.length
+      .toLocaleString(
+        "es-UY"
+      ) +
+    " registros";
 }
 
-function renderTotalesResumen(registros, sufijo) {
-  const total = calcularTotales(registros);
 
-  $(`totalDensidad${sufijo}`).textContent =
-    total.densidad == null ? "-" : numero(total.densidad, 3);
+function muestrasRenderTotales(
+  datos,
+  sufijo
+){
 
-  $(`totalViajes${sufijo}`).textContent =
-    numero(total.viajes, 0);
+  const total =
+    muestrasTotales(
+      datos
+    );
 
-  $(`totalMuestras${sufijo}`).textContent =
-    numero(total.muestras, 0);
 
-  $(`totalPorcentaje${sufijo}`).textContent =
-    porcentaje(total.porcentaje);
+  $(
+    "totalDensidad" +
+    sufijo
+  ).textContent =
+    total.densidad === null
+      ?
+      "-"
+      :
+      numero(
+        total.densidad,
+        3
+      );
+
+
+  $(
+    "totalViajes" +
+    sufijo
+  ).textContent =
+    numero(
+      total.viajes
+    );
+
+
+  $(
+    "totalMuestras" +
+    sufijo
+  ).textContent =
+    numero(
+      total.muestras
+    );
+
+
+  $(
+    "totalPorcentaje" +
+    sufijo
+  ).textContent =
+    porcentaje(
+      total.porcentaje
+    );
 }
 
-function esc(valor) {
-  return String(valor ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-}
 
-function ultimaFechaGeneral() {
-  const fechas = valoresUnicos(
-    datosOriginales
-      .map(r => String(r.fecha || "").substring(0,10))
-      .filter(Boolean)
-  ).sort((a,b) => b.localeCompare(a));
+function muestrasPeriodoActual(){
 
-  return fechas.length ? fechas[0] : "";
-}
+  const registros =
+    muestrasDatos
+      .filter(
+        r =>
+          r.fecha
+      )
+      .sort(
+        (a,b) =>
+          String(
+            b.fecha
+          ).localeCompare(
+            String(
+              a.fecha
+            )
+          )
+      );
 
-function periodoOperativoActual() {
-  const ultima = ultimaFechaGeneral();
-  if (!ultima) return null;
 
-  const registroReferencia = datosOriginales.find(r =>
-    String(r.fecha || "").substring(0,10) === ultima
-  );
+  if(
+    !registros.length
+  ){
+    return null;
+  }
 
-  if (!registroReferencia) return null;
+
+  const r =
+    registros[0];
+
 
   return {
-    fecha: ultima,
-    ano: String(registroReferencia.ano ?? ""),
-    mes_numero: String(registroReferencia.mes_numero ?? ""),
-    mes: String(registroReferencia.mes ?? "")
+    ano:
+      String(
+        r.ano ?? ""
+      ),
+
+    mes_numero:
+      String(
+        r.mes_numero ?? ""
+      ),
+
+    mes:
+      String(
+        r.mes ?? ""
+      )
   };
 }
 
-function textoPeriodoOperativo(periodo) {
-  if (!periodo) return "Sin período disponible";
 
-  const ano = Number(periodo.ano);
-  const mesNumero = Number(periodo.mes_numero);
+function actualizarFiltrosMuestras(){
 
-  if (!ano || !mesNumero) {
-    return `${periodo.mes} ${periodo.ano}`;
+  const anos =
+    [
+      ...new Set(
+        muestrasDatos
+          .map(
+            r =>
+              String(
+                r.ano ?? ""
+              )
+          )
+          .filter(Boolean)
+      )
+    ].sort(
+      (a,b) =>
+        Number(b) -
+        Number(a)
+    );
+
+
+  $("filtroAno").innerHTML =
+    anos.map(
+      a =>
+        `
+        <option value="${a}">
+          ${a}
+        </option>
+        `
+    ).join("");
+
+
+  const hoy =
+    new Date();
+
+  const anoHoy =
+    String(
+      hoy.getFullYear()
+    );
+
+
+  if(
+    anos.includes(
+      anoHoy
+    )
+  ){
+    $("filtroAno").value =
+      anoHoy;
   }
 
-  const inicio = new Date(ano, mesNumero - 2, 26);
-  const fin = new Date(ano, mesNumero - 1, 25);
 
-  const f = d => d.toLocaleDateString("es-UY", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric"
-  });
-
-  return `${periodo.mes} ${periodo.ano} · ${f(inicio)} al ${f(fin)}`;
+  actualizarMesesMuestras();
 }
 
-function registrosMesActual() {
-  const periodo = periodoOperativoActual();
-  if (!periodo) return [];
 
-  return datosOriginales.filter(r =>
-    String(r.ano ?? "") === periodo.ano &&
-    String(r.mes_numero ?? "") === periodo.mes_numero
-  );
+function actualizarMesesMuestras(){
+
+  const ano =
+    $("filtroAno").value;
+
+
+  const nums =
+    [
+      ...new Set(
+        muestrasDatos
+          .filter(
+            r =>
+              String(
+                r.ano
+              ) === ano
+          )
+          .map(
+            r =>
+              Number(
+                r.mes_numero
+              )
+          )
+          .filter(Boolean)
+      )
+    ].sort(
+      (a,b) =>
+        a - b
+    );
+
+
+  $("filtroMes").innerHTML =
+    nums.map(
+      n =>
+        `
+        <option value="${n}">
+          ${meses[n]}
+        </option>
+        `
+    ).join("");
+
+
+  const hoy =
+    new Date();
+
+  const mesHoy =
+    String(
+      hoy.getMonth() +
+      1
+    );
+
+
+  if(
+    nums
+      .map(String)
+      .includes(
+        mesHoy
+      )
+  ){
+    $("filtroMes").value =
+      mesHoy;
+  }
+
+
+  actualizarFechasMuestras();
 }
 
-/* ============================================================
-   KPI + TÍTULO
-   ============================================================ */
-function renderKpis(registros) {
-  const total = calcularTotales(registros);
+
+function fechasMesCompleto(
+  ano,
+  mes
+){
+
+  const resultado = [];
+
+  const hoy =
+    new Date();
+
+  const ultimo =
+    new Date(
+      Number(ano),
+      Number(mes),
+      0
+    ).getDate();
+
+
+  let limite =
+    ultimo;
+
+
+  if(
+    Number(ano) ===
+      hoy.getFullYear() &&
+    Number(mes) ===
+      hoy.getMonth() +
+      1
+  ){
+    limite =
+      hoy.getDate();
+  }
+
+
+  for(
+    let dia = 1;
+    dia <= limite;
+    dia++
+  ){
+
+    resultado.push(
+      ano +
+      "-" +
+      String(mes)
+        .padStart(
+          2,
+          "0"
+        ) +
+      "-" +
+      String(dia)
+        .padStart(
+          2,
+          "0"
+        )
+    );
+
+  }
+
+
+  return resultado;
+}
+
+
+function actualizarFechasMuestras(){
+
+  const ano =
+    $("filtroAno").value;
+
+  const mes =
+    $("filtroMes").value;
+
+
+  const fechas =
+    fechasMesCompleto(
+      ano,
+      mes
+    ).sort(
+      (a,b) =>
+        b.localeCompare(a)
+    );
+
+
+  $("filtroFecha").innerHTML =
+    `
+    <option value="">
+      Todas las fechas
+    </option>
+    ` +
+    fechas.map(
+      f =>
+        `
+        <option value="${f}">
+          ${fechaUY(f)}
+        </option>
+        `
+    ).join("");
+
+
+  const hoy =
+    new Date();
+
+  const hoyISO =
+    hoy.getFullYear() +
+    "-" +
+    String(
+      hoy.getMonth() +
+      1
+    ).padStart(
+      2,
+      "0"
+    ) +
+    "-" +
+    String(
+      hoy.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  if(
+    fechas.includes(
+      hoyISO
+    )
+  ){
+    $("filtroFecha").value =
+      hoyISO;
+  }
+}
+
+
+function renderMuestras(){
+
+  const ano =
+    $("filtroAno").value;
+
+  const mes =
+    $("filtroMes").value;
+
+  const fecha =
+    $("filtroFecha").value;
+
+
+  const periodo =
+    muestrasPeriodoActual();
+
+
+  let registrosMesActual =
+    [];
+
+
+  if(periodo){
+
+    registrosMesActual =
+      muestrasDatos.filter(
+        r =>
+          String(
+            r.ano
+          ) ===
+            periodo.ano &&
+          String(
+            r.mes_numero
+          ) ===
+            periodo.mes_numero
+      );
+
+  }
+
+
+  const resumenMesActual =
+    muestrasAgrupar(
+      registrosMesActual
+    );
+
+
+  const totalActual =
+    muestrasTotales(
+      resumenMesActual
+    );
+
 
   $("kpiViajes").textContent =
-    numero(total.viajes, 0);
+    numero(
+      totalActual.viajes
+    );
 
   $("kpiMuestras").textContent =
-    numero(total.muestras, 0);
+    numero(
+      totalActual.muestras
+    );
 
   $("kpiPorcentaje").textContent =
-    porcentaje(total.porcentaje);
+    porcentaje(
+      totalActual.porcentaje
+    );
 
   $("kpiDensidad").textContent =
-    total.densidad == null
-      ? "-"
-      : numero(total.densidad, 3);
-}
-
-function actualizarTitulo() {
-  const ano = $("filtroAno").value;
-  const mes = $("filtroMes").value;
-  const fecha = $("filtroFecha").value;
-
-  let texto = "Muestras al cierre";
-
-  if (fecha) {
-    texto += ` de ${fechaUY(fecha)}`;
-  } else if (mes) {
-    texto += ` - ${meses[Number(mes)]}`;
-    if (ano) texto += ` ${ano}`;
-  } else if (ano) {
-    texto += ` - ${ano}`;
-  }
-
-  $("titulo").textContent = texto;
-}
+    totalActual.densidad === null
+      ?
+      "-"
+      :
+      numero(
+        totalActual.densidad,
+        3
+      );
 
 
-/* ============================================================
-   ACTUALIZACIÓN GENERAL
-   ============================================================ */
-function actualizarTodo() {
-  actualizarTitulo();
+  if(periodo){
 
-  // --------------------------------------------------------
-  // TARJETAS KPI = MES OPERATIVO ACTUAL
-  // --------------------------------------------------------
-  const periodoActual = periodoOperativoActual();
-  const registrosMes = registrosMesActual();
-  const resumenMes = agrupar(registrosMes);
+    $("infoMesActual").innerHTML =
+      "Mes operativo actual: <strong>" +
+      esc(
+        periodo.mes +
+        " " +
+        periodo.ano
+      ) +
+      "</strong>";
 
-  $("infoMesActual").innerHTML = periodoActual
-    ? `Mes operativo actual: <strong>${textoPeriodoOperativo(periodoActual)}</strong>`
-    : `Mes operativo actual: <strong>Sin información</strong>`;
-
-  // Las tarjetas SIEMPRE corresponden al mes operativo actual.
-  renderKpis(resumenMes);
-
-  // --------------------------------------------------------
-  // DETALLE SEGÚN FILTRO SELECCIONADO
-  // --------------------------------------------------------
-  const fechaSeleccionada = $("filtroFecha").value;
-  const anoSeleccionado = $("filtroAno").value;
-  const mesSeleccionado = $("filtroMes").value;
-
-  let registrosSeleccionados = [];
-  let resumenSeleccionado = [];
-  let tituloDetalle = "Detalle resumido";
-
-  if (fechaSeleccionada) {
-    registrosSeleccionados = datosOriginales.filter(r =>
-      String(r.fecha || "").substring(0,10) === fechaSeleccionada
-    );
-
-    tituloDetalle =
-      `Detalle resumido del día - ${fechaUY(fechaSeleccionada)}`;
-
-  } else {
-    registrosSeleccionados = datosOriginales.filter(r =>
-      (!anoSeleccionado || String(r.ano) === anoSeleccionado) &&
-      (!mesSeleccionado || String(r.mes_numero) === mesSeleccionado)
-    );
-
-    if (anoSeleccionado && mesSeleccionado) {
-      tituloDetalle =
-        `Detalle resumido del mes - ${meses[Number(mesSeleccionado)]} ${anoSeleccionado}`;
-    } else if (anoSeleccionado) {
-      tituloDetalle =
-        `Detalle resumido del año - ${anoSeleccionado}`;
-    }
-  }
-
-  resumenSeleccionado = agrupar(registrosSeleccionados);
-
-  $("tituloDetalleDia").textContent = tituloDetalle;
-
-  renderTablaResumen(
-    resumenSeleccionado,
-    "tbodyDia",
-    "recordCountDia"
-  );
-
-  renderTotalesResumen(
-    resumenSeleccionado,
-    "Dia"
-  );
-
-  // --------------------------------------------------------
-  // DETALLE DEL MES ACTUAL
-  // --------------------------------------------------------
-  if (periodoActual) {
     $("tituloDetalleMes").textContent =
-      `Detalle resumido del mes actual - ${periodoActual.mes} ${periodoActual.ano}`;
-  } else {
-    $("tituloDetalleMes").textContent =
-      "Detalle resumido del mes actual";
+      "Detalle resumido del mes actual - " +
+      periodo.mes +
+      " " +
+      periodo.ano;
+
   }
 
-  renderTablaResumen(
-    resumenMes,
+
+  muestrasRenderTabla(
+    resumenMesActual,
     "tbodyMes",
     "recordCountMes"
   );
 
-  renderTotalesResumen(
-    resumenMes,
+  muestrasRenderTotales(
+    resumenMesActual,
     "Mes"
   );
-}
 
 
-/* ============================================================
-   EVENTOS
-   ============================================================ */
-$("filtroAno").addEventListener("change", () => {
-  actualizarFiltroMes();
-  actualizarFiltroFecha();
-  actualizarTodo();
-});
-
-$("filtroMes").addEventListener("change", () => {
-  actualizarFiltroFecha();
-
-  // Al seleccionar un mes, dejar FECHA libre.
-  // Así el resumen muestra el mes completo y no la última fecha.
-  if ($("filtroMes").value !== "") {
-    $("filtroFecha").value = "";
-  }
-
-  actualizarTodo();
-});
-
-
-$("filtroFecha").addEventListener("change", actualizarTodo);
-
-
-
-
-/* ============================================================
-   PREPARAR CORREO - MUESTRAS AL CIERRE
-   ============================================================ */
-function textoTablaCorreo(registros) {
-  if (!registros.length) {
-    return "No hay registros para la fecha seleccionada.";
-  }
-
-  return registros.map((r, i) => {
-    const densidad =
-      r.promedio_densidad == null
-        ? "-"
-        : numero(r.promedio_densidad, 3);
-
-    return [
-      `${i + 1}. ${r.origen ?? "-"}`,
-      `Depósito: ${r.deposito ?? "-"}`,
-      `Cosecha: ${r.cosecha ?? "-"}`,
-      `Certificación: ${r.certificacion ?? "-"}`,
-      `Producto: ${r.nombre_prod ?? "-"}`,
-      `Prom. densidad: ${densidad}`,
-      `Viajes: ${numero(r.viajes, 0)} | Muestras: ${numero(r.muestras, 0)} | % Muestreo: ${porcentaje(r.porcentaje_muestreo)}`
-    ].join("\n");
-  }).join("\n\n");
-}
-
-function bloqueTotalesCorreo(titulo, total) {
-  return [
-    titulo,
-    `Viajes: ${numero(total.viajes, 0)}`,
-    `Muestras: ${numero(total.muestras, 0)}`,
-    `% Muestreo: ${porcentaje(total.porcentaje)}`,
-    `Promedio densidad: ${total.densidad == null ? "-" : numero(total.densidad, 3)}`
-  ].join("\n");
-}
-
-function tablaHtmlCorreo(registros, total, titulo) {
-  const filas = registros.length
-    ? registros.map(r => `
-      <tr>
-        <td>${esc(r.deposito)}</td>
-        <td>${esc(r.origen)}</td>
-        <td>${esc(r.cosecha)}</td>
-        <td>${esc(r.certificacion)}</td>
-        <td>${esc(r.nombre_prod)}</td>
-        <td style="text-align:right;">${r.promedio_densidad == null ? "-" : numero(r.promedio_densidad, 3)}</td>
-        <td style="text-align:right;">${numero(r.viajes, 0)}</td>
-        <td style="text-align:right;">${numero(r.muestras, 0)}</td>
-        <td style="text-align:right;">${porcentaje(r.porcentaje_muestreo)}</td>
-      </tr>
-    `).join("")
-    : `
-      <tr>
-        <td colspan="9" style="text-align:center;padding:18px;">
-          No hay registros para la fecha seleccionada.
-        </td>
-      </tr>
-    `;
-
-  return `
-    <div style="font-family:Segoe UI,Arial,sans-serif;color:#111827;margin:0 0 24px 0;">
-      <div style="
-        font-size:16px;
-        font-weight:700;
-        color:#198754;
-        margin-bottom:8px;
-      ">
-        ${esc(titulo)}
-      </div>
-
-      <table cellpadding="0" cellspacing="0" style="
-        border-collapse:collapse;
-        width:100%;
-        font-size:12px;
-        border:1px solid #cbd5e1;
-      ">
-        <thead>
-          <tr style="background:#e9eef3;">
-            <th style="border:1px solid #cbd5e1;padding:7px;">Depósito</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Origen</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Cosecha</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Certificación</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Producto</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Promedio densidad</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Viajes</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">Muestras</th>
-            <th style="border:1px solid #cbd5e1;padding:7px;">% Muestreo</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          ${filas}
-        </tbody>
-
-        <tfoot>
-          <tr style="background:#e9eef3;font-weight:700;">
-            <td colspan="5" style="border:1px solid #cbd5e1;padding:7px;">
-              Total
-            </td>
-            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
-              ${total.densidad == null ? "-" : numero(total.densidad, 3)}
-            </td>
-            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
-              ${numero(total.viajes, 0)}
-            </td>
-            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
-              ${numero(total.muestras, 0)}
-            </td>
-            <td style="border:1px solid #cbd5e1;padding:7px;text-align:right;">
-              ${porcentaje(total.porcentaje)}
-            </td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-  `;
-}
-
-async function copiarCorreoHtml(htmlCorreo, textoPlano) {
-  if (
-    navigator.clipboard &&
-    window.ClipboardItem
-  ) {
-    const item = new ClipboardItem({
-      "text/html": new Blob([htmlCorreo], { type: "text/html" }),
-      "text/plain": new Blob([textoPlano], { type: "text/plain" })
-    });
-
-    await navigator.clipboard.write([item]);
-    return true;
-  }
-
-  return false;
-}
-
-async function prepararCorreoMuestras() {
-  const fechaSeleccionada = $("filtroFecha").value;
-  const periodoActual = periodoOperativoActual();
-
-  let resumenDia = [];
-
-  if (fechaSeleccionada) {
-    const registrosDia = datosOriginales.filter(r =>
-      String(r.fecha || "").substring(0,10) === fechaSeleccionada
+  let seleccionados =
+    muestrasDatos.filter(
+      r =>
+        (
+          !ano ||
+          String(
+            r.ano
+          ) === ano
+        ) &&
+        (
+          !mes ||
+          String(
+            r.mes_numero
+          ) === mes
+        ) &&
+        (
+          !fecha ||
+          fechaISO(
+            r.fecha
+          ) === fecha
+        )
     );
 
-    resumenDia = agrupar(registrosDia);
-  }
 
-  const totalDia = calcularTotales(resumenDia);
-
-  const registrosMes = registrosMesActual();
-  const resumenMes = agrupar(registrosMes);
-  const totalMes = calcularTotales(resumenMes);
-
-  const tituloFecha = fechaSeleccionada
-    ? fechaUY(fechaSeleccionada)
-    : "Sin fecha";
-
-  const tituloMes = periodoActual
-    ? `${periodoActual.mes} ${periodoActual.ano}`
-    : "Sin información";
-
-  const asunto = `Muestras al cierre - ${tituloFecha}`;
-
-  const htmlCorreo = `
-    <div style="font-family:Segoe UI,Arial,sans-serif;color:#111827;">
-      <div style="
-        font-size:18px;
-        font-weight:700;
-        margin-bottom:18px;
-      ">
-        MUESTRAS AL CIERRE - ${esc(tituloFecha)}
-      </div>
-
-      ${tablaHtmlCorreo(
-        resumenDia,
-        totalDia,
-        `Detalle resumido del día - ${tituloFecha}`
-      )}
-
-      ${tablaHtmlCorreo(
-        resumenMes,
-        totalMes,
-        `Detalle resumido del mes actual - ${tituloMes}`
-      )}
-
-      <div style="margin-top:22px;">
-        Saludos.
-      </div>
-    </div>
-  `;
-
-  const textoPlano = [
-    `MUESTRAS AL CIERRE - ${tituloFecha}`,
-    "",
-    `DETALLE RESUMIDO DEL DÍA - ${tituloFecha}`,
-    "",
-    textoTablaCorreo(resumenDia),
-    "",
-    bloqueTotalesCorreo("TOTAL DÍA", totalDia),
-    "",
-    `DETALLE RESUMIDO DEL MES ACTUAL - ${tituloMes}`,
-    "",
-    textoTablaCorreo(resumenMes),
-    "",
-    bloqueTotalesCorreo("TOTAL MES", totalMes),
-    "",
-    "Saludos."
-  ].join("\n");
-
-  let copiadoHtml = false;
-
-  try {
-    copiadoHtml = await copiarCorreoHtml(
-      htmlCorreo,
-      textoPlano
+  const resumen =
+    muestrasAgrupar(
+      seleccionados
     );
-  } catch (error) {
-    console.warn("No fue posible copiar HTML al portapapeles:", error);
-  }
 
-  const mailto =
-    `mailto:` +
-    `?subject=${encodeURIComponent(asunto)}`;
 
-  window.location.href = mailto;
+  $("tituloDetalleDia").textContent =
+    fecha
+      ?
+      "Detalle resumido del día - " +
+      fechaUY(fecha)
+      :
+      "Detalle resumido del mes";
 
-  setTimeout(() => {
-    if (copiadoHtml) {
-      alert(
-        "El resumen fue copiado con formato de tabla.\n\n" +
-        "En el cuerpo del correo presioná Ctrl+V para pegarlo."
+
+  $("tituloMuestras").textContent =
+    fecha
+      ?
+      "MUESTRAS AL CIERRE DE " +
+      fechaUY(fecha)
+      :
+      "MUESTRAS AL CIERRE";
+
+
+  muestrasRenderTabla(
+    resumen,
+    "tbodyDia",
+    "recordCountDia"
+  );
+
+  muestrasRenderTotales(
+    resumen,
+    "Dia"
+  );
+
+}
+
+
+async function cargarMuestras(){
+
+  try{
+
+    const respuesta =
+      await fetch(
+        urlSinCache(
+          JSON_MUESTRAS
+        ),
+        {
+          cache:"no-store"
+        }
       );
-    } else {
-      alert(
-        "No fue posible copiar el formato enriquecido.\n" +
-        "Podés copiar el resumen manualmente desde el dashboard."
+
+
+    if(
+      !respuesta.ok
+    ){
+      throw new Error(
+        "HTTP " +
+        respuesta.status
       );
     }
-  }, 600);
+
+
+    const json =
+      await respuesta.json();
+
+
+    muestrasDatos =
+      Array.isArray(
+        json.registros
+      )
+        ?
+        json.registros
+        :
+        [];
+
+
+    $("actualizado").textContent =
+      fechaHoraUY(
+        json.actualizado
+      );
+
+
+    const fechas =
+      muestrasDatos
+        .map(
+          r =>
+            fechaISO(
+              r.fecha
+            )
+        )
+        .filter(Boolean)
+        .sort(
+          (a,b) =>
+            b.localeCompare(a)
+        );
+
+
+    $("ultimoDiaConRegistro").textContent =
+      fechas.length
+        ?
+        fechaUY(
+          fechas[0]
+        )
+        :
+        "Sin registros";
+
+
+    actualizarFiltrosMuestras();
+
+    renderMuestras();
+
+  }
+  catch(error){
+
+    console.error(error);
+
+    $("actualizado").textContent =
+      "Error de carga";
+
+    $("tbodyDia").innerHTML =
+      `
+      <tr>
+        <td
+          colspan="9"
+          class="error"
+        >
+          No fue posible cargar MuestrasCierre.json
+        </td>
+      </tr>
+      `;
+
+  }
+
 }
 
-$("btnPrepararCorreoMuestras").addEventListener(
-  "click",
-  prepararCorreoMuestras
+
+$("filtroAno").addEventListener(
+  "change",
+  () => {
+
+    actualizarMesesMuestras();
+
+    renderMuestras();
+
+  }
 );
 
 
-/* ============================================================
-   RESTAN DESCARGAR
-   ============================================================ */
-function normalizarTextoDescargas(valor) {
-  return String(valor ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim()
-    .toUpperCase();
-}
+$("filtroMes").addEventListener(
+  "change",
+  () => {
 
-function formatoFechaHoraDescargas(valor) {
-  if (!valor) return "Sin información";
+    actualizarFechasMuestras();
 
-  const d = new Date(valor);
+    $("filtroFecha").value =
+      "";
 
-  if (Number.isNaN(d.getTime())) return String(valor);
+    renderMuestras();
 
-  return d.toLocaleString("es-UY", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false
-  });
-}
+  }
+);
 
-function esFaltaDescargarDescargas(r) {
-  const estado = normalizarTextoDescargas(
-    r["ESTADO DESCARGA"] ?? r["estado_descarga"]
+
+$("filtroFecha").addEventListener(
+  "change",
+  renderMuestras
+);
+
+
+$("btnPrepararCorreoMuestras")
+  .addEventListener(
+    "click",
+    () => {
+
+      const fecha =
+        $("filtroFecha").value;
+
+      const asunto =
+        fecha
+          ?
+          "Muestras al cierre - " +
+          fechaUY(fecha)
+          :
+          "Muestras al cierre";
+
+      window.location.href =
+        "mailto:?subject=" +
+        encodeURIComponent(
+          asunto
+        );
+
+    }
   );
 
-  return estado === "FALTA DESCARGAR";
+
+/* ============================================================
+   PENDIENTES
+   ============================================================ */
+
+function normalizarTexto(valor){
+
+  return String(
+    valor ?? ""
+  )
+  .normalize("NFD")
+  .replace(
+    /[\u0300-\u036f]/g,
+    ""
+  )
+  .trim()
+  .toUpperCase();
 }
 
-function valorDescarga(r, ...campos) {
-  for (const campo of campos) {
-    if (r[campo] !== undefined && r[campo] !== null && r[campo] !== "") {
-      return r[campo];
+
+function valorCampo(
+  registro,
+  ...campos
+){
+
+  for(
+    const campo
+    of campos
+  ){
+
+    const valor =
+      registro[campo];
+
+    if(
+      valor !== undefined &&
+      valor !== null &&
+      valor !== ""
+    ){
+      return valor;
     }
+
   }
+
   return "";
 }
 
-async function cargarDescargasPendientes() {
-  try {
-    const respuesta = await fetch(urlSinCache(JSON_DESCARGAS_URL), { cache: "no-store" });
 
-    if (!respuesta.ok) {
-      throw new Error(`HTTP ${respuesta.status}`);
+async function cargarPendientes(){
+
+  try{
+
+    const respuesta =
+      await fetch(
+        urlSinCache(
+          JSON_DESCARGAS
+        ),
+        {
+          cache:"no-store"
+        }
+      );
+
+
+    if(
+      !respuesta.ok
+    ){
+      throw new Error(
+        "HTTP " +
+        respuesta.status
+      );
     }
 
-    const json = await respuesta.json();
 
-    const registros = Array.isArray(json)
-      ? json
-      : Array.isArray(json.registros)
-        ? json.registros
-        : [];
+    const json =
+      await respuesta.json();
 
-    const actualizado =
-      json.actualizado ??
-      json.generado ??
-      json.fechaActualizacion ??
-      json.fecha_actualizacion ??
-      null;
+
+    const registros =
+      Array.isArray(json)
+        ?
+        json
+        :
+        Array.isArray(
+          json.registros
+        )
+          ?
+          json.registros
+          :
+          [];
+
 
     $("descargasActualizado").textContent =
-      actualizado
-        ? formatoFechaHoraDescargas(actualizado)
-        : "Sin información";
+      fechaHoraUY(
+        json.actualizado ??
+        json.generado ??
+        json.fechaActualizacion ??
+        json.fecha_actualizacion
+      );
 
-    const pendientes = registros.filter(esFaltaDescargarDescargas);
 
-    const conteo = new Map();
+    const pendientes =
+      registros.filter(
+        r =>
+          normalizarTexto(
+            valorCampo(
+              r,
+              "ESTADO DESCARGA",
+              "estado_descarga"
+            )
+          ) ===
+          "FALTA DESCARGAR"
+      );
 
-    pendientes.forEach(r => {
-      const destino = String(
-        valorDescarga(r, "DESTINO", "destino")
-      ).trim();
 
-      if (!destino) return;
+    const conteo =
+      new Map();
 
-      conteo.set(destino, (conteo.get(destino) || 0) + 1);
-    });
 
-    const destinos = [...conteo.entries()]
-      .sort((a,b) => b[1] - a[1]);
+    pendientes.forEach(
+      r => {
 
-    const tarjetas = $("descargasTarjetas");
+        const destino =
+          String(
+            valorCampo(
+              r,
+              "DESTINO",
+              "destino"
+            )
+          ).trim();
 
-    if (!destinos.length) {
-      tarjetas.innerHTML = `
+
+        if(!destino){
+          return;
+        }
+
+
+        conteo.set(
+          destino,
+          (
+            conteo.get(
+              destino
+            ) ||
+            0
+          ) +
+          1
+        );
+
+      }
+    );
+
+
+    const destinos =
+      [
+        ...conteo.entries()
+      ].sort(
+        (a,b) =>
+          b[1] -
+          a[1]
+      );
+
+
+    if(
+      destinos.length
+    ){
+
+      $("descargasTarjetas").innerHTML =
+        destinos.map(
+          ([destino,cantidad]) =>
+            `
+            <div class="destino-card">
+
+              <div class="label">
+                ${esc(destino)}
+              </div>
+
+              <div class="value">
+                ${cantidad}
+              </div>
+
+              <div class="kpi-note">
+                Falta descargar
+              </div>
+
+            </div>
+            `
+        ).join("");
+
+    }
+    else{
+
+      $("descargasTarjetas").innerHTML =
+        `
         <div class="sin-pendientes">
           SIN CAMIONES PENDIENTES DE DESCARGAR
         </div>
-      `;
-    } else {
-      tarjetas.innerHTML = destinos.map(([destino, cantidad]) => `
-        <div class="descarga-kpi">
-          <div class="label">${esc(destino)}</div>
-          <div class="value">${numero(cantidad, 0)}</div>
-          <div class="note">Falta descargar</div>
-        </div>
-      `).join("");
+        `;
+
     }
 
-    const ordenados = [...pendientes].sort((a,b) => {
-      const da = String(valorDescarga(a, "DESTINO", "destino")).toUpperCase();
-      const db = String(valorDescarga(b, "DESTINO", "destino")).toUpperCase();
 
-      if (da !== db) return da.localeCompare(db, "es");
+    const ordenados =
+      [
+        ...pendientes
+      ].sort(
+        (a,b) =>
+          String(
+            valorCampo(
+              a,
+              "DESTINO",
+              "destino"
+            )
+          ).localeCompare(
+            String(
+              valorCampo(
+                b,
+                "DESTINO",
+                "destino"
+              )
+            ),
+            "es"
+          )
+      );
 
-      const pa = String(valorDescarga(a, "PREDIO", "predio")).toUpperCase();
-      const pb = String(valorDescarga(b, "PREDIO", "predio")).toUpperCase();
 
-      return pa.localeCompare(pb, "es");
-    });
+    if(
+      !ordenados.length
+    ){
 
-    const tbody = $("descargasTbody");
-
-    if (!ordenados.length) {
-      tbody.innerHTML = `
+      $("descargasTbody").innerHTML =
+        `
         <tr>
-          <td colspan="5" class="empty">
+          <td
+            colspan="5"
+            class="empty"
+          >
             SIN CAMIONES PENDIENTES DE DESCARGAR
           </td>
         </tr>
-      `;
-    } else {
-      tbody.innerHTML = ordenados.map(r => {
-        const remito = valorDescarga(
-          r,
-          "REMITO MONTE",
-          "remito_monte",
-          "numero_1"
-        );
-
-        const destino = valorDescarga(r, "DESTINO", "destino");
-        const predio = valorDescarga(r, "PREDIO", "predio");
-        const vehiculo = valorDescarga(
-          r,
-          "VEHÍCULO",
-          "VEHICULO",
-          "vehiculo"
-        );
-
-        const finCarga = valorDescarga(
-          r,
-          "FIN CARGA",
-          "fin_carga"
-        );
-
-        return `
-          <tr>
-            <td>${esc(remito || "-")}</td>
-            <td>${esc(destino || "-")}</td>
-            <td>${esc(predio || "-")}</td>
-            <td>${esc(vehiculo || "-")}</td>
-            <td>${esc(formatoFechaHoraDescargas(finCarga))}</td>
-          </tr>
         `;
-      }).join("");
+
+    }
+    else{
+
+      $("descargasTbody").innerHTML =
+        ordenados.map(
+          r =>
+            `
+            <tr>
+
+              <td>
+                ${esc(
+                  valorCampo(
+                    r,
+                    "REMITO MONTE",
+                    "remito_monte",
+                    "numero_1"
+                  )
+                )}
+              </td>
+
+              <td>
+                ${esc(
+                  valorCampo(
+                    r,
+                    "DESTINO",
+                    "destino"
+                  )
+                )}
+              </td>
+
+              <td>
+                ${esc(
+                  valorCampo(
+                    r,
+                    "PREDIO",
+                    "predio"
+                  )
+                )}
+              </td>
+
+              <td>
+                ${esc(
+                  valorCampo(
+                    r,
+                    "VEHÍCULO",
+                    "VEHICULO",
+                    "vehiculo"
+                  )
+                )}
+              </td>
+
+              <td>
+                ${esc(
+                  fechaHoraUY(
+                    valorCampo(
+                      r,
+                      "FIN CARGA",
+                      "fin_carga"
+                    )
+                  )
+                )}
+              </td>
+
+            </tr>
+            `
+        ).join("");
+
     }
 
-    $("descargasRecordCount").textContent =
-      `${ordenados.length.toLocaleString("es-UY")} registros`;
 
-  } catch (error) {
+    $("descargasRecordCount").textContent =
+      ordenados.length
+        .toLocaleString(
+          "es-UY"
+        ) +
+      " registros";
+
+  }
+  catch(error){
+
     console.error(error);
 
     $("descargasActualizado").textContent =
       "Error de carga";
 
-    $("descargasTarjetas").innerHTML = `
+    $("descargasTarjetas").innerHTML =
+      `
       <div class="sin-pendientes">
-        No fue posible cargar EstadoDescargaRemitos.json
+        No fue posible cargar los datos.
       </div>
-    `;
+      `;
 
-    $("descargasTbody").innerHTML = `
-      <tr>
-        <td colspan="5" class="error">
-          No fue posible cargar EstadoDescargaRemitos.json
-        </td>
-      </tr>
-    `;
   }
+
 }
 
 
 /* ============================================================
-   DESCARGA CIERRE DE TURNO
+   CIERRE
    ============================================================ */
+
 let cierreDatos = [];
 
-function cierreFechaISO(valor) {
-  if (!valor) return "";
 
-  const texto = String(valor).trim();
+function segundosDesdeHHMMSS(
+  valor
+){
 
-  let m = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (m) return `${m[1]}-${m[2]}-${m[3]}`;
-
-  m = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) {
-    return `${m[3]}-${String(m[2]).padStart(2,"0")}-${String(m[1]).padStart(2,"0")}`;
+  if(!valor){
+    return null;
   }
 
-  return "";
-}
+  const partes =
+    String(valor)
+      .split(":");
 
-function cierreSegundos(valor) {
-  if (!valor) return null;
 
-  const partes = String(valor).trim().split(":");
-  if (partes.length !== 3) return null;
+  if(
+    partes.length !== 3
+  ){
+    return null;
+  }
 
-  const h = Number(partes[0]);
-  const m = Number(partes[1]);
-  const s = Number(partes[2]);
 
-  if (![h,m,s].every(Number.isFinite)) return null;
-
-  return h * 3600 + m * 60 + s;
-}
-
-function cierreHHMMSS(segundos) {
-  if (!Number.isFinite(segundos)) return "00:00:00";
-
-  segundos = Math.round(segundos);
-
-  const h = Math.floor(segundos / 3600);
-  const m = Math.floor((segundos % 3600) / 60);
-  const s = segundos % 60;
-
-  return `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
-}
-
-function cierreNeto(valor) {
-  const n = Number(String(valor ?? "").replace(",", "."));
-  if (!Number.isFinite(n)) return "-";
-
-  return n.toLocaleString("es-UY", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function cierreFechasDisponibles() {
-  return [...new Set(
-    cierreDatos
-      .map(r => r.fechaISO)
-      .filter(Boolean)
-  )].sort();
-}
-
-function cierreCargarFiltros(fechaPreferida = "") {
-
-    const fechas = cierreFechasDisponibles();
-
-    const anioSelect = document.getElementById("cierreFiltroAno");
-    const mesSelect = document.getElementById("cierreFiltroMes");
-    const fechaSelect = document.getElementById("cierreFiltroFecha");
-
-    if (fechas.length === 0) {
-        anioSelect.innerHTML = "";
-        mesSelect.innerHTML = "";
-        fechaSelect.innerHTML = "";
-        cierreRender("");
-        return;
-    }
-
-    const hoy = new Date();
-    const anoHoy = String(hoy.getFullYear());
-    const mesHoy = String(hoy.getMonth() + 1).padStart(2, "0");
-    const fechaHoy = [
-      hoy.getFullYear(),
-      String(hoy.getMonth() + 1).padStart(2, "0"),
-      String(hoy.getDate()).padStart(2, "0")
-    ].join("-");
-
-    const anios = [...new Set(
-        fechas.map(f => f.substring(0, 4))
-    )].sort((a, b) => Number(b) - Number(a));
-
-    anioSelect.innerHTML = anios
-        .map(anio => `<option value="${anio}">${anio}</option>`)
-        .join("");
-
-    if (anios.includes(anoHoy)) {
-      anioSelect.value = anoHoy;
-    } else {
-      const fechaBase = fechaPreferida && fechas.includes(fechaPreferida)
-        ? fechaPreferida
-        : fechas[fechas.length - 1];
-
-      anioSelect.value = fechaBase.substring(0,4);
-    }
-
-    const mesPreferido =
-      anioSelect.value === anoHoy
-        ? mesHoy
-        : (
-            fechaPreferida && fechas.includes(fechaPreferida)
-              ? fechaPreferida.substring(5,7)
-              : fechas[fechas.length - 1].substring(5,7)
-          );
-
-    const fechaPreferidaFinal =
-      anioSelect.value === anoHoy
-        ? fechaHoy
-        : fechaPreferida;
-
-    cierreActualizarMeses(
-      mesPreferido,
-      fechaPreferidaFinal
+  const h =
+    Number(
+      partes[0]
     );
-}
 
-function cierreActualizarMeses(mesPreferido = "", fechaPreferida = "") {
-  const ano = $("cierreFiltroAno").value;
-  const selMes = $("cierreFiltroMes");
+  const m =
+    Number(
+      partes[1]
+    );
 
-  const fechas = cierreFechasDisponibles()
-    .filter(f => f.startsWith(`${ano}-`));
+  const s =
+    Number(
+      partes[2]
+    );
 
-  const nums = [...new Set(
-    fechas.map(f => f.substring(5,7))
-  )].sort((a,b) => Number(a) - Number(b));
 
-  selMes.innerHTML = nums
-    .map(m => `<option value="${m}">${meses[Number(m)] || m}</option>`)
-    .join("");
-
-  const mesElegido =
-    mesPreferido && nums.includes(mesPreferido)
-      ? mesPreferido
-      : nums[nums.length - 1];
-
-  selMes.value = mesElegido || "";
-
-  cierreActualizarFechas(fechaPreferida);
-}
-
-function cierreActualizarFechas(fechaPreferida = "") {
-  const ano = $("cierreFiltroAno").value;
-  const mes = $("cierreFiltroMes").value;
-  const selFecha = $("cierreFiltroFecha");
-
-  if (!ano || !mes) {
-    selFecha.innerHTML = "";
-    cierreRender("");
-    return;
+  if(
+    ![
+      h,
+      m,
+      s
+    ].every(
+      Number.isFinite
+    )
+  ){
+    return null;
   }
 
-  const hoy = new Date();
-  const hoyISO = [
-    hoy.getFullYear(),
-    String(hoy.getMonth() + 1).padStart(2, "0"),
-    String(hoy.getDate()).padStart(2, "0")
-  ].join("-");
 
-  const fechas = fechasCalendarioMes(ano, mes)
-    .sort((a,b) => b.localeCompare(a));
+  return (
+    h *
+    3600
+  ) +
+  (
+    m *
+    60
+  ) +
+  s;
+}
 
-  const fechasOrdenadas = fechas.includes(hoyISO)
-    ? [hoyISO, ...fechas.filter(f => f !== hoyISO)]
-    : fechas;
 
-  selFecha.innerHTML = fechasOrdenadas
-    .map(f => {
-      const tieneDatos = cierreDatos.some(r => r.fechaISO === f);
-      const esHoy = f === hoyISO;
+function hhmmss(
+  segundos
+){
 
-      return `
-        <option value="${f}">
-          ${esHoy ? "HOY - " : ""}${fechaUY(f)}
+  if(
+    !Number.isFinite(
+      segundos
+    )
+  ){
+    return "00:00:00";
+  }
+
+
+  segundos =
+    Math.round(
+      segundos
+    );
+
+
+  const h =
+    Math.floor(
+      segundos /
+      3600
+    );
+
+
+  const m =
+    Math.floor(
+      (
+        segundos %
+        3600
+      ) /
+      60
+    );
+
+
+  const s =
+    segundos %
+    60;
+
+
+  return (
+    String(h)
+      .padStart(
+        2,
+        "0"
+      ) +
+    ":" +
+    String(m)
+      .padStart(
+        2,
+        "0"
+      ) +
+    ":" +
+    String(s)
+      .padStart(
+        2,
+        "0"
+      )
+  );
+}
+
+
+function cierreFechas(){
+
+  return [
+    ...new Set(
+      cierreDatos
+        .map(
+          r =>
+            r.fechaISO
+        )
+        .filter(Boolean)
+    )
+  ].sort();
+
+}
+
+
+function cargarFiltrosCierre(){
+
+  const fechas =
+    cierreFechas();
+
+
+  const anos =
+    [
+      ...new Set(
+        fechas.map(
+          f =>
+            f.substring(
+              0,
+              4
+            )
+        )
+      )
+    ].sort(
+      (a,b) =>
+        Number(b) -
+        Number(a)
+    );
+
+
+  $("cierreFiltroAno").innerHTML =
+    anos.map(
+      a =>
+        `
+        <option value="${a}">
+          ${a}
         </option>
-      `;
-    })
-    .join("");
+        `
+    ).join("");
 
-  let fechaElegida = "";
 
-  // Si se pasó una preferida válida, respetarla.
-  if (fechaPreferida && fechasOrdenadas.includes(fechaPreferida)) {
-    fechaElegida = fechaPreferida;
-  } else if (fechasOrdenadas.length) {
-    // Por defecto HOY si corresponde, o la fecha más reciente.
-    fechaElegida = fechasOrdenadas[0];
+  const hoy =
+    new Date();
+
+
+  const anoHoy =
+    String(
+      hoy.getFullYear()
+    );
+
+
+  if(
+    anos.includes(
+      anoHoy
+    )
+  ){
+    $("cierreFiltroAno").value =
+      anoHoy;
   }
 
-  selFecha.value = fechaElegida;
 
-  cierreRender(fechaElegida);
+  actualizarMesesCierre();
+
 }
 
-function cierreRender(fecha) {
-  const registros = cierreDatos
-    .filter(r => r.fechaISO === fecha)
-    .sort((a,b) => String(a.hora_rto).localeCompare(String(b.hora_rto)));
+
+function actualizarMesesCierre(){
+
+  const ano =
+    $("cierreFiltroAno").value;
+
+
+  const nums =
+    [
+      ...new Set(
+        cierreFechas()
+          .filter(
+            f =>
+              f.startsWith(
+                ano +
+                "-"
+              )
+          )
+          .map(
+            f =>
+              Number(
+                f.substring(
+                  5,
+                  7
+                )
+              )
+          )
+      )
+    ].sort(
+      (a,b) =>
+        a -
+        b
+    );
+
+
+  $("cierreFiltroMes").innerHTML =
+    nums.map(
+      n =>
+        `
+        <option value="${n}">
+          ${meses[n]}
+        </option>
+        `
+    ).join("");
+
+
+  const hoy =
+    new Date();
+
+
+  const mesHoy =
+    String(
+      hoy.getMonth() +
+      1
+    );
+
+
+  if(
+    nums
+      .map(String)
+      .includes(
+        mesHoy
+      )
+  ){
+    $("cierreFiltroMes").value =
+      mesHoy;
+  }
+
+
+  actualizarFechasCierre();
+
+}
+
+
+function actualizarFechasCierre(){
+
+  const ano =
+    $("cierreFiltroAno").value;
+
+  const mes =
+    $("cierreFiltroMes").value;
+
+
+  const fechas =
+    fechasMesCompleto(
+      ano,
+      mes
+    ).sort(
+      (a,b) =>
+        b.localeCompare(a)
+    );
+
+
+  $("cierreFiltroFecha").innerHTML =
+    fechas.map(
+      f =>
+        `
+        <option value="${f}">
+          ${fechaUY(f)}
+        </option>
+        `
+    ).join("");
+
+
+  renderCierre();
+
+}
+
+
+function renderCierre(){
+
+  const fecha =
+    $("cierreFiltroFecha").value;
+
+
+  const registros =
+    cierreDatos
+      .filter(
+        r =>
+          r.fechaISO ===
+          fecha
+      )
+      .sort(
+        (a,b) =>
+          String(
+            a.hora_rto
+          ).localeCompare(
+            String(
+              b.hora_rto
+            )
+          )
+      );
+
 
   $("cierreTotalCamiones").textContent =
-    registros.length.toLocaleString("es-UY");
+    numero(
+      registros.length
+    );
 
-  const toneladasDirecto = registros
-    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() === "FFU")
-    .reduce((suma, r) => {
-      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
-      return suma + (Number.isFinite(n) ? n : 0);
-    }, 0);
 
-  const toneladasAcopio = registros
-    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() !== "FFU")
-    .reduce((suma, r) => {
-      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
-      return suma + (Number.isFinite(n) ? n : 0);
-    }, 0);
+  const tiempos =
+    registros
+      .map(
+        r =>
+          segundosDesdeHHMMSS(
+            r.tiempo_descarga
+          )
+      )
+      .filter(
+        Number.isFinite
+      );
 
-  $("cierreTonDirecto").textContent =
-    `${toneladasDirecto.toLocaleString("es-UY", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })} ton`;
 
-  $("cierreTonAcopio").textContent =
-    `${toneladasAcopio.toLocaleString("es-UY", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    })} ton`;
+  const promedio =
+    tiempos.length
+      ?
+      tiempos.reduce(
+        (a,b) =>
+          a +
+          b,
+        0
+      ) /
+      tiempos.length
+      :
+      0;
 
-  const tiempos = registros
-    .map(r => cierreSegundos(r.tiempo_descarga))
-    .filter(Number.isFinite);
-
-  const promedio = tiempos.length
-    ? tiempos.reduce((a,b) => a+b, 0) / tiempos.length
-    : 0;
 
   $("cierrePromedioDescarga").textContent =
-    cierreHHMMSS(promedio);
+    hhmmss(
+      promedio
+    );
+
+
+  let directo = 0;
+  let acopio = 0;
+
+
+  registros.forEach(
+    r => {
+
+      const neto =
+        Number(
+          String(
+            r.neto_ton ?? 0
+          ).replace(
+            ",",
+            "."
+          )
+        ) || 0;
+
+
+      if(
+        normalizarTexto(
+          r.primero_de_pila
+        ) ===
+        "FFU"
+      ){
+        directo +=
+          neto;
+      }
+      else{
+        acopio +=
+          neto;
+      }
+
+    }
+  );
+
+
+  $("cierreTonDirecto").textContent =
+    numero(
+      directo,
+      2
+    ) +
+    " ton";
+
+
+  $("cierreTonAcopio").textContent =
+    numero(
+      acopio,
+      2
+    ) +
+    " ton";
+
 
   $("cierreSinDatos").style.display =
-    registros.length ? "none" : "block";
+    registros.length
+      ?
+      "none"
+      :
+      "block";
+
 
   $("cierreTituloDetalle").textContent =
-    fecha
-      ? `Detalle de descargas - ${fechaUY(fecha)}`
-      : "Detalle de descargas";
+    "Detalle de descargas - " +
+    fechaUY(fecha);
+
 
   $("cierreRecordCount").textContent =
-    `${registros.length.toLocaleString("es-UY")} registros`;
+    registros.length
+      .toLocaleString(
+        "es-UY"
+      ) +
+    " registros";
 
-  const tbody = $("cierreTbody");
 
-  if (!registros.length) {
-    tbody.innerHTML = `
+  if(
+    !registros.length
+  ){
+
+    $("cierreTbody").innerHTML =
+      `
       <tr>
-        <td colspan="8" class="empty">
+        <td
+          colspan="8"
+          class="empty"
+        >
           SIN DESCARGA DE CAMIONES EN PLANTA
         </td>
       </tr>
-    `;
+      `;
+
     return;
   }
 
-  tbody.innerHTML = registros.map(r => `
-    <tr>
-      <td>${esc(fechaUY(r.fechaISO))}</td>
-      <td>${esc(r.hora_rto || "-")}</td>
-      <td>${esc(r.hora_salida || "-")}</td>
-      <td>${esc(r.tiempo_descarga || "-")}</td>
-      <td>${esc(r.primero_de_pila || "-")}</td>
-      <td>${esc(r.nombre_prod || "-")}</td>
-      <td>${esc(r.matricula || "-")}</td>
-      <td class="num">${esc(cierreNeto(r.neto_ton))}</td>
-    </tr>
-  `).join("");
+
+  $("cierreTbody").innerHTML =
+    registros.map(
+      r =>
+        `
+        <tr>
+
+          <td>
+            ${fechaUY(
+              r.fechaISO
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.hora_rto
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.hora_salida
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.tiempo_descarga
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.primero_de_pila
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.nombre_prod
+            )}
+          </td>
+
+          <td>
+            ${esc(
+              r.matricula
+            )}
+          </td>
+
+          <td>
+            ${numero(
+              Number(
+                String(
+                  r.neto_ton ?? 0
+                ).replace(
+                  ",",
+                  "."
+                )
+              ),
+              2
+            )}
+          </td>
+
+        </tr>
+        `
+    ).join("");
+
 }
 
-async function cargarCierreTurno() {
-  try {
-    const respuesta = await fetch(
-      urlSinCache(JSON_CIERRE_TURNO_URL),
-      { cache:"no-store" }
-    );
 
-    if (!respuesta.ok) {
-      throw new Error(`HTTP ${respuesta.status}`);
-    }
+async function cargarCierre(){
 
-    const json = await respuesta.json();
+  try{
 
-    const registros = Array.isArray(json.registros)
-      ? json.registros
-      : [];
-
-    cierreDatos = registros
-      .map(r => ({
-        fechaISO: cierreFechaISO(r.fecha_rto),
-        hora_rto: r.hora_rto ?? "",
-        hora_salida: r.hora_salida ?? "",
-        tiempo_descarga:
-          r.tiempo_descarga_texto ??
-          r.tiempo_descarga ??
-          "",
-        primero_de_pila: r.primero_de_pila ?? "",
-        nombre_prod: r.nombre_prod ?? "",
-        matricula: r.matricula ?? "",
-        neto_ton: r.neto_ton
-      }))
-      .filter(r =>
-        r.fechaISO &&
-        r.matricula &&
-        String(r.matricula).trim() !== "0"
+    const respuesta =
+      await fetch(
+        urlSinCache(
+          JSON_CIERRE
+        ),
+        {
+          cache:"no-store"
+        }
       );
 
-    $("cierreActualizado").textContent =
-      fechaHoraActualizacion(json.actualizado);
 
-    const fechas = cierreFechasDisponibles();
+    if(
+      !respuesta.ok
+    ){
+      throw new Error(
+        "HTTP " +
+        respuesta.status
+      );
+    }
+
+
+    const json =
+      await respuesta.json();
+
+
+    const registros =
+      Array.isArray(
+        json.registros
+      )
+        ?
+        json.registros
+        :
+        [];
+
+
+    cierreDatos =
+      registros.map(
+        r => {
+
+          return {
+
+            fechaISO:
+              fechaISO(
+                r.fecha_rto
+              ),
+
+            hora_rto:
+              r.hora_rto ?? "",
+
+            hora_salida:
+              r.hora_salida ?? "",
+
+            tiempo_descarga:
+              r.tiempo_descarga_texto ??
+              r.tiempo_descarga ??
+              "",
+
+            primero_de_pila:
+              r.primero_de_pila ?? "",
+
+            nombre_prod:
+              r.nombre_prod ?? "",
+
+            matricula:
+              r.matricula ?? "",
+
+            neto_ton:
+              r.neto_ton
+
+          };
+
+        }
+      )
+      .filter(
+        r =>
+          r.fechaISO &&
+          r.matricula &&
+          String(
+            r.matricula
+          ).trim() !==
+          "0"
+      );
+
+
+    $("cierreActualizado").textContent =
+      fechaHoraUY(
+        json.actualizado
+      );
+
+
+    const fechas =
+      cierreFechas();
+
 
     $("cierreUltimoDiaConRegistro").textContent =
       fechas.length
-        ? fechaUY(fechas[fechas.length - 1])
-        : "Sin registros";
+        ?
+        fechaUY(
+          fechas[
+            fechas.length -
+            1
+          ]
+        )
+        :
+        "Sin registros";
 
-    const hoy = new Date();
-    const hoyISO = [
-      hoy.getFullYear(),
-      String(hoy.getMonth() + 1).padStart(2, "0"),
-      String(hoy.getDate()).padStart(2, "0")
-    ].join("-");
 
-    cierreCargarFiltros(
-      fechas.includes(hoyISO)
-        ? hoyISO
-        : (fechas.length ? fechas[fechas.length - 1] : "")
-    );
+    cargarFiltrosCierre();
 
-  } catch (error) {
+  }
+  catch(error){
+
     console.error(error);
 
     $("cierreActualizado").textContent =
       "Error de carga";
 
-    $("cierreUltimoDiaConRegistro").textContent =
-      "Sin información";
-
-    $("cierreSinDatos").style.display =
-      "block";
-
-    $("cierreSinDatos").textContent =
-      "No fue posible cargar DescargaCierreTurno.json";
-
-    $("cierreTbody").innerHTML = `
+    $("cierreTbody").innerHTML =
+      `
       <tr>
-        <td colspan="8" class="error">
+        <td
+          colspan="8"
+          class="error"
+        >
           No fue posible cargar DescargaCierreTurno.json
         </td>
       </tr>
-    `;
+      `;
+
   }
+
 }
 
-$("cierreFiltroAno").addEventListener("change", () => {
-  cierreActualizarMeses();
-});
 
-$("cierreFiltroMes").addEventListener("change", () => {
-  cierreActualizarFechas();
-});
-
-$("cierreFiltroFecha").addEventListener("change", () => {
-  cierreRender($("cierreFiltroFecha").value);
-});
-
-
-
-function exportarCierreTurnoExcel() {
-  const fecha = $("cierreFiltroFecha").value;
-
-  const registros = cierreDatos
-    .filter(r => r.fechaISO === fecha)
-    .sort((a,b) => String(a.hora_rto).localeCompare(String(b.hora_rto)));
-
-  if (typeof XLSX === "undefined") {
-    alert("No fue posible cargar el módulo de exportación a Excel.");
-    return;
-  }
-
-  const tiempos = registros
-    .map(r => cierreSegundos(r.tiempo_descarga))
-    .filter(Number.isFinite);
-
-  const promedio = tiempos.length
-    ? tiempos.reduce((a,b) => a + b, 0) / tiempos.length
-    : 0;
-
-  const toneladasDirecto = registros
-    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() === "FFU")
-    .reduce((suma, r) => {
-      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
-      return suma + (Number.isFinite(n) ? n : 0);
-    }, 0);
-
-  const toneladasAcopio = registros
-    .filter(r => String(r.primero_de_pila ?? "").trim().toUpperCase() !== "FFU")
-    .reduce((suma, r) => {
-      const n = Number(String(r.neto_ton ?? "").replace(",", "."));
-      return suma + (Number.isFinite(n) ? n : 0);
-    }, 0);
-
-  const filas = [
-    ["DESCARGA CIERRE DE TURNO - FRIMOSA", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["Fecha", fecha ? fechaUY(fecha) : "", "", "", "", "", ""],
-    ["Total camiones", registros.length, "", "", "", "", "", ""],
-    ["Prom. descarga", cierreHHMMSS(promedio), "", "", "", "", "", ""],
-    ["DIRECTO - Neto ton Pila FFU", toneladasDirecto, "", "", "", "", "", ""],
-    ["ACOPIO - Neto ton diferente FFU", toneladasAcopio, "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    [
-      "Fecha",
-      "Hora Ingreso",
-      "Hora Salida",
-      "Tiempo Descarga",
-      "Primero de Pila",
-      "Producto",
-      "Matrícula",
-      "Neto ton"
-    ]
-  ];
-
-  if (registros.length > 0) {
-    registros.forEach(r => {
-      const neto = Number(String(r.neto_ton ?? "").replace(",", "."));
-
-      filas.push([
-        fechaUY(r.fechaISO),
-        r.hora_rto || "",
-        r.hora_salida || "",
-        r.tiempo_descarga || "",
-        r.primero_de_pila || "",
-        r.nombre_prod || "",
-        r.matricula || "",
-        Number.isFinite(neto) ? neto : 0
-      ]);
-    });
-  } else {
-    filas.push([
-      fechaUY(fecha),
-      "00:00:00",
-      "00:00:00",
-      "00:00:00",
-      "",
-      "",
-      "",
-      0
-    ]);
-  }
-
-  const ws = XLSX.utils.aoa_to_sheet(filas);
-
-  // ------------------------------------------------------------
-  // DIMENSIONES / MERGE
-  // ------------------------------------------------------------
-  ws["!merges"] = [
-    XLSX.utils.decode_range("A1:H1")
-  ];
-
-  // Ajuste automático de la columna A según el texto más largo
-  const anchoColumnaA = Math.min(
-    45,
-    Math.max(
-      14,
-      ...filas.map(fila => String(fila[0] ?? "").length + 2)
-    )
+$("cierreFiltroAno")
+  .addEventListener(
+    "change",
+    actualizarMesesCierre
   );
 
-  ws["!cols"] = [
-    { wch: anchoColumnaA }, // Fecha / etiquetas del resumen
-    { wch: 15 },            // Hora ingreso
-    { wch: 15 },            // Hora salida
-    { wch: 18 },            // Tiempo descarga
-    { wch: 18 },            // Primero pila
-    { wch: 24 },            // Producto
-    { wch: 14 },            // Matrícula
-    { wch: 13 }             // Neto
-  ];
 
-  ws["!rows"] = [
-    { hpt: 28 },
-    { hpt: 8 },
-    { hpt: 21 },
-    { hpt: 21 },
-    { hpt: 21 },
-    { hpt: 21 },
-    { hpt: 21 },
-    { hpt: 8 },
-    { hpt: 24 }
-  ];
+$("cierreFiltroMes")
+  .addEventListener(
+    "change",
+    actualizarFechasCierre
+  );
 
-  // ------------------------------------------------------------
-  // PALETA
-  // ------------------------------------------------------------
-  const COLOR_FONDO = "111820";
-  const COLOR_FONDO_2 = "161F29";
-  const COLOR_HEADER = "202A35";
-  const COLOR_LIMA = "7CFC00";
-  const COLOR_LIMA_SUAVE = "C7F7D4";
-  const COLOR_BLANCO = "FFFFFF";
-  const COLOR_TEXTO = "E8EEF5";
-  const COLOR_MUTED = "AEB9C6";
-  const COLOR_BORDE = "3A4654";
-  const COLOR_ZEBRA = "F4F7F9";
 
-  const borde = {
-    top:    { style: "thin", color: { rgb: COLOR_BORDE } },
-    bottom: { style: "thin", color: { rgb: COLOR_BORDE } },
-    left:   { style: "thin", color: { rgb: COLOR_BORDE } },
-    right:  { style: "thin", color: { rgb: COLOR_BORDE } }
-  };
+$("cierreFiltroFecha")
+  .addEventListener(
+    "change",
+    renderCierre
+  );
 
-  // ------------------------------------------------------------
-  // TÍTULO
-  // ------------------------------------------------------------
-  ws["A1"].s = {
-    fill: { fgColor: { rgb: COLOR_FONDO } },
-    font: {
-      name: "Segoe UI",
-      sz: 16,
-      bold: true,
-      color: { rgb: COLOR_LIMA }
-    },
-    alignment: {
-      horizontal: "center",
-      vertical: "center"
-    },
-    border: borde
-  };
 
-  // Estilo de toda la fila combinada del título
-  for (let c = 0; c < 8; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 0, c });
-    if (!ws[ref]) ws[ref] = { t: "s", v: "" };
-    ws[ref].s = ws["A1"].s;
-  }
+$("btnExportarCierreExcel")
+  .addEventListener(
+    "click",
+    () => {
 
-  // ------------------------------------------------------------
-  // RESUMEN (FILAS 3 A 7)
-  // ------------------------------------------------------------
-  for (let r = 2; r <= 6; r++) {
-    const labelRef = XLSX.utils.encode_cell({ r, c: 0 });
-    const valueRef = XLSX.utils.encode_cell({ r, c: 1 });
+      const fecha =
+        $("cierreFiltroFecha").value;
 
-    ws[labelRef].s = {
-      fill: { fgColor: { rgb: COLOR_HEADER } },
-      font: {
-        name: "Segoe UI",
-        sz: 11,
-        bold: true,
-        color: { rgb: COLOR_BLANCO }
-      },
-      alignment: {
-        horizontal: "left",
-        vertical: "center"
-      },
-      border: borde
-    };
 
-    ws[valueRef].s = {
-      fill: { fgColor: { rgb: COLOR_FONDO_2 } },
-      font: {
-        name: "Segoe UI",
-        sz: 11,
-        bold: true,
-        color: { rgb: COLOR_LIMA }
-      },
-      alignment: {
-        horizontal: "center",
-        vertical: "center"
-      },
-      border: borde
-    };
-  }
+      const registros =
+        cierreDatos.filter(
+          r =>
+            r.fechaISO ===
+            fecha
+        );
 
-  // Formato numérico para toneladas del resumen
-  ws["B6"].z = '#,##0.00';
-  ws["B7"].z = '#,##0.00';
 
-  // ------------------------------------------------------------
-  // CABECERAS DE TABLA (FILA 9)
-  // ------------------------------------------------------------
-  for (let c = 0; c < 8; c++) {
-    const ref = XLSX.utils.encode_cell({ r: 8, c });
+      const filas =
+        [
+          [
+            "Fecha",
+            "Hora Ingreso",
+            "Hora Salida",
+            "Tiempo Descarga",
+            "Primero de Pila",
+            "Producto",
+            "Matrícula",
+            "Neto ton"
+          ]
+        ];
 
-    ws[ref].s = {
-      fill: { fgColor: { rgb: COLOR_HEADER } },
-      font: {
-        name: "Segoe UI",
-        sz: 10,
-        bold: true,
-        color: { rgb: COLOR_LIMA_SUAVE }
-      },
-      alignment: {
-        horizontal: "center",
-        vertical: "center",
-        wrapText: true
-      },
-      border: borde
-    };
-  }
 
-  // ------------------------------------------------------------
-  // CUERPO DE LA TABLA
-  // ------------------------------------------------------------
-  const primeraFilaDatos = 9;
-  const ultimaFilaDatos = filas.length - 1;
+      registros.forEach(
+        r => {
 
-  for (let r = primeraFilaDatos; r <= ultimaFilaDatos; r++) {
-    for (let c = 0; c < 8; c++) {
-      const ref = XLSX.utils.encode_cell({ r, c });
+          filas.push(
+            [
+              fechaUY(
+                r.fechaISO
+              ),
 
-      if (!ws[ref]) {
-        ws[ref] = { t: "s", v: "" };
-      }
+              r.hora_rto,
 
-      ws[ref].s = {
-        fill: {
-          fgColor: {
-            rgb: (r - primeraFilaDatos) % 2 === 0
-              ? "FFFFFF"
-              : COLOR_ZEBRA
-          }
+              r.hora_salida,
+
+              r.tiempo_descarga,
+
+              r.primero_de_pila,
+
+              r.nombre_prod,
+
+              r.matricula,
+
+              Number(
+                String(
+                  r.neto_ton ?? 0
+                ).replace(
+                  ",",
+                  "."
+                )
+              ) || 0
+            ]
+          );
+
+        }
+      );
+
+
+      const ws =
+        XLSX.utils.aoa_to_sheet(
+          filas
+        );
+
+
+      const wb =
+        XLSX.utils.book_new();
+
+
+      XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        "Descarga"
+      );
+
+
+      XLSX.writeFile(
+        wb,
+        "Descarga_Cierre_Turno_" +
+        fecha.replaceAll(
+          "-",
+          ""
+        ) +
+        ".xlsx"
+      );
+
+
+      setTimeout(
+        () => {
+
+          const para =
+            [
+              "laboratorio@ffu.com.uy",
+              "a.ruggiero@ffu.com.uy"
+            ].join(",");
+
+
+          const cc =
+            "logma@fas.com.uy";
+
+
+          const asunto =
+            "Descarga " +
+            fechaUY(fecha);
+
+
+          window.location.href =
+            "mailto:" +
+            para +
+            "?cc=" +
+            encodeURIComponent(
+              cc
+            ) +
+            "&subject=" +
+            encodeURIComponent(
+              asunto
+            ) +
+            "&body=" +
+            encodeURIComponent(
+              "Saludos."
+            );
+
         },
-        font: {
-          name: "Segoe UI",
-          sz: 10,
-          color: { rgb: "222222" }
-        },
-        alignment: {
-          horizontal: c === 7 ? "right" : "center",
-          vertical: "center"
-        },
-        border: borde
-      };
+        500
+      );
 
-      if (c === 7 && ws[ref].t === "n") {
-        ws[ref].z = '#,##0.00';
-      }
     }
-  }
-
-  // Resaltar DIRECTO / ACOPIO en la tabla
-  for (let r = primeraFilaDatos; r <= ultimaFilaDatos; r++) {
-    const pilaRef = XLSX.utils.encode_cell({ r, c: 4 });
-    const valorPila = String(ws[pilaRef]?.v ?? "").trim().toUpperCase();
-
-    const colorFila =
-      valorPila === "FFU"
-        ? "EAF8E8"   // DIRECTO = verde suave
-        : "EAF2FB";  // ACOPIO = azul suave
-
-    for (let c = 0; c < 8; c++) {
-      const ref = XLSX.utils.encode_cell({ r, c });
-      ws[ref].s.fill = { fgColor: { rgb: colorFila } };
-    }
-  }
-
-  // ------------------------------------------------------------
-  // AUTOFILTRO
-  // ------------------------------------------------------------
-  ws["!autofilter"] = {
-    ref: `A9:H${filas.length}`
-  };
-
-  // ------------------------------------------------------------
-  // LIBRO
-  // ------------------------------------------------------------
-  const wb = XLSX.utils.book_new();
-
-  wb.Props = {
-    Title: "Descarga Cierre de Turno - FRIMOSA",
-    Subject: "Detalle de descarga por fecha",
-    Author: "FRIMOSA",
-    Company: "FRIMOSA"
-  };
-
-  XLSX.utils.book_append_sheet(
-    wb,
-    ws,
-    "Descarga Cierre Turno"
   );
-
-  const nombreFecha = fecha
-    ? fecha.replaceAll("-", "")
-    : "sin_fecha";
-
-  const nombreArchivo =
-    `Descarga_Cierre_Turno_${nombreFecha}.xlsx`;
-
-  // Primero genera y descarga el Excel
-  XLSX.writeFile(
-    wb,
-    nombreArchivo
-  );
-
-  // Luego prepara el correo en Outlook / cliente de correo predeterminado.
-  // Por seguridad del navegador, el archivo descargado NO puede adjuntarse
-  // automáticamente desde un mailto:. El correo queda preparado para adjuntarlo.
-  const para = [
-    "laboratorio@ffu.com.uy",
-    "a.ruggiero@ffu.com.uy"
-  ].join(",");
-
-  const cc = "logma@fas.com.uy";
-
-  const asunto =
-    `Descarga ${fechaUY(fecha)}`;
-
-  const cuerpo =
-    "Saludos.";
-
-  const mailto =
-    `mailto:${para}` +
-    `?cc=${encodeURIComponent(cc)}` +
-    `&subject=${encodeURIComponent(asunto)}` +
-    `&body=${encodeURIComponent(cuerpo)}`;
-
-  // Pequeña demora para permitir que comience la descarga del Excel
-  setTimeout(() => {
-    window.location.href = mailto;
-  }, 500);
-}
-
-$("btnExportarCierreExcel").addEventListener(
-  "click",
-  exportarCierreTurnoExcel
-);
 
 
 /* ============================================================
    INICIO
    ============================================================ */
-cargarDatos();
-cargarDescargasPendientes();
-cargarCierreTurno();
+
+cargarMuestras();
+
+cargarPendientes();
+
+cargarCierre();
+
 </script>
+
 </body>
 </html>
