@@ -341,6 +341,43 @@
       display:none;
     }
 
+
+    /* ============================================================
+       AJUSTE COMPACTO DE COLUMNAS
+       ============================================================ */
+
+    .tabla-contenedor table{
+      width:max-content;
+      min-width:100%;
+      table-layout:auto;
+    }
+
+    .tabla-contenedor th,
+    .tabla-contenedor td{
+      width:1%;
+      white-space:nowrap;
+      padding-left:8px;
+      padding-right:8px;
+    }
+
+    .tabla-contenedor th:first-child,
+    .tabla-contenedor td:first-child{
+      width:auto;
+    }
+
+    .tabla-contenedor th:nth-child(2),
+    .tabla-contenedor td:nth-child(2){
+      width:auto;
+    }
+
+    .tabla-contenedor th{
+      font-size:10px;
+    }
+
+    .tabla-contenedor td{
+      font-size:10px;
+    }
+
   </style>
 
 </head>
