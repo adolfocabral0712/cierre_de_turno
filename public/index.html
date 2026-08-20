@@ -632,6 +632,42 @@
 
     }
 
+    /* ============================================================
+       RESÚMENES EN PANTALLA PRINCIPAL
+       ============================================================ */
+    .home-screen{justify-content:flex-start;min-height:auto;padding-top:30px}
+    .home-buttons{align-items:stretch}
+    .home-btn{min-height:420px;justify-content:flex-start;padding:18px;overflow:hidden}
+    .home-btn-title{min-height:46px;display:flex;align-items:center;justify-content:center}
+    .home-btn-note{min-height:34px;margin-bottom:12px}
+    .home-resumen{width:100%;margin-top:8px;border-top:1px solid var(--line);padding-top:12px;text-align:left}
+    .home-resumen-titulo{color:var(--lime-soft);font-size:11px;font-weight:800;text-transform:uppercase;text-align:center;margin-bottom:8px}
+    .home-mini-table{width:100%;border-collapse:collapse;font-size:10px}
+    .home-mini-table th{position:static;padding:6px 4px;background:#202a35;font-size:9px;color:#f7f9fb}
+    .home-mini-table td{padding:6px 4px;font-size:10px;white-space:normal;line-height:1.2;border-bottom:1px solid #202a35}
+    .home-mini-table th,.home-mini-table td{text-align:center}
+    .home-mini-table .left{text-align:left}
+    .home-mini-total{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px;font-weight:700}
+    .home-mini-total strong{color:var(--lime)}
+    .home-resumen-vacio{padding:16px 8px;text-align:center;color:var(--muted);font-size:10px;font-weight:700}
+    .home-destinos{display:grid;gap:6px}
+    .home-destino-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#161f29;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:10px}
+    .home-destino-row strong{color:var(--lime);font-size:15px}
+    .home-cierre-kpi{text-align:center;padding:20px 10px}
+    .home-cierre-kpi .valor{color:var(--lime);font-size:42px;line-height:1;font-weight:800}
+    .home-cierre-kpi .texto{margin-top:8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}
+    .home-necesidades{display:grid;gap:10px}
+    .home-necesidad-bloque{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#161f29}
+    .home-necesidad-head{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;font-size:9px;font-weight:800;text-transform:uppercase;background:#202a35}
+    .home-necesidad-head.alerta{background:rgba(220,86,86,.35)}
+    .home-necesidad-head.ok{background:rgba(124,252,0,.16)}
+    .home-necesidad-lista{max-height:120px;overflow:auto}
+    .home-necesidad-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 8px;border-top:1px solid rgba(148,163,184,.10);font-size:9px;line-height:1.2}
+    .home-necesidad-row span:first-child{overflow-wrap:anywhere}
+    .home-necesidad-row span:last-child{color:var(--muted);white-space:nowrap}
+    @media(max-width:1100px){.home-btn{min-height:360px}}
+    @media(max-width:800px){.home-btn{min-height:auto}.home-btn-title,.home-btn-note{min-height:0}}
+
   </style>
 </head>
 
@@ -667,6 +703,10 @@
         <div class="home-btn-note">
           Resumen diario y mensual de muestreo.
         </div>
+
+        <div class="home-resumen" id="homeResumenMuestras">
+          <div class="home-resumen-vacio">Cargando resumen...</div>
+        </div>
       </button>
 
 
@@ -681,6 +721,10 @@
 
         <div class="home-btn-note">
           Camiones que restan descargar por destino.
+        </div>
+
+        <div class="home-resumen" id="homeResumenPendientes">
+          <div class="home-resumen-vacio">Cargando resumen...</div>
         </div>
       </button>
 
@@ -697,6 +741,10 @@
         <div class="home-btn-note">
           Descargas realizadas, tiempos y toneladas.
         </div>
+
+        <div class="home-resumen" id="homeResumenCierre">
+          <div class="home-resumen-vacio">Cargando resumen...</div>
+        </div>
       </button>
 
 
@@ -711,6 +759,10 @@
 
         <div class="home-btn-note">
           Control de rendimientos, densidad básica y necesidades de muestreo.
+        </div>
+
+        <div class="home-resumen" id="homeResumenRendimientos">
+          <div class="home-resumen-vacio">Cargando resumen...</div>
         </div>
       </button>
 
@@ -1605,6 +1657,9 @@ const JSON_DESCARGAS =
 const JSON_CIERRE =
   "/api/cierre";
 
+const JSON_RENDIMIENTOS =
+  "/api/rendimientos";
+
 
 const meses = [
   "",
@@ -1942,6 +1997,158 @@ function normalizarCertificacion(
   return texto;
 }
 
+
+/* ============================================================
+   RESÚMENES DE PANTALLA PRINCIPAL
+   ============================================================ */
+
+function homeResumenMuestras(){
+  if(!muestrasDatos.length){
+    $("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos.</div>';
+    return;
+  }
+  const periodo=muestrasPeriodoActual();
+  if(!periodo){
+    $("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos del mes actual.</div>';
+    return;
+  }
+  const registrosMes=muestrasDatos.filter(r=>String(r.ano)===periodo.ano && String(r.mes_numero)===periodo.mes_numero);
+  const resumen=muestrasAgrupar(registrosMes);
+  const total=muestrasTotales(resumen);
+  const filas=[...resumen].sort((a,b)=>String(a.origen).localeCompare(String(b.origen),"es"));
+  $("homeResumenMuestras").innerHTML=`
+    <div class="home-resumen-titulo">Detalle resumido del mes actual - ${esc(periodo.mes)} ${esc(periodo.ano)}</div>
+    ${filas.length?`
+      <table class="home-mini-table">
+        <thead><tr><th>Origen</th><th>Producto</th><th>Viajes</th><th>Muestras</th><th>%</th></tr></thead>
+        <tbody>${filas.map(r=>`
+          <tr>
+            <td class="left">${esc(r.origen)}</td>
+            <td>${esc(r.nombre_prod)}</td>
+            <td>${numero(r.viajes)}</td>
+            <td>${numero(r.muestras)}</td>
+            <td>${porcentaje(r.porcentaje_muestreo)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+      <div class="home-mini-total">
+        <span>Total mes</span>
+        <span><strong>${numero(total.viajes)}</strong> viajes · <strong>${numero(total.muestras)}</strong> muestras · <strong>${porcentaje(total.porcentaje)}</strong></span>
+      </div>`:
+      '<div class="home-resumen-vacio">Sin registros del mes actual.</div>'}
+  `;
+}
+
+function homeResumenPendientes(pendientes){
+  const conteo=new Map();
+  pendientes.forEach(r=>{
+    const destino=String(valorCampo(r,"DESTINO","destino")).trim();
+    if(!destino)return;
+    conteo.set(destino,(conteo.get(destino)||0)+1);
+  });
+  const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]);
+  $("homeResumenPendientes").innerHTML=`
+    <div class="home-resumen-titulo">Pendientes por destino</div>
+    ${destinos.length?`
+      <div class="home-destinos">
+        ${destinos.map(([destino,cantidad])=>`
+          <div class="home-destino-row"><span>${esc(destino)}</span><strong>${numero(cantidad)}</strong></div>`).join("")}
+      </div>`:
+      '<div class="home-resumen-vacio">SIN CAMIONES PENDIENTES DE DESCARGAR</div>'}
+  `;
+}
+
+function hoyISO(){
+  const h=new Date();
+  return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");
+}
+
+function homeResumenCierre(){
+  const fechaHoy=hoyISO();
+  const cantidad=cierreDatos.filter(r=>r.fechaISO===fechaHoy).length;
+  $("homeResumenCierre").innerHTML=`
+    <div class="home-resumen-titulo">Descarga del día - ${fechaUY(fechaHoy)}</div>
+    <div class="home-cierre-kpi">
+      <div class="valor">${numero(cantidad)}</div>
+      <div class="texto">Camiones descargados al momento</div>
+    </div>`;
+}
+
+function homeNormalizar(valor){
+  if(valor===null||valor===undefined)return "";
+  return String(valor).trim().toUpperCase();
+}
+
+function homePorcentajeRendimiento(registro){
+  const cantidad=Number(registro.cantidad_pps);
+  const total=Number(registro.total_remitos);
+  if(!Number.isFinite(cantidad)||!Number.isFinite(total)||total<=0)return null;
+  return (cantidad/total)*100;
+}
+
+function homeObtenerNecesidades(registros,tipo){
+  const anoActual=new Date().getFullYear();
+  return registros.filter(registro=>{
+    const nombreFas=homeNormalizar(registro.nombre_fas);
+    const especie=homeNormalizar(registro.especie);
+    if(homeNormalizar(registro.activo)!=="SI")return false;
+    if(Number(registro.ano)!==anoActual)return false;
+    const excluirSinEspecie=!especie||especie==="-";
+    const excluirTroza=especie.includes("TROZA");
+    const excluirBalanza=nombreFas.includes("BALANZA");
+    const excluirQuebrachoAlmedo=nombreFas==="QUEBRACHO - ALMEDO SAS"&&especie==="GLOBULUS 3,60";
+    if(excluirSinEspecie||excluirTroza||excluirBalanza||excluirQuebrachoAlmedo)return false;
+    if(tipo==="RENDIMIENTO"){
+      const cantidadRend=Number(registro.cantidad_pps||0);
+      const pct=homePorcentajeRendimiento(registro);
+      return cantidadRend===0||(pct!==null&&pct<10);
+    }
+    if(tipo==="DENSIDAD"){
+      return Number(registro.cantidad_densidad_basica||0)===0;
+    }
+    return false;
+  }).sort((a,b)=>String(a.nombre_fas).localeCompare(String(b.nombre_fas),"es")||String(a.especie).localeCompare(String(b.especie),"es"));
+}
+
+function homeRenderNecesidadBloque(titulo,registros,tipo){
+  const clase=registros.length?"alerta":"ok";
+  return `
+    <div class="home-necesidad-bloque">
+      <div class="home-necesidad-head ${clase}"><span>${esc(titulo)}</span><span>${numero(registros.length)}</span></div>
+      ${registros.length?`
+        <div class="home-necesidad-lista">
+          ${registros.map(r=>{
+            let detalle=esc(r.especie);
+            if(tipo==="RENDIMIENTO"){
+              const pct=homePorcentajeRendimiento(r);
+              detalle+=" · "+(pct===null?"-":numero(pct,1)+"%");
+            }
+            return `<div class="home-necesidad-row"><span>${esc(r.nombre_fas)}</span><span>${detalle}</span></div>`;
+          }).join("")}
+        </div>`:
+        '<div class="home-resumen-vacio">Al día</div>'}
+    </div>`;
+}
+
+async function cargarResumenRendimientos(){
+  try{
+    const respuesta=await fetch(urlSinCache(JSON_RENDIMIENTOS),{cache:"no-store"});
+    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
+    const json=await respuesta.json();
+    const registros=Array.isArray(json.registros)?json.registros:[];
+    const necesitaRendimiento=homeObtenerNecesidades(registros,"RENDIMIENTO");
+    const necesitaDensidad=homeObtenerNecesidades(registros,"DENSIDAD");
+    $("homeResumenRendimientos").innerHTML=`
+      <div class="home-resumen-titulo">Necesidades ${new Date().getFullYear()}</div>
+      <div class="home-necesidades">
+        ${homeRenderNecesidadBloque("Necesita rendimiento",necesitaRendimiento,"RENDIMIENTO")}
+        ${homeRenderNecesidadBloque("Necesita densidad básica",necesitaDensidad,"DENSIDAD")}
+      </div>`;
+  }catch(error){
+    console.error(error);
+    $("homeResumenRendimientos").innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
+  }
+}
 
 /* ============================================================
    MUESTRAS
@@ -2876,6 +3083,8 @@ async function cargarMuestras(){
 
     renderMuestras();
 
+    homeResumenMuestras();
+
   }
   catch(error){
 
@@ -3070,6 +3279,9 @@ async function cargarPendientes(){
           ) ===
           "FALTA DESCARGAR"
       );
+
+
+    homeResumenPendientes(pendientes);
 
 
     const conteo =
@@ -3949,6 +4161,8 @@ async function cargarCierre(){
 
     cargarFiltrosCierre();
 
+    homeResumenCierre();
+
   }
   catch(error){
 
@@ -4817,6 +5031,8 @@ cargarMuestras();
 cargarPendientes();
 
 cargarCierre();
+
+cargarResumenRendimientos();
 
 </script>
 
