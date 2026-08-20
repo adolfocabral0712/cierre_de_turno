@@ -1698,8 +1698,11 @@ function dibujarTabla(registros){
    REGLA:
    - únicamente registros cuyo campo ano coincide con el año actual
    - sin límite de días desde el último ingreso
-   - RENDIMIENTO: mostrar si cantidad_pps = 0
-   - DENSIDAD: mostrar si cantidad_densidad_basica = 0
+   - RENDIMIENTO:
+       mostrar si cantidad_pps = 0
+       O si % Rend. < 10%
+   - DENSIDAD:
+       mostrar si cantidad_densidad_basica = 0
    ============================================================ */
 
 function obtenerPendientes(tipo){
@@ -1784,6 +1787,20 @@ function obtenerPendientes(tipo){
           0;
 
 
+        const porcentajeRendimiento =
+          calcularPorcentajeCobertura(
+            registro.cantidad_pps,
+            registro.total_remitos
+          );
+
+
+        const rendimientoMenor10 =
+          porcentajeRendimiento !==
+            null &&
+          porcentajeRendimiento <
+            10;
+
+
         const excluirSinEspecie =
           !especie ||
           especie === "-";
@@ -1822,7 +1839,10 @@ function obtenerPendientes(tipo){
           tipo ===
           "RENDIMIENTO"
         ){
-          return sinRendimiento;
+          return (
+            sinRendimiento ||
+            rendimientoMenor10
+          );
         }
 
 
@@ -2023,6 +2043,16 @@ function abrirModalNecesidad(tipo){
               AÑO
             </th>
 
+            ${
+              tipo === "RENDIMIENTO"
+                ? `
+                  <th>
+                    % REND.
+                  </th>
+                `
+                : ""
+            }
+
           </tr>
 
         </thead>
@@ -2052,6 +2082,19 @@ function abrirModalNecesidad(tipo){
                       registro.ano
                     )}
                   </td>
+
+                  ${
+                    tipo === "RENDIMIENTO"
+                      ? `
+                        <td>
+                          ${porcentajeCobertura(
+                            registro.cantidad_pps,
+                            registro.total_remitos
+                          )}
+                        </td>
+                      `
+                      : ""
+                  }
 
                 </tr>
                 `
