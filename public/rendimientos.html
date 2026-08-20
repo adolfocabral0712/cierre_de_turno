@@ -1693,12 +1693,12 @@ function dibujarTabla(registros){
    EMERGENTES
 
    SOLO ACTIVO = SI
+   SOLO AÑO ACTUAL
 
    REGLA:
+   - únicamente registros cuyo campo ano coincide con el año actual
    - último ingreso < 30 días:
        mostrar si falta el análisis
-   - último ingreso > 365 días:
-       mostrar siempre, aunque tenga históricos
    ============================================================ */
 
 function obtenerPendientes(tipo){
@@ -1731,6 +1731,31 @@ function obtenerPendientes(tipo){
         }
 
 
+        /* ====================================================
+           SOLO AÑO ACTUAL
+           ==================================================== */
+
+        const anoActual =
+          new Date().getFullYear();
+
+
+        const anoRegistro =
+          Number(
+            registro.ano
+          );
+
+
+        if(
+          !Number.isFinite(
+            anoRegistro
+          ) ||
+          anoRegistro !==
+            anoActual
+        ){
+          return false;
+        }
+
+
         const diasUltimoIngreso =
           diasDesdeFecha(
             registro.ultima_fecha_remito
@@ -1750,13 +1775,8 @@ function obtenerPendientes(tipo){
           diasUltimoIngreso < 30;
 
 
-        const ingresoMayor1Ano =
-          diasUltimoIngreso > 365;
-
-
         if(
-          !ingresoMenor30Dias &&
-          !ingresoMayor1Ano
+          !ingresoMenor30Dias
         ){
           return false;
         }
@@ -1826,13 +1846,6 @@ function obtenerPendientes(tipo){
         ){
 
           if(
-            ingresoMayor1Ano
-          ){
-            return true;
-          }
-
-
-          if(
             ingresoMenor30Dias &&
             sinRendimiento
           ){
@@ -1848,13 +1861,6 @@ function obtenerPendientes(tipo){
           tipo ===
           "DENSIDAD"
         ){
-
-          if(
-            ingresoMayor1Ano
-          ){
-            return true;
-          }
-
 
           if(
             ingresoMenor30Dias &&
@@ -2007,10 +2013,14 @@ function abrirModalNecesidad(tipo){
       "NECESITA DENSIDAD BASICA";
 
 
+  const anoActual =
+    new Date().getFullYear();
+
+
   document.getElementById(
     "modalTitulo"
   ).textContent =
-    `${titulo} (${registros.length})`;
+    `${titulo} ${anoActual} (${registros.length})`;
 
 
   const body =
