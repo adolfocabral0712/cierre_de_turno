@@ -813,6 +813,50 @@
       font-weight:800;
     }
 
+
+    /* ============================================================
+       ACTUALIZADO - ESQUINA SUPERIOR IZQUIERDA
+       ============================================================ */
+
+    .home-actualizado{
+      position:fixed;
+      top:10px;
+      left:12px;
+      z-index:1000;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:7px 10px;
+      background:rgba(17,24,32,.92);
+      border:1px solid var(--line);
+      border-radius:9px;
+      box-shadow:var(--shadow);
+      color:var(--muted);
+      font-size:10px;
+      font-weight:700;
+      backdrop-filter:blur(5px);
+    }
+
+    .home-actualizado strong{
+      color:var(--lime);
+      font-size:11px;
+    }
+
+    @media(max-width:800px){
+      .home-actualizado{
+        position:static;
+        width:max-content;
+        max-width:100%;
+        margin:0 0 10px 0;
+        padding:6px 8px;
+        font-size:9px;
+      }
+
+      .home-actualizado strong{
+        font-size:10px;
+      }
+    }
+
   </style>
 </head>
 
@@ -823,6 +867,15 @@
   <!-- ==========================================================
        PANTALLA PRINCIPAL
        ========================================================== -->
+
+  <div
+    class="home-actualizado"
+    id="homeActualizado"
+  >
+    Actualizado:
+    <strong id="homeActualizadoHora">--:--:--</strong>
+  </div>
+
 
   <div class="home-screen" id="homeScreen">
 
@@ -1923,6 +1976,55 @@ document
    UTILIDADES
    ============================================================ */
 
+let homeUltimaActualizacion =
+  null;
+
+
+function actualizarHoraPrincipal(valor){
+
+  if(!valor){
+    return;
+  }
+
+
+  const fecha =
+    new Date(valor);
+
+
+  if(
+    Number.isNaN(
+      fecha.getTime()
+    )
+  ){
+    return;
+  }
+
+
+  if(
+    homeUltimaActualizacion === null ||
+    fecha.getTime() >
+      homeUltimaActualizacion.getTime()
+  ){
+    homeUltimaActualizacion =
+      fecha;
+
+
+    $("homeActualizadoHora").textContent =
+      fecha.toLocaleTimeString(
+        "es-UY",
+        {
+          hour:"2-digit",
+          minute:"2-digit",
+          second:"2-digit",
+          hour12:false
+        }
+      );
+  }
+
+}
+
+
+
 function urlSinCache(url){
 
   const separador =
@@ -2348,6 +2450,11 @@ async function cargarResumenRendimientos(){
     if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
     const json=await respuesta.json();
     const registros=Array.isArray(json.registros)?json.registros:[];
+
+    actualizarHoraPrincipal(
+      json.actualizado
+    );
+
     const necesitaRendimiento=homeObtenerNecesidades(registros,"RENDIMIENTO");
     const necesitaDensidad=homeObtenerNecesidades(registros,"DENSIDAD");
     $("homeResumenRendimientos").innerHTML=`
@@ -3266,6 +3373,11 @@ async function cargarMuestras(){
       );
 
 
+    actualizarHoraPrincipal(
+      json.actualizado
+    );
+
+
     const fechas =
       muestrasDatos
         .map(
@@ -3477,6 +3589,14 @@ async function cargarPendientes(){
         json.fechaActualizacion ??
         json.fecha_actualizacion
       );
+
+
+    actualizarHoraPrincipal(
+      json.actualizado ??
+      json.generado ??
+      json.fechaActualizacion ??
+      json.fecha_actualizacion
+    );
 
 
     const pendientes =
@@ -4352,6 +4472,11 @@ async function cargarCierre(){
       fechaHoraUY(
         json.actualizado
       );
+
+
+    actualizarHoraPrincipal(
+      json.actualizado
+    );
 
 
     const fechas =
