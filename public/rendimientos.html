@@ -315,29 +315,30 @@
        SOLO:
        NOMBRE FAS
        ESPECIE
+       AÑO
        CANT. DENS. BASICA
        PROM. DENS. BASICA
        ULTIMA DENS. BASICA
        ============================================================ */
 
-    body.modo-barcos th:nth-child(3),
-    body.modo-barcos td:nth-child(3),
     body.modo-barcos th:nth-child(4),
     body.modo-barcos td:nth-child(4),
     body.modo-barcos th:nth-child(5),
     body.modo-barcos td:nth-child(5),
     body.modo-barcos th:nth-child(6),
     body.modo-barcos td:nth-child(6),
-    body.modo-barcos th:nth-child(8),
-    body.modo-barcos td:nth-child(8),
+    body.modo-barcos th:nth-child(7),
+    body.modo-barcos td:nth-child(7),
     body.modo-barcos th:nth-child(9),
     body.modo-barcos td:nth-child(9),
-    body.modo-barcos th:nth-child(11),
-    body.modo-barcos td:nth-child(11),
-    body.modo-barcos th:nth-child(13),
-    body.modo-barcos td:nth-child(13),
+    body.modo-barcos th:nth-child(10),
+    body.modo-barcos td:nth-child(10),
+    body.modo-barcos th:nth-child(12),
+    body.modo-barcos td:nth-child(12),
     body.modo-barcos th:nth-child(14),
-    body.modo-barcos td:nth-child(14){
+    body.modo-barcos td:nth-child(14),
+    body.modo-barcos th:nth-child(15),
+    body.modo-barcos td:nth-child(15){
       display:none;
     }
 
@@ -368,6 +369,11 @@
     .tabla-contenedor th:nth-child(2),
     .tabla-contenedor td:nth-child(2){
       width:auto;
+    }
+
+    .tabla-contenedor th:nth-child(3),
+    .tabla-contenedor td:nth-child(3){
+      width:1%;
     }
 
     .tabla-contenedor th{
@@ -531,6 +537,13 @@
 
           <th
             class="sortable"
+            data-campo="ano"
+          >
+            AÑO
+          </th>
+
+          <th
+            class="sortable"
             data-campo="total_remitos"
           >
             Total Remitos
@@ -623,7 +636,7 @@
         <tr>
 
           <td
-            colspan="14"
+            colspan="15"
             class="mensaje"
           >
             Cargando datos...
@@ -1444,7 +1457,8 @@ function compararValores(
       "promedio_densidad_basica",
       "total_remitos",
       "porcentaje_rendimiento",
-      "porcentaje_densidad_basica"
+      "porcentaje_densidad_basica",
+      "ano"
     ];
 
 
@@ -1524,7 +1538,7 @@ function dibujarTabla(registros){
       <tr>
 
         <td
-          colspan="14"
+          colspan="15"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
@@ -1582,6 +1596,12 @@ function dibujarTabla(registros){
             <td>
               ${valorSeguro(
                 registro.especie
+              )}
+            </td>
+
+            <td>
+              ${valorSeguro(
+                registro.ano
               )}
             </td>
 
@@ -1892,9 +1912,27 @@ function obtenerPendientes(tipo){
           );
 
 
-        return productoA.localeCompare(
-          productoB,
-          "es"
+        const comparacionProducto =
+          productoA.localeCompare(
+            productoB,
+            "es"
+          );
+
+
+        if(
+          comparacionProducto !== 0
+        ){
+          return comparacionProducto;
+        }
+
+
+        return (
+          Number(
+            b.ano || 0
+          ) -
+          Number(
+            a.ano || 0
+          )
         );
 
       }
@@ -2011,6 +2049,10 @@ function abrirModalNecesidad(tipo){
               PRODUCTO
             </th>
 
+            <th>
+              AÑO
+            </th>
+
           </tr>
 
         </thead>
@@ -2032,6 +2074,12 @@ function abrirModalNecesidad(tipo){
                   <td>
                     ${valorSeguro(
                       registro.especie
+                    )}
+                  </td>
+
+                  <td>
+                    ${valorSeguro(
+                      registro.ano
                     )}
                   </td>
 
@@ -2158,7 +2206,7 @@ async function cargarDatos(){
       <tr>
 
         <td
-          colspan="14"
+          colspan="15"
           class="mensaje error"
         >
           No fue posible cargar los datos:
