@@ -793,6 +793,26 @@
       }
     }
 
+
+    .home-cierre-tiempo{
+      margin-top:12px;
+      padding-top:10px;
+      border-top:1px solid var(--line);
+      color:var(--muted);
+      font-size:10px;
+      text-align:center;
+      font-weight:700;
+      text-transform:uppercase;
+    }
+
+    .home-cierre-tiempo strong{
+      display:block;
+      margin-top:4px;
+      color:var(--text);
+      font-size:18px;
+      font-weight:800;
+    }
+
   </style>
 </head>
 
@@ -807,7 +827,7 @@
   <div class="home-screen" id="homeScreen">
 
     <h1 class="home-title">
-      INFORMACIÓN AL CIERRE DE TURNO
+      INFORMACIÓN OPERATIVA DE TURNO
     </h1>
 
     <div class="home-subtitle">
@@ -822,11 +842,11 @@
         data-section="muestrasView"
       >
         <div class="home-btn-title">
-          MUESTRAS AL CIERRE
+          MUESTRAS
         </div>
 
         <div class="home-btn-note">
-          Resumen diario y mensual de muestreo.
+          Resumen diario y mensual.
         </div>
 
         <div class="home-resumen" id="homeResumenMuestras">
@@ -845,7 +865,7 @@
         </div>
 
         <div class="home-btn-note">
-          Camiones que restan descargar por destino.
+          Camiones pendientes por destino.
         </div>
 
         <div class="home-resumen" id="homeResumenPendientes">
@@ -860,11 +880,11 @@
         data-section="cierreView"
       >
         <div class="home-btn-title">
-          DESCARGA AL CIERRE
+          DESCARGA DE CAMIONES
         </div>
 
         <div class="home-btn-note">
-          Descargas realizadas, tiempos y toneladas.
+          Descargas realizadas y tiempos.
         </div>
 
         <div class="home-resumen" id="homeResumenCierre">
@@ -879,11 +899,11 @@
         data-section="rendimientosView"
       >
         <div class="home-btn-title">
-          RENDIMIENTOS Y DENSIDAD BASICA
+          RENDIMIENTOS Y DENSIDAD BÁSICA
         </div>
 
         <div class="home-btn-note">
-          Control de rendimientos, densidad básica y necesidades de muestreo.
+          Controles y necesidades de muestreo.
         </div>
 
         <div class="home-resumen" id="homeResumenRendimientos">
@@ -2189,14 +2209,81 @@ function hoyISO(){
 }
 
 function homeResumenCierre(){
-  const fechaHoy=hoyISO();
-  const cantidad=cierreDatos.filter(r=>r.fechaISO===fechaHoy).length;
-  $("homeResumenCierre").innerHTML=`
-    <div class="home-resumen-titulo">Descarga del día - ${fechaUY(fechaHoy)}</div>
+
+  const fechaHoy =
+    hoyISO();
+
+
+  const registrosHoy =
+    cierreDatos.filter(
+      r =>
+        r.fechaISO ===
+        fechaHoy
+    );
+
+
+  const cantidad =
+    registrosHoy.length;
+
+
+  const tiempos =
+    registrosHoy
+      .map(
+        r =>
+          segundosDesdeHHMMSS(
+            r.tiempo_descarga
+          )
+      )
+      .filter(
+        Number.isFinite
+      );
+
+
+  const promedioSegundos =
+    tiempos.length
+      ?
+      tiempos.reduce(
+        (a,b) =>
+          a + b,
+        0
+      ) /
+      tiempos.length
+      :
+      0;
+
+
+  const promedioTexto =
+    hhmmss(
+      promedioSegundos
+    );
+
+
+  $("homeResumenCierre").innerHTML =
+    `
+    <div class="home-resumen-titulo">
+      Descarga del día - ${fechaUY(fechaHoy)}
+    </div>
+
     <div class="home-cierre-kpi">
-      <div class="valor">${numero(cantidad)}</div>
-      <div class="texto">Camiones descargados al momento</div>
-    </div>`;
+
+      <div class="valor">
+        ${numero(cantidad)}
+      </div>
+
+      <div class="texto">
+        Camiones descargados al momento
+      </div>
+
+      <div class="home-cierre-tiempo">
+        Prom. descarga
+        <strong>
+          ${promedioTexto}
+        </strong>
+      </div>
+
+    </div>
+    `;
+
 }
 
 function homeNormalizar(valor){
