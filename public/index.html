@@ -2215,6 +2215,44 @@ function fechaHoraUY(valor){
 }
 
 
+function marcaTiempoFechaHora(valor){
+
+  if(!valor){
+    return Number.POSITIVE_INFINITY;
+  }
+
+  const texto =
+    String(valor).trim();
+
+  const formatoUY =
+    texto.match(
+      /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+    );
+
+  if(formatoUY){
+
+    return new Date(
+      Number(formatoUY[3]),
+      Number(formatoUY[2]) - 1,
+      Number(formatoUY[1]),
+      Number(formatoUY[4] || 0),
+      Number(formatoUY[5] || 0),
+      Number(formatoUY[6] || 0)
+    ).getTime();
+
+  }
+
+  const fecha =
+    new Date(texto);
+
+  return Number.isNaN(
+    fecha.getTime()
+  )
+    ? Number.POSITIVE_INFINITY
+    : fecha.getTime();
+}
+
+
 function normalizarCertificacion(
   valor
 ){
@@ -3706,8 +3744,29 @@ async function cargarPendientes(){
       [
         ...pendientes
       ].sort(
-        (a,b) =>
-          String(
+        (a,b) => {
+
+          const diferencia =
+            marcaTiempoFechaHora(
+              valorCampo(
+                a,
+                "FIN CARGA",
+                "fin_carga"
+              )
+            ) -
+            marcaTiempoFechaHora(
+              valorCampo(
+                b,
+                "FIN CARGA",
+                "fin_carga"
+              )
+            );
+
+          if(diferencia !== 0){
+            return diferencia;
+          }
+
+          return String(
             valorCampo(
               a,
               "DESTINO",
@@ -3722,7 +3781,8 @@ async function cargarPendientes(){
               )
             ),
             "es"
-          )
+          );
+        }
       );
 
 
