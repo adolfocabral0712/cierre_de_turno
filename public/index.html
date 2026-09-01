@@ -2898,6 +2898,42 @@ function muestrasPeriodoActual(){
   const hoy =
     new Date();
 
+  /*
+    El período operativo se obtiene de la fecha actual y no del último
+    registro disponible. Del día 26 en adelante corresponde al mes siguiente.
+  */
+  let anoOperativo =
+    hoy.getFullYear();
+
+  let mesOperativo =
+    hoy.getMonth() + 1;
+
+  if(
+    hoy.getDate() >= 26
+  ){
+    mesOperativo += 1;
+
+    if(
+      mesOperativo === 13
+    ){
+      mesOperativo = 1;
+      anoOperativo += 1;
+    }
+  }
+
+  return {
+    ano:
+      String(anoOperativo),
+
+    mes_numero:
+      String(mesOperativo),
+
+    mes:
+      meses[mesOperativo]
+  };
+
+  /* El bloque siguiente se conserva inaccesible por compatibilidad. */
+
   const hoyISO =
     hoy.getFullYear() +
     "-" +
@@ -3040,7 +3076,7 @@ function actualizarMesesMuestras(){
     $("filtroAno").value;
 
 
-  const nums =
+  let nums =
     [
       ...new Set(
         muestrasDatos
@@ -3063,6 +3099,24 @@ function actualizarMesesMuestras(){
         a - b
     );
 
+  const periodoActual =
+    muestrasPeriodoActual();
+
+  if(
+    periodoActual.ano === ano &&
+    !nums.includes(
+      Number(periodoActual.mes_numero)
+    )
+  ){
+    nums.push(
+      Number(periodoActual.mes_numero)
+    );
+
+    nums.sort(
+      (a,b) => a - b
+    );
+  }
+
 
   $("filtroMes").innerHTML =
     nums.map(
@@ -3074,9 +3128,6 @@ function actualizarMesesMuestras(){
         `
     ).join("");
 
-
-  const periodoActual =
-    muestrasPeriodoActual();
 
   const mesActual =
     periodoActual &&
@@ -4089,6 +4140,55 @@ function cierreFechas(){
 }
 
 
+function fechasMesCalendario(
+  ano,
+  mes
+){
+
+  const resultado = [];
+
+  const hoy =
+    new Date();
+
+  const inicio =
+    new Date(
+      Number(ano),
+      Number(mes) - 1,
+      1
+    );
+
+  let fin =
+    new Date(
+      Number(ano),
+      Number(mes),
+      0
+    );
+
+  if(
+    hoy >= inicio &&
+    hoy <= fin
+  ){
+    fin = hoy;
+  }
+
+  for(
+    let fecha = new Date(inicio);
+    fecha <= fin;
+    fecha.setDate(fecha.getDate() + 1)
+  ){
+    resultado.push(
+      fecha.getFullYear() +
+      "-" +
+      String(fecha.getMonth() + 1).padStart(2,"0") +
+      "-" +
+      String(fecha.getDate()).padStart(2,"0")
+    );
+  }
+
+  return resultado;
+}
+
+
 function cargarFiltrosCierre(){
 
   const fechas =
@@ -4155,7 +4255,7 @@ function actualizarMesesCierre(){
     $("cierreFiltroAno").value;
 
 
-  const nums =
+  let nums =
     [
       ...new Set(
         cierreFechas()
@@ -4182,6 +4282,20 @@ function actualizarMesesCierre(){
         b
     );
 
+  const hoy =
+    new Date();
+
+  const mesHoyNumero =
+    hoy.getMonth() + 1;
+
+  if(
+    String(hoy.getFullYear()) === ano &&
+    !nums.includes(mesHoyNumero)
+  ){
+    nums.push(mesHoyNumero);
+    nums.sort((a,b) => a - b);
+  }
+
 
   $("cierreFiltroMes").innerHTML =
     nums.map(
@@ -4192,10 +4306,6 @@ function actualizarMesesCierre(){
         </option>
         `
     ).join("");
-
-
-  const hoy =
-    new Date();
 
 
   const mesHoy =
@@ -4232,7 +4342,7 @@ function actualizarFechasCierre(){
 
 
   const fechas =
-    fechasMesCompleto(
+    fechasMesCalendario(
       ano,
       mes
     ).sort(
@@ -4250,6 +4360,15 @@ function actualizarFechasCierre(){
         </option>
         `
     ).join("");
+
+  const hoy =
+    hoyISO();
+
+  if(
+    fechas.includes(hoy)
+  ){
+    $("cierreFiltroFecha").value = hoy;
+  }
 
 
   renderCierre();
