@@ -462,6 +462,24 @@
       padding:18px;
       text-align:center;
       box-shadow:var(--shadow);
+      color:var(--text);
+      font-family:inherit;
+      cursor:pointer;
+      transition:.2s ease;
+      width:100%;
+    }
+
+    .destino-card:hover,
+    .destino-card:focus-visible{
+      border-color:var(--lime);
+      transform:translateY(-2px);
+      outline:none;
+    }
+
+    .destino-card.active{
+      border-color:var(--lime);
+      background:rgba(124,252,0,.10);
+      box-shadow:0 0 0 2px rgba(124,252,0,.12),var(--shadow);
     }
 
     .destino-card .label{
@@ -488,6 +506,27 @@
       font-weight:700;
       box-shadow:var(--shadow);
       margin-bottom:16px;
+    }
+
+    .sortable-th{
+      cursor:pointer;
+      user-select:none;
+      transition:background .15s ease,color .15s ease;
+    }
+
+    .sortable-th:hover,
+    .sortable-th:focus-visible{
+      background:#293746;
+      color:var(--lime);
+      outline:none;
+    }
+
+    .sort-indicator{
+      display:inline-block;
+      min-width:12px;
+      margin-left:5px;
+      color:var(--lime);
+      font-size:10px;
     }
 
     /* ============================================================
@@ -1253,7 +1292,7 @@
 
       <div class="table-scroll">
 
-        <table>
+        <table id="descargasTable">
 
           <thead>
 
@@ -1506,11 +1545,11 @@
 
             <tr>
 
-              <th>Remito Monte</th>
-              <th>Destino</th>
-              <th>Predio</th>
-              <th>Vehículo</th>
-              <th>Fin Carga</th>
+              <th class="sortable-th" data-descargas-sort="remito" tabindex="0">Remito Monte<span class="sort-indicator"></span></th>
+              <th class="sortable-th" data-descargas-sort="destino" tabindex="0">Destino<span class="sort-indicator"></span></th>
+              <th class="sortable-th" data-descargas-sort="predio" tabindex="0">Predio<span class="sort-indicator"></span></th>
+              <th class="sortable-th" data-descargas-sort="vehiculo" tabindex="0">Vehículo<span class="sort-indicator"></span></th>
+              <th class="sortable-th" data-descargas-sort="fin_carga" tabindex="0">Fin Carga<span class="sort-indicator"></span></th>
 
             </tr>
 
@@ -3742,325 +3781,189 @@ function valorCampo(
 }
 
 
+let descargasPendientes=[];
+let descargasDestinoActivo="";
+let descargasOrden={columna:"fin_carga",direccion:"asc"};
+
+
+function descargasValorOrden(registro,columna){
+  if(columna==="remito"){
+    const valor=valorCampo(registro,"REMITO MONTE","remito_monte","numero_1");
+    const numeroValor=Number(valor);
+    return Number.isFinite(numeroValor)?numeroValor:normalizarTexto(valor);
+  }
+
+  if(columna==="destino"){
+    return normalizarTexto(valorCampo(registro,"DESTINO","destino"));
+  }
+
+  if(columna==="predio"){
+    return normalizarTexto(valorCampo(registro,"PREDIO","predio"));
+  }
+
+  if(columna==="vehiculo"){
+    return normalizarTexto(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"));
+  }
+
+  return marcaTiempoFechaHora(valorCampo(registro,"FIN CARGA","fin_carga"));
+}
+
+
+function descargasComparar(a,b){
+  const valorA=descargasValorOrden(a,descargasOrden.columna);
+  const valorB=descargasValorOrden(b,descargasOrden.columna);
+  let resultado=0;
+
+  if(typeof valorA==="number"&&typeof valorB==="number"){
+    resultado=valorA-valorB;
+  }
+  else{
+    resultado=String(valorA).localeCompare(String(valorB),"es",{numeric:true,sensitivity:"base"});
+  }
+
+  return descargasOrden.direccion==="asc"?resultado:-resultado;
+}
+
+
+function actualizarIndicadoresOrdenDescargas(){
+  document.querySelectorAll("[data-descargas-sort]").forEach(encabezado=>{
+    const activo=encabezado.dataset.descargasSort===descargasOrden.columna;
+    encabezado.setAttribute("aria-sort",activo?(descargasOrden.direccion==="asc"?"ascending":"descending"):"none");
+    const indicador=encabezado.querySelector(".sort-indicator");
+    if(indicador){
+      indicador.textContent=activo?(descargasOrden.direccion==="asc"?"▲":"▼"):"↕";
+    }
+  });
+}
+
+
+function renderTarjetasDescargas(){
+  const conteo=new Map();
+
+  descargasPendientes.forEach(registro=>{
+    const destino=String(valorCampo(registro,"DESTINO","destino")).trim();
+    if(destino)conteo.set(destino,(conteo.get(destino)||0)+1);
+  });
+
+  const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
+
+  if(!destinos.length){
+    $("descargasTarjetas").innerHTML='<div class="sin-pendientes">SIN CAMIONES PENDIENTES DE DESCARGAR</div>';
+    return;
+  }
+
+  $("descargasTarjetas").innerHTML=destinos.map(([destino,cantidad])=>`
+    <button
+      type="button"
+      class="destino-card ${destino===descargasDestinoActivo?"active":""}"
+      data-destino="${esc(destino)}"
+      aria-pressed="${destino===descargasDestinoActivo?"true":"false"}"
+      title="${destino===descargasDestinoActivo?"Quitar filtro":"Filtrar por este destino"}"
+    >
+      <div class="label">${esc(destino)}</div>
+      <div class="value">${cantidad}</div>
+      <div class="kpi-note">Falta descargar</div>
+    </button>`).join("");
+
+  document.querySelectorAll("#descargasTarjetas [data-destino]").forEach(tarjeta=>{
+    tarjeta.addEventListener("click",()=>{
+      const destino=tarjeta.dataset.destino||"";
+      descargasDestinoActivo=descargasDestinoActivo===destino?"":destino;
+      renderTarjetasDescargas();
+      renderTablaDescargas();
+    });
+  });
+}
+
+
+function renderTablaDescargas(){
+  const filtrados=descargasDestinoActivo
+    ? descargasPendientes.filter(registro=>String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo)
+    : [...descargasPendientes];
+
+  const ordenados=filtrados.sort(descargasComparar);
+
+  if(!ordenados.length){
+    $("descargasTbody").innerHTML=`
+      <tr><td colspan="5" class="empty">
+        ${descargasDestinoActivo?"SIN REGISTROS PARA ESTE DESTINO":"SIN CAMIONES PENDIENTES DE DESCARGAR"}
+      </td></tr>`;
+  }
+  else{
+    $("descargasTbody").innerHTML=ordenados.map(registro=>`
+      <tr>
+        <td>${esc(valorCampo(registro,"REMITO MONTE","remito_monte","numero_1"))}</td>
+        <td>${esc(valorCampo(registro,"DESTINO","destino"))}</td>
+        <td>${esc(valorCampo(registro,"PREDIO","predio"))}</td>
+        <td>${esc(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"))}</td>
+        <td>${esc(fechaHoraUY(valorCampo(registro,"FIN CARGA","fin_carga")))}</td>
+      </tr>`).join("");
+  }
+
+  $("descargasRecordCount").textContent=
+    ordenados.length.toLocaleString("es-UY")+
+    (ordenados.length===1?" registro":" registros")+
+    (descargasDestinoActivo?" · "+descargasDestinoActivo:"");
+
+  actualizarIndicadoresOrdenDescargas();
+}
+
+
+document.querySelectorAll("[data-descargas-sort]").forEach(encabezado=>{
+  const ordenar=()=>{
+    const columna=encabezado.dataset.descargasSort;
+    if(descargasOrden.columna===columna){
+      descargasOrden.direccion=descargasOrden.direccion==="asc"?"desc":"asc";
+    }
+    else{
+      descargasOrden={columna,direccion:"asc"};
+    }
+    renderTablaDescargas();
+  };
+
+  encabezado.addEventListener("click",ordenar);
+  encabezado.addEventListener("keydown",evento=>{
+    if(evento.key==="Enter"||evento.key===" "){
+      evento.preventDefault();
+      ordenar();
+    }
+  });
+});
+
+
 async function cargarPendientes(){
-
   try{
+    const respuesta=await fetch(urlSinCache(JSON_DESCARGAS),{cache:"no-store"});
+    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
 
-    const respuesta =
-      await fetch(
-        urlSinCache(
-          JSON_DESCARGAS
-        ),
-        {
-          cache:"no-store"
-        }
-      );
+    const json=await respuesta.json();
+    const registros=Array.isArray(json)?json:Array.isArray(json.registros)?json.registros:[];
+    const actualizado=json.actualizado??json.generado??json.fechaActualizacion??json.fecha_actualizacion;
 
+    $("descargasActualizado").textContent=fechaHoraUY(actualizado);
+    actualizarHoraPrincipal(actualizado);
 
-    if(
-      !respuesta.ok
-    ){
-      throw new Error(
-        "HTTP " +
-        respuesta.status
-      );
-    }
-
-
-    const json =
-      await respuesta.json();
-
-
-    const registros =
-      Array.isArray(json)
-        ?
-        json
-        :
-        Array.isArray(
-          json.registros
-        )
-          ?
-          json.registros
-          :
-          [];
-
-
-    $("descargasActualizado").textContent =
-      fechaHoraUY(
-        json.actualizado ??
-        json.generado ??
-        json.fechaActualizacion ??
-        json.fecha_actualizacion
-      );
-
-
-    actualizarHoraPrincipal(
-      json.actualizado ??
-      json.generado ??
-      json.fechaActualizacion ??
-      json.fecha_actualizacion
+    descargasPendientes=registros.filter(registro=>
+      normalizarTexto(valorCampo(registro,"ESTADO DESCARGA","estado_descarga"))==="FALTA DESCARGAR"
     );
 
-
-    const pendientes =
-      registros.filter(
-        r =>
-          normalizarTexto(
-            valorCampo(
-              r,
-              "ESTADO DESCARGA",
-              "estado_descarga"
-            )
-          ) ===
-          "FALTA DESCARGAR"
-      );
-
-
-    homeResumenPendientes(pendientes);
-
-
-    const conteo =
-      new Map();
-
-
-    pendientes.forEach(
-      r => {
-
-        const destino =
-          String(
-            valorCampo(
-              r,
-              "DESTINO",
-              "destino"
-            )
-          ).trim();
-
-
-        if(!destino){
-          return;
-        }
-
-
-        conteo.set(
-          destino,
-          (
-            conteo.get(
-              destino
-            ) ||
-            0
-          ) +
-          1
-        );
-
-      }
-    );
-
-
-    const destinos =
-      [
-        ...conteo.entries()
-      ].sort(
-        (a,b) =>
-          b[1] -
-          a[1]
-      );
-
-
-    if(
-      destinos.length
-    ){
-
-      $("descargasTarjetas").innerHTML =
-        destinos.map(
-          ([destino,cantidad]) =>
-            `
-            <div class="destino-card">
-
-              <div class="label">
-                ${esc(destino)}
-              </div>
-
-              <div class="value">
-                ${cantidad}
-              </div>
-
-              <div class="kpi-note">
-                Falta descargar
-              </div>
-
-            </div>
-            `
-        ).join("");
-
-    }
-    else{
-
-      $("descargasTarjetas").innerHTML =
-        `
-        <div class="sin-pendientes">
-          SIN CAMIONES PENDIENTES DE DESCARGAR
-        </div>
-        `;
-
+    if(descargasDestinoActivo&&!descargasPendientes.some(registro=>
+      String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo
+    )){
+      descargasDestinoActivo="";
     }
 
-
-    const ordenados =
-      [
-        ...pendientes
-      ].sort(
-        (a,b) => {
-
-          const diferencia =
-            marcaTiempoFechaHora(
-              valorCampo(
-                a,
-                "FIN CARGA",
-                "fin_carga"
-              )
-            ) -
-            marcaTiempoFechaHora(
-              valorCampo(
-                b,
-                "FIN CARGA",
-                "fin_carga"
-              )
-            );
-
-          if(diferencia !== 0){
-            return diferencia;
-          }
-
-          return String(
-            valorCampo(
-              a,
-              "DESTINO",
-              "destino"
-            )
-          ).localeCompare(
-            String(
-              valorCampo(
-                b,
-                "DESTINO",
-                "destino"
-              )
-            ),
-            "es"
-          );
-        }
-      );
-
-
-    if(
-      !ordenados.length
-    ){
-
-      $("descargasTbody").innerHTML =
-        `
-        <tr>
-          <td
-            colspan="5"
-            class="empty"
-          >
-            SIN CAMIONES PENDIENTES DE DESCARGAR
-          </td>
-        </tr>
-        `;
-
-    }
-    else{
-
-      $("descargasTbody").innerHTML =
-        ordenados.map(
-          r =>
-            `
-            <tr>
-
-              <td>
-                ${esc(
-                  valorCampo(
-                    r,
-                    "REMITO MONTE",
-                    "remito_monte",
-                    "numero_1"
-                  )
-                )}
-              </td>
-
-              <td>
-                ${esc(
-                  valorCampo(
-                    r,
-                    "DESTINO",
-                    "destino"
-                  )
-                )}
-              </td>
-
-              <td>
-                ${esc(
-                  valorCampo(
-                    r,
-                    "PREDIO",
-                    "predio"
-                  )
-                )}
-              </td>
-
-              <td>
-                ${esc(
-                  valorCampo(
-                    r,
-                    "VEHÍCULO",
-                    "VEHICULO",
-                    "vehiculo"
-                  )
-                )}
-              </td>
-
-              <td>
-                ${esc(
-                  fechaHoraUY(
-                    valorCampo(
-                      r,
-                      "FIN CARGA",
-                      "fin_carga"
-                    )
-                  )
-                )}
-              </td>
-
-            </tr>
-            `
-        ).join("");
-
-    }
-
-
-    $("descargasRecordCount").textContent =
-      ordenados.length
-        .toLocaleString(
-          "es-UY"
-        ) +
-      " registros";
-
+    homeResumenPendientes(descargasPendientes);
+    renderTarjetasDescargas();
+    renderTablaDescargas();
   }
   catch(error){
-
     console.error(error);
-
-    $("descargasActualizado").textContent =
-      "Error de carga";
-
-    $("descargasTarjetas").innerHTML =
-      `
-      <div class="sin-pendientes">
-        No fue posible cargar los datos.
-      </div>
-      `;
-
+    $("descargasActualizado").textContent="Error de carga";
+    $("descargasTarjetas").innerHTML='<div class="sin-pendientes">No fue posible cargar los datos.</div>';
+    $("descargasTbody").innerHTML='<tr><td colspan="5" class="error">No fue posible cargar los datos.</td></tr>';
+    $("descargasRecordCount").textContent="0 registros";
   }
-
 }
 
 
