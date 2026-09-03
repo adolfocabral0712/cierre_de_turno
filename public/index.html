@@ -80,9 +80,9 @@
     }
 
     .home-buttons{
-      width:min(1350px,100%);
+      width:min(1600px,100%);
       display:grid;
-      grid-template-columns:repeat(4,minmax(200px,1fr));
+      grid-template-columns:repeat(5,minmax(200px,1fr));
       gap:18px;
     }
 
@@ -101,6 +101,7 @@
       align-items:center;
       justify-content:center;
       text-align:center;
+      text-decoration:none;
     }
 
     .home-btn:hover{
@@ -665,6 +666,14 @@
     .home-necesidad-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 8px;border-top:1px solid rgba(148,163,184,.10);font-size:9px;line-height:1.2}
     .home-necesidad-row span:first-child{overflow-wrap:anywhere}
     .home-necesidad-row span:last-child{color:var(--muted);white-space:nowrap}
+    .home-control-kpi{text-align:center;padding:16px 8px 10px}
+    .home-control-kpi .valor{font-size:48px;line-height:1;font-weight:800;color:var(--lime)}
+    .home-control-kpi .valor.alerta{color:var(--danger)}
+    .home-control-kpi .texto{margin-top:8px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}
+    .home-control-lista{display:grid;gap:6px;margin-top:10px}
+    .home-control-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;background:#161f29;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:9px}
+    .home-control-row strong{color:#fff}
+    .home-control-row span{color:var(--muted);overflow-wrap:anywhere}
     @media(max-width:1100px){.home-btn{min-height:360px}}
     @media(max-width:800px){.home-btn{min-height:auto}.home-btn-title,.home-btn-note{min-height:0}}
 
@@ -963,6 +972,25 @@
           <div class="home-resumen-vacio">Cargando resumen...</div>
         </div>
       </button>
+
+
+      <a
+        class="home-btn"
+        href="https://control-ingreso-monte-sistema.fas-uy.workers.dev/"
+        aria-label="Abrir Control de ingreso de predios"
+      >
+        <div class="home-btn-title">
+          CONTROL DE INGRESO DE PREDIOS
+        </div>
+
+        <div class="home-btn-note">
+          Diferencias entre eRemitos y Sistema Playa.
+        </div>
+
+        <div class="home-resumen" id="homeResumenControlPredios">
+          <div class="home-resumen-vacio">Cargando resumen...</div>
+        </div>
+      </a>
 
     </div>
 
@@ -1858,6 +1886,9 @@ const JSON_CIERRE =
 const JSON_RENDIMIENTOS =
   "/api/rendimientos";
 
+const JSON_CONTROL_PREDIOS =
+  "https://control-ingreso-monte-sistema.fas-uy.workers.dev/api/datos";
+
 
 const meses = [
   "",
@@ -2504,6 +2535,46 @@ async function cargarResumenRendimientos(){
   }catch(error){
     console.error(error);
     $("homeResumenRendimientos").innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
+  }
+}
+
+async function cargarResumenControlPredios(){
+  const contenedor=$("homeResumenControlPredios");
+
+  try{
+    const respuesta=await fetch(urlSinCache(JSON_CONTROL_PREDIOS),{cache:"no-store"});
+    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
+
+    const json=await respuesta.json();
+    const registros=Array.isArray(json.registros)?json.registros:[];
+    const inconsistencias=registros.filter(r=>{
+      const estado=String(r.estado_control||"NO COINCIDE").trim().toUpperCase();
+      return estado==="NO COINCIDE";
+    });
+    const cantidad=Number.isFinite(Number(json.cantidad))
+      ? Number(json.cantidad)
+      : inconsistencias.length;
+    const ejemplos=inconsistencias.slice(0,3);
+
+    contenedor.innerHTML=`
+      <div class="home-resumen-titulo">Registros con inconsistencias</div>
+      <div class="home-control-kpi">
+        <div class="valor ${cantidad>0?"alerta":""}">${numero(cantidad)}</div>
+        <div class="texto">${cantidad===1?"Registro para revisar":"Registros para revisar"}</div>
+      </div>
+      ${ejemplos.length?`
+        <div class="home-control-lista">
+          ${ejemplos.map(r=>`
+            <div class="home-control-row">
+              <strong>${esc(r.vehiculo||"—")}</strong>
+              <span>${esc(r.predio_eremitos||"—")} / ${esc(r.predio_remitos2||"—")}</span>
+            </div>`).join("")}
+        </div>`:
+        '<div class="home-resumen-vacio">Todos los predios coinciden.</div>'}
+    `;
+  }catch(error){
+    console.error(error);
+    contenedor.innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
   }
 }
 
@@ -5592,6 +5663,8 @@ cargarPendientes();
 cargarCierre();
 
 cargarResumenRendimientos();
+
+cargarResumenControlPredios();
 
 </script>
 
