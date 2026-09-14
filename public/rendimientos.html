@@ -187,6 +187,16 @@
       font-size:12px;
     }
 
+    /* Resalta automáticamente toda la fila correspondiente al año actual */
+    tbody tr.fila-ano-actual td{
+      background:#5c5200;
+      color:#fff6a3;
+    }
+
+    tbody tr.fila-ano-actual:hover td{
+      background:#736600;
+    }
+
     .nombre-fas-click{
       cursor:pointer;
       font-weight:700;
@@ -1555,6 +1565,15 @@ function dibujarTabla(registros){
     registros.map(
       registro => {
 
+        const esAnoActual =
+          Number(registro.ano) ===
+          new Date().getFullYear();
+
+        const claseFila =
+          esAnoActual
+            ? "fila-ano-actual"
+            : "";
+
         const activo =
           normalizar(
             registro.activo
@@ -1582,7 +1601,7 @@ function dibujarTabla(registros){
 
 
         return `
-          <tr>
+          <tr class="${claseFila}">
 
             <td
               class="nombre-fas-click"
