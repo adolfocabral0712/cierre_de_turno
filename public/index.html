@@ -2628,20 +2628,30 @@ async function cargarResumenControlPredios(){
 
     const json=await respuesta.json();
     const registros=Array.isArray(json.registros)?json.registros:[];
+
     const inconsistencias=registros.filter(r=>{
       const estado=String(r.estado_control||"NO COINCIDE").trim().toUpperCase();
-      return estado==="NO COINCIDE";
+
+      const predios=[
+        r.predio_eremitos,
+        r.predio_remitos2
+      ]
+        .map(valor=>normalizarTexto(valor))
+        .join(" ");
+
+      const esLasAcaciasUPM=predios.includes("LAS ACACIAS UPM");
+
+      return estado==="NO COINCIDE"&&!esLasAcaciasUPM;
     });
-    const cantidad=Number.isFinite(Number(json.cantidad))
-      ? Number(json.cantidad)
-      : inconsistencias.length;
+
+    const cantidad=inconsistencias.length;
     const ejemplos=inconsistencias.slice(0,3);
 
     contenedor.innerHTML=`
       <div class="home-resumen-titulo">Registros con inconsistencias</div>
       <div class="home-control-kpi">
         <div class="valor ${cantidad>0?"alerta":""}">${numero(cantidad)}</div>
-        <div class="texto">${cantidad===1?"Registro para revisar":"Registros para revisar"}</div>
+        <div class="texto">${cantidad===0?"No hay inconsistencias":cantidad===1?"Registro para revisar":"Registros para revisar"}</div>
       </div>
       ${ejemplos.length?`
         <div class="home-control-lista">
@@ -2651,7 +2661,7 @@ async function cargarResumenControlPredios(){
               <span>${esc(r.predio_eremitos||"—")} / ${esc(r.predio_remitos2||"—")}</span>
             </div>`).join("")}
         </div>`:
-        '<div class="home-resumen-vacio">Todos los predios coinciden.</div>'}
+        '<div class="home-resumen-vacio">No hay inconsistencias.</div>'}
       ${cantidad>0?'<div class="home-control-alerta" role="alert">REVISAR</div>':""}
     `;
   }catch(error){
