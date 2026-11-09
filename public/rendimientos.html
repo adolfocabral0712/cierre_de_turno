@@ -1,58 +1,47 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8">
-
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0"
   >
-
   <title>
     RENDIMIENTOS Y DENSIDAD BASICA
   </title>
-
   <style>
-
     *{
       box-sizing:border-box;
     }
-
     body{
       margin:0;
-      background:#0b0d11;
-      color:#f4f4f4;
+      background:#F4F3F1;
+      color:#1F1F1F;
       font-family:Segoe UI, Arial, sans-serif;
     }
-
     .contenedor{
       width:min(1800px,98%);
       margin:20px auto;
     }
-
     .titulo{
       text-align:center;
       font-size:28px;
       font-weight:800;
-      color:#d7ff5f;
+      color:#C65312;
       margin-bottom:5px;
     }
-
     .actualizado{
       text-align:center;
-      color:#aeb5bf;
+      color:#6B6B6B;
       margin-bottom:22px;
     }
-
     .filtros{
-      background:#15181e;
-      border:1px solid #2c313b;
+      background:#FFFFFF;
+      border:1px solid #D9D6D2;
       border-radius:10px;
       padding:18px;
       margin-bottom:18px;
     }
-
     .fila-controles{
       display:grid;
       grid-template-columns:
@@ -62,187 +51,144 @@
       width:100%;
       margin-bottom:14px;
     }
-
     .fila-controles:last-child{
       margin-bottom:0;
     }
-
     .tipo-label{
       grid-column:1 / -1;
       text-align:center;
       font-size:12px;
       font-weight:700;
-      color:#aeb5bf;
+      color:#6B6B6B;
     }
-
     .filtro{
       width:100%;
       min-width:0;
     }
-
     .filtro label{
       display:block;
       text-align:center;
       font-size:12px;
       font-weight:700;
-      color:#aeb5bf;
+      color:#6B6B6B;
       margin-bottom:8px;
     }
-
     select,
     .tipo-btn,
     .necesidad-btn{
       width:100%;
       height:39px;
       border-radius:6px;
-      border:1px solid #353b46;
+      border:1px solid #D9D6D2;
       font-size:13px;
       font-weight:700;
     }
-
     select{
-      background:#0f1115;
-      color:#fff;
+      background:#F4F3F1;
+      color:#1F1F1F;
       padding:0 12px;
     }
-
     .tipo-btn{
-      background:#101319;
-      color:#d7ff5f;
+      background:#FFFFFF;
+      color:#C65312;
       cursor:pointer;
     }
-
     .tipo-btn.activo{
-      background:#d7ff5f;
-      color:#0b0d11;
-      border-color:#d7ff5f;
+      background:#C65312;
+      color:#FFFFFF;
+      border-color:#C65312;
     }
-
     .necesidad-btn{
       cursor:pointer;
     }
-
     .necesidad-btn.con-registros{
-      background:#ff4d4f;
+      background:#E86F18;
       color:#fff;
-      border-color:#ff4d4f;
+      border-color:#E86F18;
     }
-
     .necesidad-btn.sin-registros{
-      background:#d7ff5f;
-      color:#0b0d11;
-      border-color:#d7ff5f;
+      background:#D9D6D2;
+      color:#1F1F1F;
+      border-color:#D9D6D2;
     }
-
     .tabla-contenedor{
       overflow:auto;
-      border:1px solid #2c313b;
+      border:1px solid #D9D6D2;
       border-radius:10px;
     }
-
     table{
       width:100%;
       border-collapse:collapse;
-      background:#111419;
+      background:#FFFFFF;
       min-width:1050px;
     }
-
     th,
     td{
       padding:10px 9px;
-      border-bottom:1px solid #292e36;
+      border-bottom:1px solid #D9D6D2;
       text-align:center;
       white-space:nowrap;
     }
-
     th{
       position:sticky;
       top:0;
-      background:#1a1e25;
-      color:#d7ff5f;
+      background:#C65312;
+      color:#FFFFFF;
       font-size:12px;
       z-index:2;
     }
-
     th.sortable{
       cursor:pointer;
     }
-
     th.sortable::after{
       content:" ↕";
-      color:#6f7680;
+      color:#6B6B6B;
     }
-
     th.sortable.asc::after{
       content:" ▲";
-      color:#d7ff5f;
+      color:#FFFFFF;
     }
-
     th.sortable.desc::after{
       content:" ▼";
-      color:#d7ff5f;
+      color:#FFFFFF;
     }
-
     td{
       font-size:12px;
     }
-
-    /* Resalta automáticamente toda la fila correspondiente al año actual */
     tbody tr.fila-ano-actual td{
-      background:#5c5200;
-      color:#fff6a3;
+      background:#FFB86B;
+      color:#1F1F1F;
     }
-
     tbody tr.fila-ano-actual:hover td{
-      background:#736600;
+      background:#E86F18;
     }
-
     .nombre-fas-click{
       cursor:pointer;
       font-weight:700;
     }
-
     .nombre-fas-click:hover{
-      color:#d7ff5f;
+      color:#C65312;
       text-decoration:underline;
     }
-
     .activo-si{
-      color:#d7ff5f;
+      color:#C65312;
       font-weight:700;
     }
-
     .activo-no{
-      color:#ff7171;
+      color:#6B6B6B;
       font-weight:700;
     }
-
     .sin-dato{
-      color:#7d848d;
+      color:#6B6B6B;
     }
-
     .mensaje{
       padding:28px;
       text-align:center;
-      color:#aeb5bf;
+      color:#6B6B6B;
     }
-
     .error{
-      color:#ff7171;
+      color:#C65312;
     }
-
-
-    /* ============================================================
-       BARCOS
-       ============================================================ */
-
-    
-
-
-    /* ============================================================
-       MODAL
-       ============================================================ */
-
     .modal-overlay{
       position:fixed;
       inset:0;
@@ -253,84 +199,59 @@
       z-index:9999;
       padding:20px;
     }
-
     .modal-overlay.visible{
       display:flex;
     }
-
     .modal-contenido{
       width:min(760px,96vw);
       max-height:85vh;
-      background:#171a21;
-      border:1px solid #343a46;
+      background:#FFFFFF;
+      border:1px solid #D9D6D2;
       border-radius:12px;
       overflow:hidden;
     }
-
     .modal-header{
       display:flex;
       align-items:center;
       justify-content:space-between;
       padding:16px 18px;
-      border-bottom:1px solid #292e38;
-      background:#20242c;
+      border-bottom:1px solid #D9D6D2;
+      background:#F4F3F1;
     }
-
     .modal-titulo{
       margin:0;
       font-size:18px;
-      color:#d7ff5f;
+      color:#C65312;
     }
-
     .modal-cerrar{
       border:0;
       background:transparent;
-      color:#fff;
+      color:#1F1F1F;
       font-size:26px;
       cursor:pointer;
     }
-
     .modal-body{
       padding:16px;
       overflow:auto;
       max-height:calc(85vh - 65px);
     }
-
     .modal-tabla{
       width:100%;
       min-width:0;
     }
-
     .modal-vacio{
       padding:28px 10px;
       text-align:center;
-      color:#a7adb7;
+      color:#6B6B6B;
     }
-
-
     @media(max-width:800px){
-
       .fila-controles{
         gap:10px;
       }
-
       .titulo{
         font-size:22px;
       }
-
     }
-
-    /* ============================================================
-       MODO BARCOS
-       SOLO:
-       NOMBRE FAS
-       ESPECIE
-       AÑO
-       CANT. DENS. BASICA
-       PROM. DENS. BASICA
-       ULTIMA DENS. BASICA
-       ============================================================ */
-
     body.modo-barcos th:nth-child(4),
     body.modo-barcos td:nth-child(4),
     body.modo-barcos th:nth-child(5),
@@ -351,18 +272,11 @@
     body.modo-barcos td:nth-child(15){
       display:none;
     }
-
-
-    /* ============================================================
-       AJUSTE COMPACTO DE COLUMNAS
-       ============================================================ */
-
     .tabla-contenedor table{
       width:max-content;
       min-width:100%;
       table-layout:auto;
     }
-
     .tabla-contenedor th,
     .tabla-contenedor td{
       width:1%;
@@ -370,64 +284,42 @@
       padding-left:8px;
       padding-right:8px;
     }
-
     .tabla-contenedor th:first-child,
     .tabla-contenedor td:first-child{
       width:auto;
     }
-
     .tabla-contenedor th:nth-child(2),
     .tabla-contenedor td:nth-child(2){
       width:auto;
     }
-
     .tabla-contenedor th:nth-child(3),
     .tabla-contenedor td:nth-child(3){
       width:1%;
     }
-
     .tabla-contenedor th{
       font-size:10px;
     }
-
     .tabla-contenedor td{
       font-size:10px;
     }
-
   </style>
-
 </head>
-
-
 <body>
-
-
 <div class="contenedor">
-
-
   <div class="titulo">
     RENDIMIENTOS Y DENSIDAD BASICA
   </div>
-
-
   <div
     class="actualizado"
     id="actualizado"
   >
     Cargando datos...
   </div>
-
-
   <div class="filtros">
-
-
     <div class="fila-controles">
-
       <div class="tipo-label">
         TIPO
       </div>
-
-
       <button
         type="button"
         class="tipo-btn"
@@ -435,8 +327,6 @@
       >
         MONTES
       </button>
-
-
       <button
         type="button"
         class="tipo-btn"
@@ -444,59 +334,36 @@
       >
         BARCOS
       </button>
-
     </div>
-
-
     <div class="fila-controles">
-
-
       <div class="filtro">
-
         <label for="filtroNombreFas">
           NOMBRE FAS
         </label>
-
         <select id="filtroNombreFas">
         </select>
-
       </div>
-
-
       <div class="filtro">
-
         <label for="filtroActivo">
           ACTIVO
         </label>
-
         <select id="filtroActivo">
-
           <option value="">
             TODOS
           </option>
-
           <option
             value="SI"
             selected
           >
             SI
           </option>
-
           <option value="NO">
             NO
           </option>
-
         </select>
-
       </div>
-
-
     </div>
-
-
     <div id="bloqueAlertas" class="fila-controles">
-
-
       <button
         type="button"
         class="necesidad-btn"
@@ -504,8 +371,6 @@
       >
         NECESITA RENDIMIENTO?
       </button>
-
-
       <button
         type="button"
         class="necesidad-btn"
@@ -513,179 +378,129 @@
       >
         NECESITA DENSIDAD BASICA?
       </button>
-
-
     </div>
-
-
   </div>
-
-
   <div class="tabla-contenedor">
-
-
     <table>
-
-
       <thead>
-
         <tr>
-
           <th
             class="sortable"
             data-campo="nombre_fas"
           >
             NOMBRE FAS
           </th>
-
           <th
             class="sortable"
             data-campo="especie"
           >
             ESPECIE
           </th>
-
           <th
             class="sortable"
             data-campo="ano"
           >
             AÑO
           </th>
-
           <th
             class="sortable"
             data-campo="total_remitos"
           >
             Total Remitos
           </th>
-
           <th
             class="sortable"
             data-campo="porcentaje_rendimiento"
           >
             % Rend.
           </th>
-
           <th
             class="sortable"
             data-campo="porcentaje_densidad_basica"
           >
             % Dens. Basica
           </th>
-
           <th
             class="sortable"
             data-campo="cantidad_pps"
           >
             Cant. Rend.
           </th>
-
           <th
             class="sortable"
             data-campo="cantidad_densidad_basica"
           >
             Cant. Dens. Basica
           </th>
-
           <th
             class="sortable"
             data-campo="promedio_rendimiento_con_merma"
           >
             Prom. Rend.
           </th>
-
           <th
             class="sortable"
             data-campo="promedio_pps"
           >
             Prom. PPS
           </th>
-
           <th
             class="sortable"
             data-campo="promedio_densidad_basica"
           >
             Prom. Dens. Basica
           </th>
-
           <th
             class="sortable"
             data-campo="ultima_fecha_pps"
           >
             Ultimo Rend.
           </th>
-
           <th
             class="sortable"
             data-campo="ultima_fecha_densidad_basica"
           >
             Ultima Dens. Basica
           </th>
-
           <th
             class="sortable"
             data-campo="ultima_fecha_remito"
           >
             Ultimo Ingreso
           </th>
-
           <th
             class="sortable"
             data-campo="activo"
           >
             ACTIVO
           </th>
-
         </tr>
-
       </thead>
-
-
       <tbody id="tablaBody">
-
         <tr>
-
           <td
             colspan="15"
             class="mensaje"
           >
             Cargando datos...
           </td>
-
         </tr>
-
       </tbody>
-
-
     </table>
-
-
   </div>
-
-
 </div>
-
-
-
 <div
   class="modal-overlay"
   id="modalNecesidad"
 >
-
   <div class="modal-contenido">
-
-
     <div class="modal-header">
-
-
       <h2
         class="modal-titulo"
         id="modalTitulo"
       >
         Aviso
       </h2>
-
-
       <button
         class="modal-cerrar"
         id="modalCerrar"
@@ -693,68 +508,40 @@
       >
         &times;
       </button>
-
-
     </div>
-
-
     <div
       class="modal-body"
       id="modalBody"
     >
     </div>
-
-
   </div>
-
 </div>
-
-
-
 <script>
-
-
 const URL_JSON =
   "/api/rendimientos";
-
-
 let registrosOriginales = [];
-
 let tipoSeleccionado = "";
-
 let campoOrden =
   "nombre_fas";
-
 let direccionOrden =
   "asc";
-
-
-
 function normalizar(valor){
-
   if(
     valor === null ||
     valor === undefined
   ){
     return "";
   }
-
   return String(valor)
     .trim()
     .toUpperCase();
 }
-
-
-
 function formatearFecha(valor){
-
   if(!valor){
     return "-";
   }
-
   const fecha =
     new Date(valor);
-
   if(
     isNaN(
       fecha.getTime()
@@ -762,7 +549,6 @@ function formatearFecha(valor){
   ){
     return valor;
   }
-
   return fecha.toLocaleDateString(
     "es-UY",
     {
@@ -772,18 +558,12 @@ function formatearFecha(valor){
     }
   );
 }
-
-
-
 function formatearFechaHora(valor){
-
   if(!valor){
     return "-";
   }
-
   const fecha =
     new Date(valor);
-
   if(
     isNaN(
       fecha.getTime()
@@ -791,7 +571,6 @@ function formatearFechaHora(valor){
   ){
     return valor;
   }
-
   return fecha.toLocaleString(
     "es-UY",
     {
@@ -804,11 +583,7 @@ function formatearFechaHora(valor){
     }
   );
 }
-
-
-
 function valorSeguro(valor){
-
   if(
     valor === null ||
     valor === undefined ||
@@ -816,14 +591,9 @@ function valorSeguro(valor){
   ){
     return '<span class="sin-dato">-</span>';
   }
-
   return String(valor);
 }
-
-
-
 function contadorSeguro(valor){
-
   if(
     valor === null ||
     valor === undefined ||
@@ -831,26 +601,19 @@ function contadorSeguro(valor){
   ){
     return '<span class="sin-dato">-</span>';
   }
-
   const numero =
     Number(valor);
-
   if(
     isNaN(numero) ||
     numero === 0
   ){
     return '<span class="sin-dato">-</span>';
   }
-
   return numero.toLocaleString(
     "es-UY"
   );
 }
-
-
-
 function numeroDecimal(valor){
-
   if(
     valor === null ||
     valor === undefined ||
@@ -858,16 +621,13 @@ function numeroDecimal(valor){
   ){
     return '<span class="sin-dato">-</span>';
   }
-
   const numero =
     Number(valor);
-
   if(
     isNaN(numero)
   ){
     return valorSeguro(valor);
   }
-
   return numero.toLocaleString(
     "es-UY",
     {
@@ -876,11 +636,7 @@ function numeroDecimal(valor){
     }
   );
 }
-
-
-
 function porcentajePPS(valor){
-
   if(
     valor === null ||
     valor === undefined ||
@@ -888,16 +644,13 @@ function porcentajePPS(valor){
   ){
     return '<span class="sin-dato">-</span>';
   }
-
   const numero =
     Number(valor);
-
   if(
     isNaN(numero)
   ){
     return valorSeguro(valor);
   }
-
   return (
     numero * 100
   ).toLocaleString(
@@ -908,18 +661,11 @@ function porcentajePPS(valor){
     }
   ) + "%";
 }
-
-
-
 function porcentajeCobertura(cantidad, total){
-
   const cantidadNumero =
     Number(cantidad);
-
   const totalNumero =
     Number(total);
-
-
   if(
     !Number.isFinite(cantidadNumero) ||
     !Number.isFinite(totalNumero) ||
@@ -927,16 +673,12 @@ function porcentajeCobertura(cantidad, total){
   ){
     return '<span class="sin-dato">-</span>';
   }
-
-
   const porcentaje =
     (
       cantidadNumero /
       totalNumero
     ) *
     100;
-
-
   return porcentaje.toLocaleString(
     "es-UY",
     {
@@ -945,18 +687,11 @@ function porcentajeCobertura(cantidad, total){
     }
   ) + "%";
 }
-
-
-
 function calcularPorcentajeCobertura(cantidad, total){
-
   const cantidadNumero =
     Number(cantidad);
-
   const totalNumero =
     Number(total);
-
-
   if(
     !Number.isFinite(cantidadNumero) ||
     !Number.isFinite(totalNumero) ||
@@ -964,26 +699,18 @@ function calcularPorcentajeCobertura(cantidad, total){
   ){
     return null;
   }
-
-
   return (
     cantidadNumero /
     totalNumero
   ) *
   100;
 }
-
-
-
 function diasDesdeFecha(valor){
-
   if(!valor){
     return null;
   }
-
   const fecha =
     new Date(valor);
-
   if(
     isNaN(
       fecha.getTime()
@@ -991,7 +718,6 @@ function diasDesdeFecha(valor){
   ){
     return null;
   }
-
   return (
     Date.now() -
     fecha.getTime()
@@ -1003,54 +729,38 @@ function diasDesdeFecha(valor){
     24
   );
 }
-
-
-
 function cargarFiltroNombreFas(){
-
   const select =
     document.getElementById(
       "filtroNombreFas"
     );
-
   const activoSeleccionado =
     normalizar(
       document.getElementById(
         "filtroActivo"
       ).value
     );
-
   const valorAnterior =
     select.value;
-
-
   const registrosLista =
     registrosOriginales.filter(
       registro => {
-
         const nombreFas =
           normalizar(
             registro.nombre_fas
           );
-
         const activo =
           normalizar(
             registro.activo
           );
-
-
         const coincideActivo =
           !activoSeleccionado ||
           activo ===
             activoSeleccionado;
-
-
         const contieneBarco =
           nombreFas.includes(
             "BARCO"
           );
-
-
         const coincideTipo =
           !tipoSeleccionado ||
           (
@@ -1063,16 +773,12 @@ function cargarFiltroNombreFas(){
               "MONTES" &&
             !contieneBarco
           );
-
-
         return (
           coincideActivo &&
           coincideTipo
         );
       }
     );
-
-
   const valores =
     [
       ...new Set(
@@ -1089,8 +795,6 @@ function cargarFiltroNombreFas(){
           )
       )
     ];
-
-
   valores.sort(
     (a,b) =>
       String(a).localeCompare(
@@ -1101,49 +805,34 @@ function cargarFiltroNombreFas(){
         }
       )
   );
-
-
   select.innerHTML =
     "";
-
-
   const placeholder =
     document.createElement(
       "option"
     );
-
   placeholder.value =
     "";
-
   placeholder.textContent =
     "SELECCIONAR NOMBRE FAS";
-
   select.appendChild(
     placeholder
   );
-
-
   valores.forEach(
     valor => {
-
       const option =
         document.createElement(
           "option"
         );
-
       option.value =
         String(valor);
-
       option.textContent =
         String(valor);
-
       select.appendChild(
         option
       );
     }
   );
-
-
   if(
     valorAnterior &&
     valores.some(
@@ -1159,88 +848,55 @@ function cargarFiltroNombreFas(){
     select.value =
       "";
   }
-
 }
-
-
-
 function actualizarVisibilidadColumnas(){
-
   document.body.classList.toggle(
     "modo-barcos",
     tipoSeleccionado ===
       "BARCOS"
   );
-
 }
-
-
-
 function actualizarVisibilidadAlertas(){
-
   const filtroActivo =
     document.getElementById(
       "filtroActivo"
     );
-
   const valorActivo =
     filtroActivo
       ? normalizar(
           filtroActivo.value
         )
       : "";
-
-
   const bloqueAlertas =
     document.getElementById(
       "bloqueAlertas"
     );
-
-
   if(!bloqueAlertas){
     return;
   }
-
-
-  /* ACTIVO = NO -> ocultar ambos avisos */
-
   if(
     valorActivo === "NO"
   ){
     bloqueAlertas.style.display =
       "none";
-
     return;
   }
-
-
   bloqueAlertas.style.display =
     "";
-
-
-  /* BARCOS -> ocultar solo aviso de rendimiento */
-
   const modoBarcos =
     document.body.classList.contains(
       "modo-barcos"
     );
-
-
   const botones =
     bloqueAlertas.querySelectorAll(
       "button"
     );
-
-
   botones.forEach(
     boton => {
-
       const texto =
         normalizar(
           boton.textContent
         );
-
-
       if(
         modoBarcos &&
         texto.includes(
@@ -1254,72 +910,49 @@ function actualizarVisibilidadAlertas(){
         boton.style.display =
           "";
       }
-
     }
   );
-
 }
-
-
-
 function aplicarFiltros(){
-
   actualizarVisibilidadAlertas();
-
   actualizarVisibilidadColumnas();
-
-
   const nombreSeleccionado =
     normalizar(
       document.getElementById(
         "filtroNombreFas"
       ).value
     );
-
-
   const activoSeleccionado =
     normalizar(
       document.getElementById(
         "filtroActivo"
       ).value
     );
-
-
   const registros =
     registrosOriginales.filter(
       registro => {
-
         const nombreFas =
           normalizar(
             registro.nombre_fas
           );
-
         const especie =
           normalizar(
             registro.especie
           );
-
-
         const coincideNombre =
           !nombreSeleccionado ||
           nombreFas ===
             nombreSeleccionado;
-
-
         const coincideActivo =
           !activoSeleccionado ||
           normalizar(
             registro.activo
           ) ===
             activoSeleccionado;
-
-
         const esBarco =
           nombreFas.includes(
             "BARCO"
           );
-
-
         const coincideTipo =
           !tipoSeleccionado ||
           (
@@ -1332,32 +965,22 @@ function aplicarFiltros(){
               "MONTES" &&
             !esBarco
           );
-
-
         const excluirSinEspecie =
           !especie ||
           especie === "-";
-
-
         const excluirTroza =
           especie.includes(
             "TROZA"
           );
-
-
         const excluirBalanza =
           nombreFas.includes(
             "BALANZA"
           );
-
-
         const excluirQuebrachoAlmedo =
           nombreFas ===
             "QUEBRACHO - ALMEDO SAS" &&
           especie ===
             "GLOBULUS 3,60";
-
-
         return (
           coincideNombre &&
           coincideActivo &&
@@ -1367,11 +990,8 @@ function aplicarFiltros(){
           !excluirBalanza &&
           !excluirQuebrachoAlmedo
         );
-
       }
     );
-
-
   registros.sort(
     (a,b) =>
       compararValores(
@@ -1386,18 +1006,11 @@ function aplicarFiltros(){
         campoOrden
       )
   );
-
-
   dibujarTabla(
     registros
   );
-
 }
-
-
-
 function obtenerValorOrden(registro, campo){
-
   if(
     campo ===
     "porcentaje_rendimiento"
@@ -1407,8 +1020,6 @@ function obtenerValorOrden(registro, campo){
       registro.total_remitos
     );
   }
-
-
   if(
     campo ===
     "porcentaje_densidad_basica"
@@ -1418,26 +1029,18 @@ function obtenerValorOrden(registro, campo){
       registro.total_remitos
     );
   }
-
-
   return registro[campo];
 }
-
-
-
 function compararValores(
   a,
   b,
   campo
 ){
-
   const multiplicador =
     direccionOrden ===
       "asc"
       ? 1
       : -1;
-
-
   if(
     a === null ||
     a === undefined ||
@@ -1446,8 +1049,6 @@ function compararValores(
     return 1 *
       multiplicador;
   }
-
-
   if(
     b === null ||
     b === undefined ||
@@ -1456,8 +1057,6 @@ function compararValores(
     return -1 *
       multiplicador;
   }
-
-
   const camposNumericos =
     [
       "cantidad_pps",
@@ -1470,54 +1069,40 @@ function compararValores(
       "porcentaje_densidad_basica",
       "ano"
     ];
-
-
   const camposFecha =
     [
       "ultima_fecha_pps",
       "ultima_fecha_densidad_basica",
       "ultima_fecha_remito"
     ];
-
-
   if(
     camposNumericos.includes(
       campo
     )
   ){
-
     const na =
       Number(a);
-
     const nb =
       Number(b);
-
     return (
       na - nb
     ) *
     multiplicador;
   }
-
-
   if(
     camposFecha.includes(
       campo
     )
   ){
-
     const fa =
       new Date(a).getTime();
-
     const fb =
       new Date(b).getTime();
-
     return (
       fa - fb
     ) *
     multiplicador;
   }
-
-
   return String(a).localeCompare(
     String(b),
     "es",
@@ -1526,65 +1111,46 @@ function compararValores(
     }
   ) *
   multiplicador;
-
 }
-
-
-
 function dibujarTabla(registros){
-
   const tbody =
     document.getElementById(
       "tablaBody"
     );
-
-
   if(
     registros.length === 0
   ){
-
     tbody.innerHTML =
       `
       <tr>
-
         <td
           colspan="15"
           class="mensaje"
         >
           No hay registros para los filtros seleccionados.
         </td>
-
       </tr>
       `;
-
     return;
   }
-
-
   tbody.innerHTML =
     registros.map(
       registro => {
-
         const esAnoActual =
           Number(registro.ano) ===
           new Date().getFullYear();
-
         const claseFila =
           esAnoActual
             ? "fila-ano-actual"
             : "";
-
         const activo =
           normalizar(
             registro.activo
           );
-
         const claseActivo =
           activo === "SI"
             ? "activo-si"
             : "activo-no";
-
-
         const nombreAttr =
           String(
             registro.nombre_fas ||
@@ -1598,11 +1164,8 @@ function dibujarTabla(registros){
             /"/g,
             "&quot;"
           );
-
-
         return `
           <tr class="${claseFila}">
-
             <td
               class="nombre-fas-click"
               data-nombre="${nombreAttr}"
@@ -1611,163 +1174,109 @@ function dibujarTabla(registros){
                 registro.nombre_fas
               )}
             </td>
-
             <td>
               ${valorSeguro(
                 registro.especie
               )}
             </td>
-
             <td>
               ${valorSeguro(
                 registro.ano
               )}
             </td>
-
             <td>
               ${contadorSeguro(
                 registro.total_remitos
               )}
             </td>
-
             <td>
               ${porcentajeCobertura(
                 registro.cantidad_pps,
                 registro.total_remitos
               )}
             </td>
-
             <td>
               ${porcentajeCobertura(
                 registro.cantidad_densidad_basica,
                 registro.total_remitos
               )}
             </td>
-
             <td>
               ${contadorSeguro(
                 registro.cantidad_pps
               )}
             </td>
-
             <td>
               ${contadorSeguro(
                 registro.cantidad_densidad_basica
               )}
             </td>
-
             <td>
               ${numeroDecimal(
                 registro.promedio_rendimiento_con_merma
               )}
             </td>
-
             <td>
               ${porcentajePPS(
                 registro.promedio_pps
               )}
             </td>
-
             <td>
               ${numeroDecimal(
                 registro.promedio_densidad_basica
               )}
             </td>
-
             <td>
               ${formatearFecha(
                 registro.ultima_fecha_pps
               )}
             </td>
-
             <td>
               ${formatearFecha(
                 registro.ultima_fecha_densidad_basica
               )}
             </td>
-
             <td>
               ${formatearFecha(
                 registro.ultima_fecha_remito
               )}
             </td>
-
             <td class="${claseActivo}">
               ${valorSeguro(
                 registro.activo
               )}
             </td>
-
           </tr>
         `;
-
       }
     ).join("");
-
 }
-
-
-
-/* ============================================================
-   EMERGENTES
-
-   SOLO ACTIVO = SI
-   SOLO AÑO ACTUAL
-
-   REGLA:
-   - únicamente registros cuyo campo ano coincide con el año actual
-   - sin límite de días desde el último ingreso
-   - RENDIMIENTO:
-       mostrar si cantidad_pps = 0
-       O si % Rend. < 10%
-   - DENSIDAD:
-       mostrar si cantidad_densidad_basica = 0
-   ============================================================ */
-
 function obtenerPendientes(tipo){
-
   return registrosOriginales
     .filter(
       registro => {
-
         const nombreFas =
           normalizar(
             registro.nombre_fas
           );
-
-
         const especie =
           normalizar(
             registro.especie
           );
-
-
         const activoSi =
           normalizar(
             registro.activo
           ) ===
           "SI";
-
-
         if(!activoSi){
           return false;
         }
-
-
-        /* ====================================================
-           SOLO AÑO ACTUAL
-           ==================================================== */
-
         const anoActual =
           new Date().getFullYear();
-
-
         const anoRegistro =
           Number(
             registro.ano
           );
-
-
         if(
           !Number.isFinite(
             anoRegistro
@@ -1777,73 +1286,48 @@ function obtenerPendientes(tipo){
         ){
           return false;
         }
-
-
-        /* SOLO AÑO ACTUAL: sin límite de días desde el último ingreso */
-
-
         const cantidadRendimiento =
           Number(
             registro.cantidad_pps ||
             0
           );
-
-
         const cantidadDensidad =
           Number(
             registro.cantidad_densidad_basica ||
             0
           );
-
-
         const sinRendimiento =
           cantidadRendimiento ===
           0;
-
-
         const sinDensidad =
           cantidadDensidad ===
           0;
-
-
         const porcentajeRendimiento =
           calcularPorcentajeCobertura(
             registro.cantidad_pps,
             registro.total_remitos
           );
-
-
         const rendimientoMenor10 =
           porcentajeRendimiento !==
             null &&
           porcentajeRendimiento <
             10;
-
-
         const excluirSinEspecie =
           !especie ||
           especie === "-";
-
-
         const excluirTroza =
           especie.includes(
             "TROZA"
           );
-
-
         const excluirBalanza =
           nombreFas.includes(
             "BALANZA"
           );
-
-
         const excluirQuebrachoAlmedo =
           nombreFas ===
             "QUEBRACHO - ALMEDO SAS" &&
           especie ===
             "GLOBULUS 3,60";
-
-
         if(
           excluirSinEspecie ||
           excluirTroza ||
@@ -1852,8 +1336,6 @@ function obtenerPendientes(tipo){
         ){
           return false;
         }
-
-
         if(
           tipo ===
           "RENDIMIENTO"
@@ -1863,74 +1345,52 @@ function obtenerPendientes(tipo){
             rendimientoMenor10
           );
         }
-
-
         if(
           tipo ===
           "DENSIDAD"
         ){
           return sinDensidad;
         }
-
-
         return false;
-
       }
     )
     .sort(
       (a,b) => {
-
         const monteA =
           normalizar(
             a.nombre_fas
           );
-
-
         const monteB =
           normalizar(
             b.nombre_fas
           );
-
-
         if(
           monteA !==
           monteB
         ){
-
           return monteA.localeCompare(
             monteB,
             "es"
           );
-
         }
-
-
         const productoA =
           normalizar(
             a.especie
           );
-
-
         const productoB =
           normalizar(
             b.especie
           );
-
-
         const comparacionProducto =
           productoA.localeCompare(
             productoB,
             "es"
           );
-
-
         if(
           comparacionProducto !== 0
         ){
           return comparacionProducto;
         }
-
-
         return (
           Number(
             b.ano || 0
@@ -1939,70 +1399,46 @@ function obtenerPendientes(tipo){
             a.ano || 0
           )
         );
-
       }
     );
-
 }
-
-
-
 function actualizarColorBoton(
   id,
   cantidad
 ){
-
   const boton =
     document.getElementById(
       id
     );
-
-
   boton.classList.remove(
     "con-registros",
     "sin-registros"
   );
-
-
   boton.classList.add(
     cantidad > 0
       ? "con-registros"
       : "sin-registros"
   );
-
 }
-
-
-
 function actualizarEstadoBotonesNecesidad(){
-
   actualizarColorBoton(
     "btnNecesitaRendimiento",
     obtenerPendientes(
       "RENDIMIENTO"
     ).length
   );
-
-
   actualizarColorBoton(
     "btnNecesitaDensidad",
     obtenerPendientes(
       "DENSIDAD"
     ).length
   );
-
 }
-
-
-
 function abrirModalNecesidad(tipo){
-
   const registros =
     obtenerPendientes(
       tipo
     );
-
-
   const titulo =
     tipo ===
       "RENDIMIENTO"
@@ -2010,58 +1446,41 @@ function abrirModalNecesidad(tipo){
       "NECESITA RENDIMIENTO"
       :
       "NECESITA DENSIDAD BASICA";
-
-
   const anoActual =
     new Date().getFullYear();
-
-
   document.getElementById(
     "modalTitulo"
   ).textContent =
     `${titulo} ${anoActual} (${registros.length})`;
-
-
   const body =
     document.getElementById(
       "modalBody"
     );
-
-
   if(
     registros.length === 0
   ){
-
     body.innerHTML =
       `
       <div class="modal-vacio">
         No hay pendientes para mostrar.
       </div>
       `;
-
   }
   else{
-
     body.innerHTML =
       `
       <table class="modal-tabla">
-
         <thead>
-
           <tr>
-
             <th>
               MONTE
             </th>
-
             <th>
               PRODUCTO
             </th>
-
             <th>
               AÑO
             </th>
-
             ${
               tipo === "RENDIMIENTO"
                 ? `
@@ -2071,37 +1490,29 @@ function abrirModalNecesidad(tipo){
                 `
                 : ""
             }
-
           </tr>
-
         </thead>
-
         <tbody>
-
           ${
             registros.map(
               registro =>
                 `
                 <tr>
-
                   <td>
                     ${valorSeguro(
                       registro.nombre_fas
                     )}
                   </td>
-
                   <td>
                     ${valorSeguro(
                       registro.especie
                     )}
                   </td>
-
                   <td>
                     ${valorSeguro(
                       registro.ano
                     )}
                   </td>
-
                   ${
                     tipo === "RENDIMIENTO"
                       ? `
@@ -2114,59 +1525,38 @@ function abrirModalNecesidad(tipo){
                       `
                       : ""
                   }
-
                 </tr>
                 `
             ).join("")
           }
-
         </tbody>
-
       </table>
       `;
-
   }
-
-
   document.getElementById(
     "modalNecesidad"
   ).classList.add(
     "visible"
   );
-
 }
-
-
-
 function cerrarModalNecesidad(){
-
   document.getElementById(
     "modalNecesidad"
   ).classList.remove(
     "visible"
   );
-
 }
-
-
-
 async function cargarDatos(){
-
   try{
-
     const separador =
       URL_JSON.includes("?")
         ? "&"
         : "?";
-
-
     const url =
       URL_JSON +
       separador +
       "t=" +
       Date.now();
-
-
     const respuesta =
       await fetch(
         url,
@@ -2174,24 +1564,16 @@ async function cargarDatos(){
           cache:"no-store"
         }
       );
-
-
     if(
       !respuesta.ok
     ){
-
       throw new Error(
         "HTTP " +
         respuesta.status
       );
-
     }
-
-
     const datos =
       await respuesta.json();
-
-
     registrosOriginales =
       Array.isArray(
         datos.registros
@@ -2200,8 +1582,6 @@ async function cargarDatos(){
         datos.registros
         :
         [];
-
-
     document.getElementById(
       "actualizado"
     ).textContent =
@@ -2209,34 +1589,23 @@ async function cargarDatos(){
       formatearFechaHora(
         datos.actualizado
       );
-
-
     cargarFiltroNombreFas();
-
     aplicarFiltros();
-
     actualizarEstadoBotonesNecesidad();
-
   }
   catch(error){
-
     console.error(
       error
     );
-
-
     document.getElementById(
       "actualizado"
     ).textContent =
       "No fue posible cargar los datos";
-
-
     document.getElementById(
       "tablaBody"
     ).innerHTML =
       `
       <tr>
-
         <td
           colspan="15"
           class="mensaje error"
@@ -2246,146 +1615,99 @@ async function cargarDatos(){
             error.message
           )}
         </td>
-
       </tr>
       `;
-
   }
-
 }
-
-
-
 document.getElementById(
   "filtroNombreFas"
 ).addEventListener(
   "change",
   aplicarFiltros
 );
-
-
-
 document.getElementById(
   "filtroActivo"
 ).addEventListener(
   "change",
   () => {
-
     cargarFiltroNombreFas();
-
     aplicarFiltros();
-
   }
 );
-
-
-
 document.getElementById(
   "btnMontes"
 ).addEventListener(
   "click",
   () => {
-
     if(
       tipoSeleccionado ===
       "MONTES"
     ){
-
       tipoSeleccionado =
         "";
-
       document.getElementById(
         "btnMontes"
       ).classList.remove(
         "activo"
       );
-
     }
     else{
-
       tipoSeleccionado =
         "MONTES";
-
       document.getElementById(
         "btnMontes"
       ).classList.add(
         "activo"
       );
-
       document.getElementById(
         "btnBarcos"
       ).classList.remove(
         "activo"
       );
-
     }
-
-
     cargarFiltroNombreFas();
-
     aplicarFiltros();
-
   }
 );
-
-
-
 document.getElementById(
   "btnBarcos"
 ).addEventListener(
   "click",
   () => {
-
     if(
       tipoSeleccionado ===
       "BARCOS"
     ){
-
       tipoSeleccionado =
         "";
-
       document.getElementById(
         "btnBarcos"
       ).classList.remove(
         "activo"
       );
-
     }
     else{
-
       tipoSeleccionado =
         "BARCOS";
-
       document.getElementById(
         "btnBarcos"
       ).classList.add(
         "activo"
       );
-
       document.getElementById(
         "btnMontes"
       ).classList.remove(
         "activo"
       );
-
-
       document.getElementById(
         "filtroActivo"
       ).value =
         "";
-
     }
-
-
     cargarFiltroNombreFas();
-
     aplicarFiltros();
-
   }
 );
-
-
-
 document.getElementById(
   "btnNecesitaRendimiento"
 ).addEventListener(
@@ -2395,9 +1717,6 @@ document.getElementById(
       "RENDIMIENTO"
     )
 );
-
-
-
 document.getElementById(
   "btnNecesitaDensidad"
 ).addEventListener(
@@ -2407,86 +1726,57 @@ document.getElementById(
       "DENSIDAD"
     )
 );
-
-
-
 document.getElementById(
   "modalCerrar"
 ).addEventListener(
   "click",
   cerrarModalNecesidad
 );
-
-
-
 document.getElementById(
   "modalNecesidad"
 ).addEventListener(
   "click",
   event => {
-
     if(
       event.target.id ===
       "modalNecesidad"
     ){
-
       cerrarModalNecesidad();
-
     }
-
   }
 );
-
-
-
 document.addEventListener(
   "keydown",
   event => {
-
     if(
       event.key ===
       "Escape"
     ){
-
       cerrarModalNecesidad();
-
     }
-
   }
 );
-
-
-
 document.getElementById(
   "tablaBody"
 ).addEventListener(
   "click",
   event => {
-
     const celda =
       event.target.closest(
         ".nombre-fas-click"
       );
-
-
     if(
       !celda
     ){
       return;
     }
-
-
     const nombre =
       celda.dataset.nombre ||
       "";
-
-
     const select =
       document.getElementById(
         "filtroNombreFas"
       );
-
-
     const existe =
       [
         ...select.options
@@ -2495,42 +1785,28 @@ document.getElementById(
           option.value ===
           nombre
       );
-
-
     if(
       existe
     ){
-
       select.value =
         nombre;
-
       aplicarFiltros();
-
     }
-
   }
 );
-
-
-
 document.querySelectorAll(
   "th.sortable"
 ).forEach(
   th => {
-
     th.addEventListener(
       "click",
       () => {
-
         const nuevoCampo =
           th.dataset.campo;
-
-
         if(
           campoOrden ===
           nuevoCampo
         ){
-
           direccionOrden =
             direccionOrden ===
               "asc"
@@ -2538,101 +1814,62 @@ document.querySelectorAll(
               "desc"
               :
               "asc";
-
         }
         else{
-
           campoOrden =
             nuevoCampo;
-
           direccionOrden =
             "asc";
-
         }
-
-
         actualizarIndicadoresOrden();
-
         aplicarFiltros();
-
       }
     );
-
   }
 );
-
-
-
 function actualizarIndicadoresOrden(){
-
   document.querySelectorAll(
     "th.sortable"
   ).forEach(
     th => {
-
       th.classList.remove(
         "asc",
         "desc"
       );
-
-
       if(
         th.dataset.campo ===
         campoOrden
       ){
-
         th.classList.add(
           direccionOrden
         );
-
       }
-
     }
   );
-
 }
-
-
-
 actualizarIndicadoresOrden();
-
-
 document.getElementById(
   "filtroActivo"
 )?.addEventListener(
   "change",
   actualizarVisibilidadAlertas
 );
-
-
-
 document.querySelectorAll(
   "[data-tipo]"
 ).forEach(
   boton => {
-
     boton.addEventListener(
       "click",
       () => {
-
         setTimeout(
           actualizarVisibilidadAlertas,
           0
         );
-
       }
     );
-
   }
 );
-
-
 cargarDatos();
-
-
 </script>
-
-
 </body>
-
 </html>
