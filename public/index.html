@@ -1,5628 +1,4354 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Información al cierre de turno</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
-
-  <style>
-    :root{
-      --bg:#F4F3F1;
-      --panel:#FFFFFF;
-      --panel2:#F4F3F1;
-      --line:#D9D6D2;
-      --text:#1F1F1F;
-      --muted:#6B6B6B;
-      --lime:#C65312;
-      --lime-soft:#FFB86B;
-      --danger:#dc5656;
-      --shadow:0 12px 28px rgba(0,0,0,.22);
-      --radius:14px;
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    html,
-    body{
-      margin:0;
-      min-height:100%;
-      background:var(--bg);
-      color:var(--text);
-      font-family:"Segoe UI",Arial,Helvetica,sans-serif;
-    }
-
-    body{
-      padding:18px;
-    }
-
-    button,
-    select{
-      font-family:inherit;
-    }
-
-    .dashboard{
-      max-width:1600px;
-      margin:0 auto;
-    }
-
-    /* ============================================================
-       HOME
-       ============================================================ */
-
-    .home-screen{
-      min-height:82vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      padding:30px 15px;
-    }
-
-    .home-title{
-      margin:0 0 10px;
-      color:var(--lime);
-      font-size:32px;
-      font-weight:800;
-      text-align:center;
-      letter-spacing:.8px;
-      text-transform:uppercase;
-    }
-
-    .home-subtitle{
-      color:var(--muted);
-      text-align:center;
-      margin-bottom:30px;
-    }
-
-    .home-buttons{
-      width:min(1600px,100%);
-      display:grid;
-      grid-template-columns:repeat(5,minmax(200px,1fr));
-      gap:18px;
-    }
-
-    .home-btn{
-      min-height:150px;
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      background:var(--panel);
-      color:var(--text);
-      box-shadow:var(--shadow);
-      padding:20px;
-      cursor:pointer;
-      transition:.2s ease;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      text-decoration:none;
-    }
-
-    .home-btn:hover{
-      border-color:var(--lime);
-      transform:translateY(-2px);
-      background:#FFF6EF;
-    }
-
-    .home-btn-title{
-      color:var(--lime);
-      font-size:18px;
-      line-height:1.25;
-      font-weight:800;
-      text-transform:uppercase;
-    }
-
-    .home-btn-note{
-      color:var(--muted);
-      font-size:12px;
-      line-height:1.4;
-      margin-top:8px;
-    }
-
-    /* ============================================================
-       SECCIONES / NAVEGACIÓN
-       ============================================================ */
-
-    .section-view{
-      display:none;
-    }
-
-    .section-view.active{
-      display:block;
-    }
-
-    .section-nav{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-
-      padding:10px 12px;
-      margin-bottom:28px;
-
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      box-shadow:var(--shadow);
-    }
-
-    .section-nav-title{
-      color:var(--lime);
-      font-weight:800;
-      font-size:13px;
-      text-transform:uppercase;
-    }
-
-    .section-nav-btns{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-    }
-
-    .nav-btn{
-      background:var(--panel2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:8px;
-      padding:8px 11px;
-      font-size:12px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .nav-btn:hover{
-      border-color:var(--lime);
-    }
-
-    /* ============================================================
-       GENERAL
-       ============================================================ */
-
-    .update-box{
-      width:250px;
-      max-width:100%;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:10px 14px;
-      box-shadow:var(--shadow);
-      margin-bottom:28px;
-    }
-
-    .update-label{
-      color:var(--muted);
-      font-size:11px;
-      text-transform:uppercase;
-      letter-spacing:.8px;
-      margin-bottom:3px;
-    }
-
-    .update-value{
-      font-size:14px;
-      font-weight:600;
-    }
-
-    .main-title{
-      margin:0 0 18px;
-      color:var(--lime);
-      font-size:30px;
-      line-height:1.15;
-      font-weight:800;
-      text-align:center;
-      text-transform:uppercase;
-    }
-
-    .subtitle{
-      color:var(--muted);
-      text-align:center;
-      margin:-10px 0 18px;
-      font-size:13px;
-    }
-
-    .filters{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(150px,1fr));
-      gap:12px;
-
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-
-      padding:14px;
-      margin-bottom:16px;
-
-      box-shadow:var(--shadow);
-    }
-
-    .filter{
-      display:flex;
-      flex-direction:column;
-      gap:7px;
-    }
-
-    .filter label{
-      color:var(--muted);
-      font-size:11px;
-      font-weight:700;
-      text-transform:uppercase;
-      letter-spacing:.7px;
-    }
-
-    .filter select{
-      width:100%;
-      height:40px;
-
-      background:var(--panel2);
-      color:var(--text);
-
-      border:1px solid var(--line);
-      border-radius:9px;
-
-      padding:0 12px;
-      outline:none;
-    }
-
-    .info-box{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:9px 14px;
-      margin-bottom:12px;
-
-      text-align:center;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .info-box strong{
-      color:var(--lime-soft);
-    }
-
-    .action-wrap{
-      display:flex;
-      justify-content:flex-end;
-      margin-bottom:12px;
-    }
-
-    .action-btn{
-      background:var(--panel2);
-      color:var(--text);
-      border:1px solid var(--line);
-      border-radius:9px;
-      padding:10px 14px;
-      font-size:14px;
-      font-weight:700;
-      cursor:pointer;
-    }
-
-    .action-btn:hover{
-      border-color:var(--lime);
-    }
-
-    /* ============================================================
-       KPIs
-       ============================================================ */
-
-    .kpis{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(170px,1fr));
-      gap:12px;
-      margin-bottom:16px;
-    }
-
-    .kpis.two{
-      grid-template-columns:repeat(2,minmax(220px,1fr));
-    }
-
-    .kpi{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:16px;
-      box-shadow:var(--shadow);
-      text-align:center;
-    }
-
-    .kpi-label{
-      color:var(--muted);
-      font-size:11px;
-      text-transform:uppercase;
-      font-weight:700;
-    }
-
-    .kpi-value{
-      margin-top:7px;
-      font-size:31px;
-      line-height:1;
-      font-weight:800;
-    }
-
-    .kpi-note{
-      color:var(--muted);
-      font-size:11px;
-      margin-top:8px;
-    }
-
-    .lime{
-      color:var(--lime);
-    }
-
-    /* ============================================================
-       TABLAS
-       ============================================================ */
-
-    .table-card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-      margin-bottom:16px;
-    }
-
-    .table-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      flex-wrap:wrap;
-
-      padding:14px 16px;
-      border-bottom:1px solid var(--line);
-    }
-
-    .table-title{
-      color:#E86F18;
-      font-size:16px;
-      font-weight:700;
-    }
-
-    .record-count{
-      color:var(--muted);
-      font-size:11px;
-    }
-
-    .table-scroll{
-      overflow-x:auto;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-    }
-
-    th{
-      background:#F4F3F1;
-      color:#1F1F1F;
-      padding:9px 7px;
-      font-size:12px;
-      white-space:nowrap;
-      border-bottom:1px solid #D9D6D2;
-    }
-
-    td{
-      padding:8px 7px;
-      font-size:13px;
-      white-space:nowrap;
-      border-bottom:1px solid #D9D6D2;
-    }
-
-    th,
-    td{
-      text-align:center;
-    }
-
-    tbody tr:hover{
-      background:#FFFFFF;
-    }
-
-    tbody tr.alerta-baja{
-      background:rgba(220,86,86,.24);
-    }
-
-    tfoot td{
-      background:#F4F3F1;
-      font-weight:700;
-      border-top:1px solid #D9D6D2;
-    }
-
-    .empty,
-    .error{
-      text-align:center;
-      padding:30px;
-      color:var(--muted);
-    }
-
-    .error{
-      color:#ff8989;
-    }
-
-    /* ============================================================
-       PENDIENTES
-       ============================================================ */
-
-    .destinos-kpis{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:12px;
-      margin-bottom:16px;
-    }
-
-    .destino-card{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:18px;
-      text-align:center;
-      box-shadow:var(--shadow);
-      color:var(--text);
-      font-family:inherit;
-      cursor:pointer;
-      transition:.2s ease;
-      width:100%;
-    }
-
-    .destino-card:hover,
-    .destino-card:focus-visible{
-      border-color:var(--lime);
-      transform:translateY(-2px);
-      outline:none;
-    }
-
-    .destino-card.active{
-      border-color:var(--lime);
-      background:rgba(198,83,18,.10);
-      box-shadow:0 0 0 2px rgba(198,83,18,.12),var(--shadow);
-    }
-
-    .destino-card .label{
-      color:var(--muted);
-      font-size:11px;
-      text-transform:uppercase;
-      font-weight:700;
-    }
-
-    .destino-card .value{
-      color:var(--lime);
-      font-size:38px;
-      font-weight:800;
-      margin-top:7px;
-    }
-
-    .sin-pendientes{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      padding:20px;
-      text-align:center;
-      color:var(--muted);
-      font-weight:700;
-      box-shadow:var(--shadow);
-      margin-bottom:16px;
-    }
-
-    .sortable-th{
-      cursor:pointer;
-      user-select:none;
-      transition:background .15s ease,color .15s ease;
-    }
-
-    .sortable-th:hover,
-    .sortable-th:focus-visible{
-      background:#FFF6EF;
-      color:var(--lime);
-      outline:none;
-    }
-
-    .sort-indicator{
-      display:inline-block;
-      min-width:12px;
-      margin-left:5px;
-      color:var(--lime);
-      font-size:10px;
-    }
-
-    /* ============================================================
-       CIERRE
-       ============================================================ */
-
-    .ton-resumen{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(220px,1fr));
-      gap:12px;
-      margin-bottom:16px;
-    }
-
-    .ton-item{
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:11px 14px;
-      text-align:center;
-      color:var(--muted);
-    }
-
-    .ton-item strong{
-      color:var(--text);
-    }
-
-    .ton-item span{
-      color:var(--lime);
-      font-weight:800;
-    }
-
-    /* ============================================================
-       RENDIMIENTOS
-       ============================================================ */
-
-    .rendimientos-frame-wrap{
-      width:100%;
-      background:var(--panel);
-      border:1px solid var(--line);
-      border-radius:var(--radius);
-      overflow:hidden;
-      box-shadow:var(--shadow);
-    }
-
-    .rendimientos-frame{
-      display:block;
-      width:100%;
-      height:calc(100vh - 120px);
-      min-height:780px;
-      border:0;
-      background:#F4F3F1;
-    }
-
-    /* ============================================================
-       RESPONSIVE
-       ============================================================ */
-
-    @media(max-width:1100px){
-
-      .home-buttons{
-        grid-template-columns:repeat(2,minmax(220px,1fr));
-      }
-
-    }
-
-    @media(max-width:800px){
-
-      body{
-        padding:8px;
-      }
-
-      .home-buttons,
-      .filters,
-      .kpis,
-      .kpis.two,
-      .ton-resumen{
-        grid-template-columns:1fr;
-      }
-
-      .home-screen{
-        min-height:auto;
-      }
-
-      .home-title{
-        font-size:24px;
-      }
-
-      .home-btn{
-        min-height:105px;
-      }
-
-      .section-nav{
-        flex-direction:column;
-        align-items:stretch;
-      }
-
-      .section-nav-title{
-        text-align:center;
-      }
-
-      .section-nav-btns{
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-      }
-
-      .nav-btn{
-        width:100%;
-        padding:9px 5px;
-        font-size:10px;
-      }
-
-      .main-title{
-        font-size:22px;
-      }
-
-      .update-box{
-        width:100%;
-      }
-
-      .action-wrap{
-        justify-content:stretch;
-      }
-
-      .action-btn{
-        width:100%;
-      }
-
-      table{
-        min-width:850px;
-      }
-
-      .rendimientos-frame{
-        min-height:950px;
-      }
-
-    }
-
-    @media(max-width:480px){
-
-      .section-nav-btns{
-        grid-template-columns:1fr;
-      }
-
-    }
-
-    /* ============================================================
-       RESÚMENES EN PANTALLA PRINCIPAL
-       ============================================================ */
-    .home-screen{justify-content:flex-start;min-height:auto;padding-top:30px}
-    .home-buttons{align-items:stretch}
-    .home-btn{min-height:420px;justify-content:flex-start;padding:18px;overflow:hidden}
-    .home-btn-title{min-height:46px;display:flex;align-items:center;justify-content:center}
-    .home-btn-note{min-height:34px;margin-bottom:12px}
-    .home-resumen{width:100%;margin-top:8px;border-top:1px solid var(--line);padding-top:12px;text-align:left}
-    .home-resumen-titulo{color:var(--lime-soft);font-size:11px;font-weight:800;text-transform:uppercase;text-align:center;margin-bottom:8px}
-    .home-mini-table{width:100%;border-collapse:collapse;font-size:10px}
-    .home-mini-table th{position:static;padding:6px 4px;background:#C65312;font-size:9px;color:#FFFFFF}
-    .home-mini-table td{padding:6px 4px;font-size:10px;white-space:normal;line-height:1.2;border-bottom:1px solid #D9D6D2}
-    .home-mini-table th,.home-mini-table td{text-align:center}
-    .home-mini-table .left{text-align:left}
-    .home-mini-total{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px;font-weight:700}
-    .home-mini-total strong{color:var(--lime)}
-    .home-resumen-vacio{padding:16px 8px;text-align:center;color:var(--muted);font-size:10px;font-weight:700}
-    .home-destinos{display:grid;gap:6px}
-    .home-destino-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:10px}
-    .home-destino-row strong{color:var(--lime);font-size:15px}
-    .home-cierre-kpi{text-align:center;padding:20px 10px}
-    .home-cierre-kpi .valor{color:var(--lime);font-size:42px;line-height:1;font-weight:800}
-    .home-cierre-kpi .texto{margin-top:8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}
-    .home-necesidades{display:grid;gap:10px}
-    .home-necesidad-bloque{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#FFFFFF}
-    .home-necesidad-head{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;font-size:9px;font-weight:800;text-transform:uppercase;background:#F4F3F1}
-    .home-necesidad-head.alerta{background:rgba(220,86,86,.35)}
-    .home-necesidad-head.ok{background:rgba(198,83,18,.12)}
-    .home-necesidad-lista{max-height:120px;overflow:auto}
-    .home-necesidad-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 8px;border-top:1px solid rgba(107,107,107,.16);font-size:9px;line-height:1.2}
-    .home-necesidad-row span:first-child{overflow-wrap:anywhere}
-    .home-necesidad-row span:last-child{color:var(--muted);white-space:nowrap}
-    .home-control-kpi{text-align:center;padding:16px 8px 10px}
-    .home-control-kpi .valor{font-size:48px;line-height:1;font-weight:800;color:var(--lime)}
-    .home-control-kpi .valor.alerta{color:var(--danger)}
-    .home-control-kpi .texto{margin-top:8px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}
-    .home-control-lista{display:grid;gap:6px;margin-top:10px}
-    .home-control-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:9px}
-    .home-control-row strong{color:#1F1F1F}
-    .home-control-row span{color:var(--muted);overflow-wrap:anywhere}
-    .home-control-alerta{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      width:max-content;
-      min-width:110px;
-      margin:4px auto 10px;
-      padding:7px 16px;
-      border:2px solid #C65312;
-      border-radius:999px;
-      color:#1F1F1F;
-      background:#E86F18;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:1px;
-      text-transform:uppercase;
-      animation:alertaRevisar 1s steps(1,end) infinite;
-    }
-
-    @keyframes alertaRevisar{
-      0%,49%{
-        background:#E86F18;
-        border-color:#E86F18;
-        color:#1F1F1F;
-        box-shadow:0 0 14px rgba(232,111,24,.35);
-      }
-      50%,100%{
-        background:#dc3434;
-        border-color:#ff6868;
-        color:#fff;
-        box-shadow:0 0 18px rgba(220,52,52,.72);
-      }
-    }
-
-    @media(prefers-reduced-motion:reduce){
-      .home-control-alerta{
-        animation:none;
-        background:#dc3434;
-        border-color:#ff6868;
-        color:#fff;
-      }
-    }
-    @media(max-width:1100px){.home-btn{min-height:360px}}
-    @media(max-width:800px){.home-btn{min-height:auto}.home-btn-title,.home-btn-note{min-height:0}}
-
-
-    /* ============================================================
-       AJUSTE MOBILE - RESÚMENES DE TARJETAS PRINCIPALES
-       ============================================================ */
-
-    @media(max-width:800px){
-
-      .home-resumen{
-        overflow:visible;
-      }
-
-      .home-mini-table{
-        width:100% !important;
-        min-width:0 !important;
-        max-width:100% !important;
-        table-layout:fixed !important;
-        font-size:8px;
-      }
-
-      .home-mini-table thead,
-      .home-mini-table tbody{
-        width:100%;
-      }
-
-      .home-mini-table th,
-      .home-mini-table td{
-        min-width:0 !important;
-        max-width:none !important;
-        width:auto !important;
-        padding:5px 2px !important;
-        font-size:7.5px !important;
-        white-space:normal !important;
-        overflow-wrap:anywhere;
-        word-break:normal;
-        line-height:1.15;
-      }
-
-      .home-mini-table th:nth-child(1),
-      .home-mini-table td:nth-child(1){
-        width:34% !important;
-      }
-
-      .home-mini-table th:nth-child(2),
-      .home-mini-table td:nth-child(2){
-        width:24% !important;
-      }
-
-      .home-mini-table th:nth-child(3),
-      .home-mini-table td:nth-child(3){
-        width:13% !important;
-      }
-
-      .home-mini-table th:nth-child(4),
-      .home-mini-table td:nth-child(4){
-        width:15% !important;
-      }
-
-      .home-mini-table th:nth-child(5),
-      .home-mini-table td:nth-child(5){
-        width:14% !important;
-      }
-
-      .home-mini-total{
-        display:grid;
-        grid-template-columns:1fr;
-        gap:4px;
-        text-align:center;
-        line-height:1.3;
-      }
-
-      .home-destino-row{
-        font-size:9px;
-        padding:7px 8px;
-      }
-
-      .home-necesidad-row{
-        grid-template-columns:minmax(0,1fr);
-        gap:3px;
-        font-size:8.5px;
-      }
-
-      .home-necesidad-row span:last-child{
-        white-space:normal;
-        color:var(--muted);
-      }
-    }
-
-    @media(max-width:480px){
-
-      .home-btn{
-        padding:14px 10px;
-      }
-
-      .home-mini-table th,
-      .home-mini-table td{
-        padding:4px 1px !important;
-        font-size:7px !important;
-      }
-
-      .home-mini-table th:nth-child(1),
-      .home-mini-table td:nth-child(1){
-        width:33% !important;
-      }
-
-      .home-mini-table th:nth-child(2),
-      .home-mini-table td:nth-child(2){
-        width:24% !important;
-      }
-
-      .home-mini-table th:nth-child(3),
-      .home-mini-table td:nth-child(3){
-        width:13% !important;
-      }
-
-      .home-mini-table th:nth-child(4),
-      .home-mini-table td:nth-child(4){
-        width:15% !important;
-      }
-
-      .home-mini-table th:nth-child(5),
-      .home-mini-table td:nth-child(5){
-        width:15% !important;
-      }
-    }
-
-
-    .home-cierre-tiempo{
-      margin-top:12px;
-      padding-top:10px;
-      border-top:1px solid var(--line);
-      color:var(--muted);
-      font-size:10px;
-      text-align:center;
-      font-weight:700;
-      text-transform:uppercase;
-    }
-
-    .home-cierre-tiempo strong{
-      display:block;
-      margin-top:4px;
-      color:var(--text);
-      font-size:18px;
-      font-weight:800;
-    }
-
-
-    /* ============================================================
-       ACTUALIZADO - ESQUINA SUPERIOR IZQUIERDA
-       ============================================================ */
-
-    .home-actualizado{
-      position:fixed;
-      top:10px;
-      left:12px;
-      z-index:1000;
-      display:flex;
-      align-items:center;
-      gap:6px;
-      padding:7px 10px;
-      background:rgba(255,255,255,.96);
-      border:1px solid var(--line);
-      border-radius:9px;
-      box-shadow:var(--shadow);
-      color:var(--muted);
-      font-size:10px;
-      font-weight:700;
-      backdrop-filter:blur(5px);
-    }
-
-    .home-actualizado strong{
-      color:var(--lime);
-      font-size:11px;
-    }
-
-    @media(max-width:800px){
-      .home-actualizado{
-        position:static;
-        width:max-content;
-        max-width:100%;
-        margin:0 0 10px 0;
-        padding:6px 8px;
-        font-size:9px;
-      }
-
-      .home-actualizado strong{
-        font-size:10px;
-      }
-    }
-
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Información al cierre de turno</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<style>
+:root{
+--bg:#F4F3F1;
+--panel:#FFFFFF;
+--panel2:#F4F3F1;
+--line:#D9D6D2;
+--text:#1F1F1F;
+--muted:#6B6B6B;
+--lime:#C65312;
+--lime-soft:#FFB86B;
+--danger:#dc5656;
+--shadow:0 12px 28px rgba(0,0,0,.22);
+--radius:14px;
+}
+*{
+box-sizing:border-box;
+}
+html,
+body{
+margin:0;
+min-height:100%;
+background:var(--bg);
+color:var(--text);
+font-family:"Segoe UI",Arial,Helvetica,sans-serif;
+}
+body{
+padding:18px;
+}
+button,
+select{
+font-family:inherit;
+}
+.dashboard{
+max-width:1600px;
+margin:0 auto;
+}
+/* ============================================================
+HOME
+============================================================ */
+.home-screen{
+min-height:82vh;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+padding:30px 15px;
+}
+.home-title{
+margin:0 0 10px;
+color:var(--lime);
+font-size:32px;
+font-weight:800;
+text-align:center;
+letter-spacing:.8px;
+text-transform:uppercase;
+}
+.home-subtitle{
+color:var(--muted);
+text-align:center;
+margin-bottom:30px;
+}
+.home-buttons{
+width:min(1600px,100%);
+display:grid;
+grid-template-columns:repeat(5,minmax(200px,1fr));
+gap:18px;
+}
+.home-btn{
+min-height:150px;
+border:1px solid var(--line);
+border-radius:var(--radius);
+background:var(--panel);
+color:var(--text);
+box-shadow:var(--shadow);
+padding:20px;
+cursor:pointer;
+transition:.2s ease;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+text-align:center;
+text-decoration:none;
+}
+.home-btn:hover{
+border-color:var(--lime);
+transform:translateY(-2px);
+background:#FFF6EF;
+}
+.home-btn-title{
+color:var(--lime);
+font-size:18px;
+line-height:1.25;
+font-weight:800;
+text-transform:uppercase;
+}
+.home-btn-note{
+color:var(--muted);
+font-size:12px;
+line-height:1.4;
+margin-top:8px;
+}
+/* ============================================================
+SECCIONES / NAVEGACIÓN
+============================================================ */
+.section-view{
+display:none;
+}
+.section-view.active{
+display:block;
+}
+.section-nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+padding:10px 12px;
+margin-bottom:28px;
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:12px;
+box-shadow:var(--shadow);
+}
+.section-nav-title{
+color:var(--lime);
+font-weight:800;
+font-size:13px;
+text-transform:uppercase;
+}
+.section-nav-btns{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+.nav-btn{
+background:var(--panel2);
+color:var(--text);
+border:1px solid var(--line);
+border-radius:8px;
+padding:8px 11px;
+font-size:12px;
+font-weight:700;
+cursor:pointer;
+}
+.nav-btn:hover{
+border-color:var(--lime);
+}
+/* ============================================================
+GENERAL
+============================================================ */
+.update-box{
+width:250px;
+max-width:100%;
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:12px;
+padding:10px 14px;
+box-shadow:var(--shadow);
+margin-bottom:28px;
+}
+.update-label{
+color:var(--muted);
+font-size:11px;
+text-transform:uppercase;
+letter-spacing:.8px;
+margin-bottom:3px;
+}
+.update-value{
+font-size:14px;
+font-weight:600;
+}
+.main-title{
+margin:0 0 18px;
+color:var(--lime);
+font-size:30px;
+line-height:1.15;
+font-weight:800;
+text-align:center;
+text-transform:uppercase;
+}
+.subtitle{
+color:var(--muted);
+text-align:center;
+margin:-10px 0 18px;
+font-size:13px;
+}
+.filters{
+display:grid;
+grid-template-columns:repeat(3,minmax(150px,1fr));
+gap:12px;
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+padding:14px;
+margin-bottom:16px;
+box-shadow:var(--shadow);
+}
+.filter{
+display:flex;
+flex-direction:column;
+gap:7px;
+}
+.filter label{
+color:var(--muted);
+font-size:11px;
+font-weight:700;
+text-transform:uppercase;
+letter-spacing:.7px;
+}
+.filter select{
+width:100%;
+height:40px;
+background:var(--panel2);
+color:var(--text);
+border:1px solid var(--line);
+border-radius:9px;
+padding:0 12px;
+outline:none;
+}
+.info-box{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:12px;
+padding:9px 14px;
+margin-bottom:12px;
+text-align:center;
+color:var(--muted);
+font-size:12px;
+}
+.info-box strong{
+color:var(--lime-soft);
+}
+.action-wrap{
+display:flex;
+justify-content:flex-end;
+margin-bottom:12px;
+}
+.action-btn{
+background:var(--panel2);
+color:var(--text);
+border:1px solid var(--line);
+border-radius:9px;
+padding:10px 14px;
+font-size:14px;
+font-weight:700;
+cursor:pointer;
+}
+.action-btn:hover{
+border-color:var(--lime);
+}
+/* ============================================================
+KPIs
+============================================================ */
+.kpis{
+display:grid;
+grid-template-columns:repeat(4,minmax(170px,1fr));
+gap:12px;
+margin-bottom:16px;
+}
+.kpis.two{
+grid-template-columns:repeat(2,minmax(220px,1fr));
+}
+.kpi{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+padding:16px;
+box-shadow:var(--shadow);
+text-align:center;
+}
+.kpi-label{
+color:var(--muted);
+font-size:11px;
+text-transform:uppercase;
+font-weight:700;
+}
+.kpi-value{
+margin-top:7px;
+font-size:31px;
+line-height:1;
+font-weight:800;
+}
+.kpi-note{
+color:var(--muted);
+font-size:11px;
+margin-top:8px;
+}
+.lime{
+color:var(--lime);
+}
+/* ============================================================
+TABLAS
+============================================================ */
+.table-card{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+box-shadow:var(--shadow);
+overflow:hidden;
+margin-bottom:16px;
+}
+.table-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+flex-wrap:wrap;
+padding:14px 16px;
+border-bottom:1px solid var(--line);
+}
+.table-title{
+color:#E86F18;
+font-size:16px;
+font-weight:700;
+}
+.record-count{
+color:var(--muted);
+font-size:11px;
+}
+.table-scroll{
+overflow-x:auto;
+}
+table{
+width:100%;
+border-collapse:collapse;
+}
+th{
+background:#F4F3F1;
+color:#1F1F1F;
+padding:9px 7px;
+font-size:12px;
+white-space:nowrap;
+border-bottom:1px solid #D9D6D2;
+}
+td{
+padding:8px 7px;
+font-size:13px;
+white-space:nowrap;
+border-bottom:1px solid #D9D6D2;
+}
+th,
+td{
+text-align:center;
+}
+tbody tr:hover{
+background:#FFFFFF;
+}
+tbody tr.alerta-baja{
+background:rgba(220,86,86,.24);
+}
+tfoot td{
+background:#F4F3F1;
+font-weight:700;
+border-top:1px solid #D9D6D2;
+}
+.empty,
+.error{
+text-align:center;
+padding:30px;
+color:var(--muted);
+}
+.error{
+color:#ff8989;
+}
+/* ============================================================
+PENDIENTES
+============================================================ */
+.destinos-kpis{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:12px;
+margin-bottom:16px;
+}
+.destino-card{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+padding:18px;
+text-align:center;
+box-shadow:var(--shadow);
+color:var(--text);
+font-family:inherit;
+cursor:pointer;
+transition:.2s ease;
+width:100%;
+}
+.destino-card:hover,
+.destino-card:focus-visible{
+border-color:var(--lime);
+transform:translateY(-2px);
+outline:none;
+}
+.destino-card.active{
+border-color:var(--lime);
+background:rgba(198,83,18,.10);
+box-shadow:0 0 0 2px rgba(198,83,18,.12),var(--shadow);
+}
+.destino-card .label{
+color:var(--muted);
+font-size:11px;
+text-transform:uppercase;
+font-weight:700;
+}
+.destino-card .value{
+color:var(--lime);
+font-size:38px;
+font-weight:800;
+margin-top:7px;
+}
+.sin-pendientes{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+padding:20px;
+text-align:center;
+color:var(--muted);
+font-weight:700;
+box-shadow:var(--shadow);
+margin-bottom:16px;
+}
+.sortable-th{
+cursor:pointer;
+user-select:none;
+transition:background .15s ease,color .15s ease;
+}
+.sortable-th:hover,
+.sortable-th:focus-visible{
+background:#FFF6EF;
+color:var(--lime);
+outline:none;
+}
+.sort-indicator{
+display:inline-block;
+min-width:12px;
+margin-left:5px;
+color:var(--lime);
+font-size:10px;
+}
+/* ============================================================
+CIERRE
+============================================================ */
+.ton-resumen{
+display:grid;
+grid-template-columns:repeat(2,minmax(220px,1fr));
+gap:12px;
+margin-bottom:16px;
+}
+.ton-item{
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:12px;
+padding:11px 14px;
+text-align:center;
+color:var(--muted);
+}
+.ton-item strong{
+color:var(--text);
+}
+.ton-item span{
+color:var(--lime);
+font-weight:800;
+}
+/* ============================================================
+RENDIMIENTOS
+============================================================ */
+.rendimientos-frame-wrap{
+width:100%;
+background:var(--panel);
+border:1px solid var(--line);
+border-radius:var(--radius);
+overflow:hidden;
+box-shadow:var(--shadow);
+}
+.rendimientos-frame{
+display:block;
+width:100%;
+height:calc(100vh - 120px);
+min-height:780px;
+border:0;
+background:#F4F3F1;
+}
+/* ============================================================
+RESPONSIVE
+============================================================ */
+@media(max-width:1100px){
+.home-buttons{
+grid-template-columns:repeat(2,minmax(220px,1fr));
+}
+}
+@media(max-width:800px){
+body{
+padding:8px;
+}
+.home-buttons,
+.filters,
+.kpis,
+.kpis.two,
+.ton-resumen{
+grid-template-columns:1fr;
+}
+.home-screen{
+min-height:auto;
+}
+.home-title{
+font-size:24px;
+}
+.home-btn{
+min-height:105px;
+}
+.section-nav{
+flex-direction:column;
+align-items:stretch;
+}
+.section-nav-title{
+text-align:center;
+}
+.section-nav-btns{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+}
+.nav-btn{
+width:100%;
+padding:9px 5px;
+font-size:10px;
+}
+.main-title{
+font-size:22px;
+}
+.update-box{
+width:100%;
+}
+.action-wrap{
+justify-content:stretch;
+}
+.action-btn{
+width:100%;
+}
+table{
+min-width:850px;
+}
+.rendimientos-frame{
+min-height:950px;
+}
+}
+@media(max-width:480px){
+.section-nav-btns{
+grid-template-columns:1fr;
+}
+}
+/* ============================================================
+RESÚMENES EN PANTALLA PRINCIPAL
+============================================================ */
+.home-screen{justify-content:flex-start;min-height:auto;padding-top:30px}
+.home-buttons{align-items:stretch}
+.home-btn{min-height:420px;justify-content:flex-start;padding:18px;overflow:hidden}
+.home-btn-title{min-height:46px;display:flex;align-items:center;justify-content:center}
+.home-btn-note{min-height:34px;margin-bottom:12px}
+.home-resumen{width:100%;margin-top:8px;border-top:1px solid var(--line);padding-top:12px;text-align:left}
+.home-resumen-titulo{color:var(--lime-soft);font-size:11px;font-weight:800;text-transform:uppercase;text-align:center;margin-bottom:8px}
+.home-mini-table{width:100%;border-collapse:collapse;font-size:10px}
+.home-mini-table th{position:static;padding:6px 4px;background:#C65312;font-size:9px;color:#FFFFFF}
+.home-mini-table td{padding:6px 4px;font-size:10px;white-space:normal;line-height:1.2;border-bottom:1px solid #D9D6D2}
+.home-mini-table th,.home-mini-table td{text-align:center}
+.home-mini-table .left{text-align:left}
+.home-mini-total{margin-top:8px;padding-top:8px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;color:var(--muted);font-size:10px;font-weight:700}
+.home-mini-total strong{color:var(--lime)}
+.home-resumen-vacio{padding:16px 8px;text-align:center;color:var(--muted);font-size:10px;font-weight:700}
+.home-destinos{display:grid;gap:6px}
+.home-destino-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:10px}
+.home-destino-row strong{color:var(--lime);font-size:15px}
+.home-cierre-kpi{text-align:center;padding:20px 10px}
+.home-cierre-kpi .valor{color:var(--lime);font-size:42px;line-height:1;font-weight:800}
+.home-cierre-kpi .texto{margin-top:8px;color:var(--muted);font-size:11px;font-weight:700;text-transform:uppercase}
+.home-necesidades{display:grid;gap:10px}
+.home-necesidad-bloque{border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#FFFFFF}
+.home-necesidad-head{display:flex;justify-content:space-between;gap:8px;padding:7px 9px;font-size:9px;font-weight:800;text-transform:uppercase;background:#F4F3F1}
+.home-necesidad-head.alerta{background:rgba(220,86,86,.35)}
+.home-necesidad-head.ok{background:rgba(198,83,18,.12)}
+.home-necesidad-lista{max-height:120px;overflow:auto}
+.home-necesidad-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;padding:6px 8px;border-top:1px solid rgba(107,107,107,.16);font-size:9px;line-height:1.2}
+.home-necesidad-row span:first-child{overflow-wrap:anywhere}
+.home-necesidad-row span:last-child{color:var(--muted);white-space:nowrap}
+.home-control-kpi{text-align:center;padding:16px 8px 10px}
+.home-control-kpi .valor{font-size:48px;line-height:1;font-weight:800;color:var(--lime)}
+.home-control-kpi .valor.alerta{color:var(--danger)}
+.home-control-kpi .texto{margin-top:8px;color:var(--muted);font-size:10px;font-weight:800;text-transform:uppercase}
+.home-control-lista{display:grid;gap:6px;margin-top:10px}
+.home-control-row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;background:#FFFFFF;border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:9px}
+.home-control-row strong{color:#1F1F1F}
+.home-control-row span{color:var(--muted);overflow-wrap:anywhere}
+.home-control-alerta{
+display:flex;
+align-items:center;
+justify-content:center;
+width:max-content;
+min-width:110px;
+margin:4px auto 10px;
+padding:7px 16px;
+border:2px solid #C65312;
+border-radius:999px;
+color:#1F1F1F;
+background:#E86F18;
+font-size:12px;
+font-weight:900;
+letter-spacing:1px;
+text-transform:uppercase;
+animation:alertaRevisar 1s steps(1,end) infinite;
+}
+@keyframes alertaRevisar{
+0%,49%{
+background:#E86F18;
+border-color:#E86F18;
+color:#1F1F1F;
+box-shadow:0 0 14px rgba(232,111,24,.35);
+}
+50%,100%{
+background:#dc3434;
+border-color:#ff6868;
+color:#fff;
+box-shadow:0 0 18px rgba(220,52,52,.72);
+}
+}
+@media(prefers-reduced-motion:reduce){
+.home-control-alerta{
+animation:none;
+background:#dc3434;
+border-color:#ff6868;
+color:#fff;
+}
+}
+@media(max-width:1100px){.home-btn{min-height:360px}}
+@media(max-width:800px){.home-btn{min-height:auto}.home-btn-title,.home-btn-note{min-height:0}}
+/* ============================================================
+AJUSTE MOBILE - RESÚMENES DE TARJETAS PRINCIPALES
+============================================================ */
+@media(max-width:800px){
+.home-resumen{
+overflow:visible;
+}
+.home-mini-table{
+width:100% !important;
+min-width:0 !important;
+max-width:100% !important;
+table-layout:fixed !important;
+font-size:8px;
+}
+.home-mini-table thead,
+.home-mini-table tbody{
+width:100%;
+}
+.home-mini-table th,
+.home-mini-table td{
+min-width:0 !important;
+max-width:none !important;
+width:auto !important;
+padding:5px 2px !important;
+font-size:7.5px !important;
+white-space:normal !important;
+overflow-wrap:anywhere;
+word-break:normal;
+line-height:1.15;
+}
+.home-mini-table th:nth-child(1),
+.home-mini-table td:nth-child(1){
+width:34% !important;
+}
+.home-mini-table th:nth-child(2),
+.home-mini-table td:nth-child(2){
+width:24% !important;
+}
+.home-mini-table th:nth-child(3),
+.home-mini-table td:nth-child(3){
+width:13% !important;
+}
+.home-mini-table th:nth-child(4),
+.home-mini-table td:nth-child(4){
+width:15% !important;
+}
+.home-mini-table th:nth-child(5),
+.home-mini-table td:nth-child(5){
+width:14% !important;
+}
+.home-mini-total{
+display:grid;
+grid-template-columns:1fr;
+gap:4px;
+text-align:center;
+line-height:1.3;
+}
+.home-destino-row{
+font-size:9px;
+padding:7px 8px;
+}
+.home-necesidad-row{
+grid-template-columns:minmax(0,1fr);
+gap:3px;
+font-size:8.5px;
+}
+.home-necesidad-row span:last-child{
+white-space:normal;
+color:var(--muted);
+}
+}
+@media(max-width:480px){
+.home-btn{
+padding:14px 10px;
+}
+.home-mini-table th,
+.home-mini-table td{
+padding:4px 1px !important;
+font-size:7px !important;
+}
+.home-mini-table th:nth-child(1),
+.home-mini-table td:nth-child(1){
+width:33% !important;
+}
+.home-mini-table th:nth-child(2),
+.home-mini-table td:nth-child(2){
+width:24% !important;
+}
+.home-mini-table th:nth-child(3),
+.home-mini-table td:nth-child(3){
+width:13% !important;
+}
+.home-mini-table th:nth-child(4),
+.home-mini-table td:nth-child(4){
+width:15% !important;
+}
+.home-mini-table th:nth-child(5),
+.home-mini-table td:nth-child(5){
+width:15% !important;
+}
+}
+.home-cierre-tiempo{
+margin-top:12px;
+padding-top:10px;
+border-top:1px solid var(--line);
+color:var(--muted);
+font-size:10px;
+text-align:center;
+font-weight:700;
+text-transform:uppercase;
+}
+.home-cierre-tiempo strong{
+display:block;
+margin-top:4px;
+color:var(--text);
+font-size:18px;
+font-weight:800;
+}
+/* ============================================================
+ACTUALIZADO - ESQUINA SUPERIOR IZQUIERDA
+============================================================ */
+.home-actualizado{
+position:fixed;
+top:10px;
+left:12px;
+z-index:1000;
+display:flex;
+align-items:center;
+gap:6px;
+padding:7px 10px;
+background:rgba(255,255,255,.96);
+border:1px solid var(--line);
+border-radius:9px;
+box-shadow:var(--shadow);
+color:var(--muted);
+font-size:10px;
+font-weight:700;
+backdrop-filter:blur(5px);
+}
+.home-actualizado strong{
+color:var(--lime);
+font-size:11px;
+}
+@media(max-width:800px){
+.home-actualizado{
+position:static;
+width:max-content;
+max-width:100%;
+margin:0 0 10px 0;
+padding:6px 8px;
+font-size:9px;
+}
+.home-actualizado strong{
+font-size:10px;
+}
+}
+</style>
 </head>
-
 <body>
-
 <div class="dashboard">
-
-  <!-- ==========================================================
-       PANTALLA PRINCIPAL
-       ========================================================== -->
-
-  <div
-    class="home-actualizado"
-    id="homeActualizado"
-  >
-    Actualizado:
-    <strong id="homeActualizadoHora">--:--:--</strong>
-  </div>
-
-
-  <div class="home-screen" id="homeScreen">
-
-    <h1 class="home-title">
-      INFORMACIÓN OPERATIVA DE TURNO
-    </h1>
-
-    <div class="home-subtitle">
-      Seleccioná la información que querés consultar.
-    </div>
-
-    <div class="home-buttons">
-
-      <button
-        type="button"
-        class="home-btn"
-        data-section="muestrasView"
-      >
-        <div class="home-btn-title">
-          MUESTRAS
-        </div>
-
-        <div class="home-btn-note">
-          Resumen diario y mensual.
-        </div>
-
-        <div class="home-resumen" id="homeResumenMuestras">
-          <div class="home-resumen-vacio">Cargando resumen...</div>
-        </div>
-      </button>
-
-
-      <button
-        type="button"
-        class="home-btn"
-        data-section="pendientesView"
-      >
-        <div class="home-btn-title">
-          PENDIENTES DE DESCARGA
-        </div>
-
-        <div class="home-btn-note">
-          Camiones pendientes por destino.
-        </div>
-
-        <div class="home-resumen" id="homeResumenPendientes">
-          <div class="home-resumen-vacio">Cargando resumen...</div>
-        </div>
-      </button>
-
-
-      <button
-        type="button"
-        class="home-btn"
-        data-section="cierreView"
-      >
-        <div class="home-btn-title">
-          DESCARGA DE CAMIONES
-        </div>
-
-        <div class="home-btn-note">
-          Descargas realizadas y tiempos.
-        </div>
-
-        <div class="home-resumen" id="homeResumenCierre">
-          <div class="home-resumen-vacio">Cargando resumen...</div>
-        </div>
-      </button>
-
-
-      <button
-        type="button"
-        class="home-btn"
-        data-section="rendimientosView"
-      >
-        <div class="home-btn-title">
-          RENDIMIENTOS Y DENSIDAD BÁSICA
-        </div>
-
-        <div class="home-btn-note">
-          Controles y necesidades de muestreo.
-        </div>
-
-        <div class="home-resumen" id="homeResumenRendimientos">
-          <div class="home-resumen-vacio">Cargando resumen...</div>
-        </div>
-      </button>
-
-
-      <a
-        class="home-btn"
-        href="https://control-ingreso-monte-sistema.fas-uy.workers.dev/"
-        aria-label="Abrir Control de ingreso de predios"
-      >
-        <div class="home-btn-title">
-          CONTROL DE INGRESO DE PREDIOS
-        </div>
-
-        <div class="home-btn-note">
-          Diferencias entre eRemitos y Sistema Playa.
-        </div>
-
-        <div class="home-resumen" id="homeResumenControlPredios">
-          <div class="home-resumen-vacio">Cargando resumen...</div>
-        </div>
-      </a>
-
-    </div>
-
-  </div>
-
-
-  <!-- ==========================================================
-       MUESTRAS
-       ========================================================== -->
-
-  <div
-    class="section-view"
-    id="muestrasView"
-  >
-
-    <div class="section-nav">
-
-      <div class="section-nav-title">
-        Muestras al cierre
-      </div>
-
-      <div class="section-nav-btns">
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-home
-        >
-          Inicio
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="pendientesView"
-        >
-          Pendientes de descarga
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="cierreView"
-        >
-          Descarga al cierre
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="rendimientosView"
-        >
-          Rendimientos y densidad básica
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="update-box">
-
-      <div class="update-label">
-        Última actualización
-      </div>
-
-      <div
-        class="update-value"
-        id="actualizado"
-      >
-        Cargando...
-      </div>
-
-    </div>
-
-
-    <h1
-      class="main-title"
-      id="tituloMuestras"
-    >
-      MUESTRAS AL CIERRE
-    </h1>
-
-    <div class="subtitle">
-      FRIMOSA · Resumen de muestreo por período
-    </div>
-
-
-    <div class="filters">
-
-      <div class="filter">
-
-        <label for="filtroAno">
-          Año
-        </label>
-
-        <select id="filtroAno">
-        </select>
-
-      </div>
-
-
-      <div class="filter">
-
-        <label for="filtroMes">
-          Mes
-        </label>
-
-        <select id="filtroMes">
-        </select>
-
-      </div>
-
-
-      <div class="filter">
-
-        <label for="filtroFecha">
-          Fecha
-        </label>
-
-        <select id="filtroFecha">
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div
-      class="info-box"
-      id="infoMesActual"
-    >
-      Mes operativo actual:
-      <strong>Cargando...</strong>
-    </div>
-
-
-    <div class="info-box">
-      Si una fecha no aparece con registros, significa que no hubo ingreso de madera.
-    </div>
-
-
-    <div class="info-box">
-      Último día con registro:
-      <strong id="ultimoDiaConRegistro">
-        Cargando...
-      </strong>
-    </div>
-
-
-    <div class="action-wrap">
-
-      <button
-        type="button"
-        class="action-btn"
-        id="btnPrepararCorreoMuestras"
-      >
-        Preparar correo
-      </button>
-
-    </div>
-
-
-    <div class="kpis">
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          Viajes
-        </div>
-
-        <div
-          class="kpi-value"
-          id="kpiViajes"
-        >
-          0
-        </div>
-
-        <div class="kpi-note">
-          Mes operativo actual
-        </div>
-
-      </div>
-
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          Muestras
-        </div>
-
-        <div
-          class="kpi-value"
-          id="kpiMuestras"
-        >
-          0
-        </div>
-
-        <div class="kpi-note">
-          Viajes con densidad
-        </div>
-
-      </div>
-
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          % Muestreo
-        </div>
-
-        <div
-          class="kpi-value"
-          id="kpiPorcentaje"
-        >
-          0,00%
-        </div>
-
-      </div>
-
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          Promedio densidad
-        </div>
-
-        <div
-          class="kpi-value"
-          id="kpiDensidad"
-        >
-          -
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="table-card">
-
-      <div class="table-head">
-
-        <div
-          class="table-title"
-          id="tituloDetalleDia"
-        >
-          Detalle resumido del día
-        </div>
-
-        <div
-          class="record-count"
-          id="recordCountDia"
-        >
-          0 registros
-        </div>
-
-      </div>
-
-
-      <div class="table-scroll">
-
-        <table id="descargasTable">
-
-          <thead>
-
-            <tr>
-
-              <th>Depósito</th>
-              <th>Origen</th>
-              <th>Cosecha</th>
-              <th>Certificación</th>
-              <th>Producto</th>
-              <th>Promedio densidad</th>
-              <th>Viajes</th>
-              <th>Muestras</th>
-              <th>% Muestreo</th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody id="tbodyDia">
-          </tbody>
-
-
-          <tfoot>
-
-            <tr>
-
-              <td colspan="5">
-                Total día
-              </td>
-
-              <td id="totalDensidadDia">
-                -
-              </td>
-
-              <td id="totalViajesDia">
-                0
-              </td>
-
-              <td id="totalMuestrasDia">
-                0
-              </td>
-
-              <td id="totalPorcentajeDia">
-                0,00%
-              </td>
-
-            </tr>
-
-          </tfoot>
-
-        </table>
-
-      </div>
-
-    </div>
-
-
-    <div class="table-card">
-
-      <div class="table-head">
-
-        <div
-          class="table-title"
-          id="tituloDetalleMes"
-        >
-          Detalle resumido del mes actual
-        </div>
-
-        <div
-          class="record-count"
-          id="recordCountMes"
-        >
-          0 registros
-        </div>
-
-      </div>
-
-
-      <div class="table-scroll">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>Depósito</th>
-              <th>Origen</th>
-              <th>Cosecha</th>
-              <th>Certificación</th>
-              <th>Producto</th>
-              <th>Promedio densidad</th>
-              <th>Viajes</th>
-              <th>Muestras</th>
-              <th>% Muestreo</th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody id="tbodyMes">
-          </tbody>
-
-
-          <tfoot>
-
-            <tr>
-
-              <td colspan="5">
-                Total mes
-              </td>
-
-              <td id="totalDensidadMes">
-                -
-              </td>
-
-              <td id="totalViajesMes">
-                0
-              </td>
-
-              <td id="totalMuestrasMes">
-                0
-              </td>
-
-              <td id="totalPorcentajeMes">
-                0,00%
-              </td>
-
-            </tr>
-
-          </tfoot>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- ==========================================================
-       PENDIENTES
-       ========================================================== -->
-
-  <div
-    class="section-view"
-    id="pendientesView"
-  >
-
-    <div class="section-nav">
-
-      <div class="section-nav-title">
-        Pendientes de descarga
-      </div>
-
-      <div class="section-nav-btns">
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-home
-        >
-          Inicio
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="muestrasView"
-        >
-          Muestras al cierre
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="cierreView"
-        >
-          Descarga al cierre
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="rendimientosView"
-        >
-          Rendimientos y densidad básica
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="update-box">
-
-      <div class="update-label">
-        Última actualización
-      </div>
-
-      <div
-        class="update-value"
-        id="descargasActualizado"
-      >
-        Cargando...
-      </div>
-
-    </div>
-
-
-    <h1 class="main-title">
-      RESTAN DESCARGAR
-    </h1>
-
-
-    <div
-      class="destinos-kpis"
-      id="descargasTarjetas"
-    >
-    </div>
-
-
-    <div class="table-card">
-
-      <div class="table-head">
-
-        <div class="table-title">
-          Detalle por destino
-        </div>
-
-        <div
-          class="record-count"
-          id="descargasRecordCount"
-        >
-          0 registros
-        </div>
-
-      </div>
-
-
-      <div class="table-scroll">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th class="sortable-th" data-descargas-sort="remito" tabindex="0">Remito Monte<span class="sort-indicator"></span></th>
-              <th class="sortable-th" data-descargas-sort="destino" tabindex="0">Destino<span class="sort-indicator"></span></th>
-              <th class="sortable-th" data-descargas-sort="predio" tabindex="0">Predio<span class="sort-indicator"></span></th>
-              <th class="sortable-th" data-descargas-sort="vehiculo" tabindex="0">Vehículo<span class="sort-indicator"></span></th>
-              <th class="sortable-th" data-descargas-sort="fin_carga" tabindex="0">Fin Carga<span class="sort-indicator"></span></th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody id="descargasTbody">
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- ==========================================================
-       DESCARGA CIERRE
-       ========================================================== -->
-
-  <div
-    class="section-view"
-    id="cierreView"
-  >
-
-    <div class="section-nav">
-
-      <div class="section-nav-title">
-        Descarga al cierre
-      </div>
-
-      <div class="section-nav-btns">
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-home
-        >
-          Inicio
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="muestrasView"
-        >
-          Muestras al cierre
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="pendientesView"
-        >
-          Pendientes de descarga
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="rendimientosView"
-        >
-          Rendimientos y densidad básica
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="update-box">
-
-      <div class="update-label">
-        Última actualización
-      </div>
-
-      <div
-        class="update-value"
-        id="cierreActualizado"
-      >
-        Cargando...
-      </div>
-
-    </div>
-
-
-    <h1 class="main-title">
-      DESCARGA CIERRE DE TURNO
-    </h1>
-
-
-    <div class="filters">
-
-      <div class="filter">
-
-        <label for="cierreFiltroAno">
-          Año
-        </label>
-
-        <select id="cierreFiltroAno">
-        </select>
-
-      </div>
-
-
-      <div class="filter">
-
-        <label for="cierreFiltroMes">
-          Mes
-        </label>
-
-        <select id="cierreFiltroMes">
-        </select>
-
-      </div>
-
-
-      <div class="filter">
-
-        <label for="cierreFiltroFecha">
-          Fecha
-        </label>
-
-        <select id="cierreFiltroFecha">
-        </select>
-
-      </div>
-
-    </div>
-
-
-    <div class="kpis two">
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          TOTAL CAMIONES
-        </div>
-
-        <div
-          class="kpi-value lime"
-          id="cierreTotalCamiones"
-        >
-          0
-        </div>
-
-      </div>
-
-
-      <div class="kpi">
-
-        <div class="kpi-label">
-          PROM. DESCARGA
-        </div>
-
-        <div
-          class="kpi-value lime"
-          id="cierrePromedioDescarga"
-        >
-          00:00:00
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="ton-resumen">
-
-      <div class="ton-item">
-
-        <strong>
-          DIRECTO
-        </strong>
-
-        = Neto ton Pila FFU:
-
-        <span id="cierreTonDirecto">
-          0,00 ton
-        </span>
-
-      </div>
-
-
-      <div class="ton-item">
-
-        <strong>
-          ACOPIO
-        </strong>
-
-        = Neto ton diferente FFU:
-
-        <span id="cierreTonAcopio">
-          0,00 ton
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <div class="info-box">
-
-      Último día con registro:
-
-      <strong id="cierreUltimoDiaConRegistro">
-        Cargando...
-      </strong>
-
-    </div>
-
-
-    <div
-      class="sin-pendientes"
-      id="cierreSinDatos"
-      style="display:none;"
-    >
-      SIN DESCARGA DE CAMIONES EN PLANTA
-    </div>
-
-
-    <div class="action-wrap">
-
-      <button
-        type="button"
-        class="action-btn"
-        id="btnExportarCierreExcel"
-      >
-        Exportar y preparar correo
-      </button>
-
-    </div>
-
-
-    <div class="table-card">
-
-      <div class="table-head">
-
-        <div
-          class="table-title"
-          id="cierreTituloDetalle"
-        >
-          Detalle de descargas
-        </div>
-
-        <div
-          class="record-count"
-          id="cierreRecordCount"
-        >
-          0 registros
-        </div>
-
-      </div>
-
-
-      <div class="table-scroll">
-
-        <table>
-
-          <thead>
-
-            <tr>
-
-              <th>Fecha</th>
-              <th>Hora Ingreso</th>
-              <th>Hora Salida</th>
-              <th>Tiempo Descarga</th>
-              <th>Primero de Pila</th>
-              <th>Producto</th>
-              <th>Matrícula</th>
-              <th>Neto ton</th>
-
-            </tr>
-
-          </thead>
-
-
-          <tbody id="cierreTbody">
-          </tbody>
-
-        </table>
-
-      </div>
-
-    </div>
-
-  </div>
-
-
-  <!-- ==========================================================
-       RENDIMIENTOS
-       ========================================================== -->
-
-  <div
-    class="section-view"
-    id="rendimientosView"
-  >
-
-    <div class="section-nav">
-
-      <div class="section-nav-title">
-        Rendimientos y densidad básica
-      </div>
-
-      <div class="section-nav-btns">
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-home
-        >
-          Inicio
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="muestrasView"
-        >
-          Muestras al cierre
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="pendientesView"
-        >
-          Pendientes de descarga
-        </button>
-
-        <button
-          type="button"
-          class="nav-btn"
-          data-section="cierreView"
-        >
-          Descarga al cierre
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="rendimientos-frame-wrap">
-
-      <iframe
-        class="rendimientos-frame"
-        src="/rendimientos"
-        title="Rendimientos y densidad básica"
-      >
-      </iframe>
-
-    </div>
-
-  </div>
-
+<!-- ==========================================================
+PANTALLA PRINCIPAL
+========================================================== -->
+<div
+class="home-actualizado"
+id="homeActualizado"
+>
+Actualizado:
+<strong id="homeActualizadoHora">--:--:--</strong>
 </div>
-
-
+<div class="home-screen" id="homeScreen">
+<h1 class="home-title">
+INFORMACIÓN OPERATIVA DE TURNO
+</h1>
+<div class="home-subtitle">
+Seleccioná la información que querés consultar.
+</div>
+<div class="home-buttons">
+<button
+type="button"
+class="home-btn"
+data-section="muestrasView"
+>
+<div class="home-btn-title">
+MUESTRAS
+</div>
+<div class="home-btn-note">
+Resumen diario y mensual.
+</div>
+<div class="home-resumen" id="homeResumenMuestras">
+<div class="home-resumen-vacio">Cargando resumen...</div>
+</div>
+</button>
+<button
+type="button"
+class="home-btn"
+data-section="pendientesView"
+>
+<div class="home-btn-title">
+PENDIENTES DE DESCARGA
+</div>
+<div class="home-btn-note">
+Camiones pendientes por destino.
+</div>
+<div class="home-resumen" id="homeResumenPendientes">
+<div class="home-resumen-vacio">Cargando resumen...</div>
+</div>
+</button>
+<button
+type="button"
+class="home-btn"
+data-section="cierreView"
+>
+<div class="home-btn-title">
+DESCARGA DE CAMIONES
+</div>
+<div class="home-btn-note">
+Descargas realizadas y tiempos.
+</div>
+<div class="home-resumen" id="homeResumenCierre">
+<div class="home-resumen-vacio">Cargando resumen...</div>
+</div>
+</button>
+<button
+type="button"
+class="home-btn"
+data-section="rendimientosView"
+>
+<div class="home-btn-title">
+RENDIMIENTOS Y DENSIDAD BÁSICA
+</div>
+<div class="home-btn-note">
+Controles y necesidades de muestreo.
+</div>
+<div class="home-resumen" id="homeResumenRendimientos">
+<div class="home-resumen-vacio">Cargando resumen...</div>
+</div>
+</button>
+<a
+class="home-btn"
+href="https://control-ingreso-monte-sistema.fas-uy.workers.dev/"
+aria-label="Abrir Control de ingreso de predios"
+>
+<div class="home-btn-title">
+CONTROL DE INGRESO DE PREDIOS
+</div>
+<div class="home-btn-note">
+Diferencias entre eRemitos y Sistema Playa.
+</div>
+<div class="home-resumen" id="homeResumenControlPredios">
+<div class="home-resumen-vacio">Cargando resumen...</div>
+</div>
+</a>
+</div>
+</div>
+<!-- ==========================================================
+MUESTRAS
+========================================================== -->
+<div
+class="section-view"
+id="muestrasView"
+>
+<div class="section-nav">
+<div class="section-nav-title">
+Muestras al cierre
+</div>
+<div class="section-nav-btns">
+<button
+type="button"
+class="nav-btn"
+data-home
+>
+Inicio
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="pendientesView"
+>
+Pendientes de descarga
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="cierreView"
+>
+Descarga al cierre
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="rendimientosView"
+>
+Rendimientos y densidad básica
+</button>
+</div>
+</div>
+<div class="update-box">
+<div class="update-label">
+Última actualización
+</div>
+<div
+class="update-value"
+id="actualizado"
+>
+Cargando...
+</div>
+</div>
+<h1
+class="main-title"
+id="tituloMuestras"
+>
+MUESTRAS AL CIERRE
+</h1>
+<div class="subtitle">
+FRIMOSA · Resumen de muestreo por período
+</div>
+<div class="filters">
+<div class="filter">
+<label for="filtroAno">
+Año
+</label>
+<select id="filtroAno">
+</select>
+</div>
+<div class="filter">
+<label for="filtroMes">
+Mes
+</label>
+<select id="filtroMes">
+</select>
+</div>
+<div class="filter">
+<label for="filtroFecha">
+Fecha
+</label>
+<select id="filtroFecha">
+</select>
+</div>
+</div>
+<div
+class="info-box"
+id="infoMesActual"
+>
+Mes operativo actual:
+<strong>Cargando...</strong>
+</div>
+<div class="info-box">
+Si una fecha no aparece con registros, significa que no hubo ingreso de madera.
+</div>
+<div class="info-box">
+Último día con registro:
+<strong id="ultimoDiaConRegistro">
+Cargando...
+</strong>
+</div>
+<div class="action-wrap">
+<button
+type="button"
+class="action-btn"
+id="btnPrepararCorreoMuestras"
+>
+Preparar correo
+</button>
+</div>
+<div class="kpis">
+<div class="kpi">
+<div class="kpi-label">
+Viajes
+</div>
+<div
+class="kpi-value"
+id="kpiViajes"
+>
+0
+</div>
+<div class="kpi-note">
+Mes operativo actual
+</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">
+Muestras
+</div>
+<div
+class="kpi-value"
+id="kpiMuestras"
+>
+0
+</div>
+<div class="kpi-note">
+Viajes con densidad
+</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">
+% Muestreo
+</div>
+<div
+class="kpi-value"
+id="kpiPorcentaje"
+>
+0,00%
+</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">
+Promedio densidad
+</div>
+<div
+class="kpi-value"
+id="kpiDensidad"
+>
+-
+</div>
+</div>
+</div>
+<div class="table-card">
+<div class="table-head">
+<div
+class="table-title"
+id="tituloDetalleDia"
+>
+Detalle resumido del día
+</div>
+<div
+class="record-count"
+id="recordCountDia"
+>
+0 registros
+</div>
+</div>
+<div class="table-scroll">
+<table id="descargasTable">
+<thead>
+<tr>
+<th>Depósito</th>
+<th>Origen</th>
+<th>Cosecha</th>
+<th>Certificación</th>
+<th>Producto</th>
+<th>Promedio densidad</th>
+<th>Viajes</th>
+<th>Muestras</th>
+<th>% Muestreo</th>
+</tr>
+</thead>
+<tbody id="tbodyDia">
+</tbody>
+<tfoot>
+<tr>
+<td colspan="5">
+Total día
+</td>
+<td id="totalDensidadDia">
+-
+</td>
+<td id="totalViajesDia">
+0
+</td>
+<td id="totalMuestrasDia">
+0
+</td>
+<td id="totalPorcentajeDia">
+0,00%
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<div class="table-card">
+<div class="table-head">
+<div
+class="table-title"
+id="tituloDetalleMes"
+>
+Detalle resumido del mes actual
+</div>
+<div
+class="record-count"
+id="recordCountMes"
+>
+0 registros
+</div>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Depósito</th>
+<th>Origen</th>
+<th>Cosecha</th>
+<th>Certificación</th>
+<th>Producto</th>
+<th>Promedio densidad</th>
+<th>Viajes</th>
+<th>Muestras</th>
+<th>% Muestreo</th>
+</tr>
+</thead>
+<tbody id="tbodyMes">
+</tbody>
+<tfoot>
+<tr>
+<td colspan="5">
+Total mes
+</td>
+<td id="totalDensidadMes">
+-
+</td>
+<td id="totalViajesMes">
+0
+</td>
+<td id="totalMuestrasMes">
+0
+</td>
+<td id="totalPorcentajeMes">
+0,00%
+</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+</div>
+<!-- ==========================================================
+PENDIENTES
+========================================================== -->
+<div
+class="section-view"
+id="pendientesView"
+>
+<div class="section-nav">
+<div class="section-nav-title">
+Pendientes de descarga
+</div>
+<div class="section-nav-btns">
+<button
+type="button"
+class="nav-btn"
+data-home
+>
+Inicio
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="muestrasView"
+>
+Muestras al cierre
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="cierreView"
+>
+Descarga al cierre
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="rendimientosView"
+>
+Rendimientos y densidad básica
+</button>
+</div>
+</div>
+<div class="update-box">
+<div class="update-label">
+Última actualización
+</div>
+<div
+class="update-value"
+id="descargasActualizado"
+>
+Cargando...
+</div>
+</div>
+<h1 class="main-title">
+RESTAN DESCARGAR
+</h1>
+<div
+class="destinos-kpis"
+id="descargasTarjetas"
+>
+</div>
+<div class="table-card">
+<div class="table-head">
+<div class="table-title">
+Detalle por destino
+</div>
+<div
+class="record-count"
+id="descargasRecordCount"
+>
+0 registros
+</div>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th class="sortable-th" data-descargas-sort="remito" tabindex="0">Remito Monte<span class="sort-indicator"></span></th>
+<th class="sortable-th" data-descargas-sort="destino" tabindex="0">Destino<span class="sort-indicator"></span></th>
+<th class="sortable-th" data-descargas-sort="predio" tabindex="0">Predio<span class="sort-indicator"></span></th>
+<th class="sortable-th" data-descargas-sort="vehiculo" tabindex="0">Vehículo<span class="sort-indicator"></span></th>
+<th class="sortable-th" data-descargas-sort="fin_carga" tabindex="0">Fin Carga<span class="sort-indicator"></span></th>
+</tr>
+</thead>
+<tbody id="descargasTbody">
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- ==========================================================
+DESCARGA CIERRE
+========================================================== -->
+<div
+class="section-view"
+id="cierreView"
+>
+<div class="section-nav">
+<div class="section-nav-title">
+Descarga al cierre
+</div>
+<div class="section-nav-btns">
+<button
+type="button"
+class="nav-btn"
+data-home
+>
+Inicio
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="muestrasView"
+>
+Muestras al cierre
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="pendientesView"
+>
+Pendientes de descarga
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="rendimientosView"
+>
+Rendimientos y densidad básica
+</button>
+</div>
+</div>
+<div class="update-box">
+<div class="update-label">
+Última actualización
+</div>
+<div
+class="update-value"
+id="cierreActualizado"
+>
+Cargando...
+</div>
+</div>
+<h1 class="main-title">
+DESCARGA CIERRE DE TURNO
+</h1>
+<div class="filters">
+<div class="filter">
+<label for="cierreFiltroAno">
+Año
+</label>
+<select id="cierreFiltroAno">
+</select>
+</div>
+<div class="filter">
+<label for="cierreFiltroMes">
+Mes
+</label>
+<select id="cierreFiltroMes">
+</select>
+</div>
+<div class="filter">
+<label for="cierreFiltroFecha">
+Fecha
+</label>
+<select id="cierreFiltroFecha">
+</select>
+</div>
+</div>
+<div class="kpis two">
+<div class="kpi">
+<div class="kpi-label">
+TOTAL CAMIONES
+</div>
+<div
+class="kpi-value lime"
+id="cierreTotalCamiones"
+>
+0
+</div>
+</div>
+<div class="kpi">
+<div class="kpi-label">
+PROM. DESCARGA
+</div>
+<div
+class="kpi-value lime"
+id="cierrePromedioDescarga"
+>
+00:00:00
+</div>
+</div>
+</div>
+<div class="ton-resumen">
+<div class="ton-item">
+<strong>
+DIRECTO
+</strong>
+= Neto ton Pila FFU:
+<span id="cierreTonDirecto">
+0,00 ton
+</span>
+</div>
+<div class="ton-item">
+<strong>
+ACOPIO
+</strong>
+= Neto ton diferente FFU:
+<span id="cierreTonAcopio">
+0,00 ton
+</span>
+</div>
+</div>
+<div class="info-box">
+Último día con registro:
+<strong id="cierreUltimoDiaConRegistro">
+Cargando...
+</strong>
+</div>
+<div
+class="sin-pendientes"
+id="cierreSinDatos"
+style="display:none;"
+>
+SIN DESCARGA DE CAMIONES EN PLANTA
+</div>
+<div class="action-wrap">
+<button
+type="button"
+class="action-btn"
+id="btnExportarCierreExcel"
+>
+Exportar y preparar correo
+</button>
+</div>
+<div class="table-card">
+<div class="table-head">
+<div
+class="table-title"
+id="cierreTituloDetalle"
+>
+Detalle de descargas
+</div>
+<div
+class="record-count"
+id="cierreRecordCount"
+>
+0 registros
+</div>
+</div>
+<div class="table-scroll">
+<table>
+<thead>
+<tr>
+<th>Fecha</th>
+<th>Hora Ingreso</th>
+<th>Hora Salida</th>
+<th>Tiempo Descarga</th>
+<th>Primero de Pila</th>
+<th>Producto</th>
+<th>Matrícula</th>
+<th>Neto ton</th>
+</tr>
+</thead>
+<tbody id="cierreTbody">
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- ==========================================================
+RENDIMIENTOS
+========================================================== -->
+<div
+class="section-view"
+id="rendimientosView"
+>
+<div class="section-nav">
+<div class="section-nav-title">
+Rendimientos y densidad básica
+</div>
+<div class="section-nav-btns">
+<button
+type="button"
+class="nav-btn"
+data-home
+>
+Inicio
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="muestrasView"
+>
+Muestras al cierre
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="pendientesView"
+>
+Pendientes de descarga
+</button>
+<button
+type="button"
+class="nav-btn"
+data-section="cierreView"
+>
+Descarga al cierre
+</button>
+</div>
+</div>
+<div class="rendimientos-frame-wrap">
+<iframe
+class="rendimientos-frame"
+src="/rendimientos"
+title="Rendimientos y densidad básica"
+>
+</iframe>
+</div>
+</div>
+</div>
 <script>
-
 const JSON_MUESTRAS =
-  "/api/muestras";
-
+"/api/muestras";
 const JSON_DESCARGAS =
-  "/api/descargas";
-
+"/api/descargas";
 const JSON_CIERRE =
-  "/api/cierre";
-
+"/api/cierre";
 const JSON_RENDIMIENTOS =
-  "/api/rendimientos";
-
+"/api/rendimientos";
 const JSON_CONTROL_PREDIOS =
-  "https://control-ingreso-monte-sistema.fas-uy.workers.dev/api/datos";
-
-
+"https://control-ingreso-monte-sistema.fas-uy.workers.dev/api/datos";
 const meses = [
-  "",
-  "Enero",
-  "Febrero",
-  "Marzo",
-  "Abril",
-  "Mayo",
-  "Junio",
-  "Julio",
-  "Agosto",
-  "Setiembre",
-  "Octubre",
-  "Noviembre",
-  "Diciembre"
+"",
+"Enero",
+"Febrero",
+"Marzo",
+"Abril",
+"Mayo",
+"Junio",
+"Julio",
+"Agosto",
+"Setiembre",
+"Octubre",
+"Noviembre",
+"Diciembre"
 ];
-
-
 const $ =
-  id =>
-    document.getElementById(id);
-
-
+id =>
+document.getElementById(id);
 /* ============================================================
-   NAVEGACIÓN
-   ============================================================ */
-
+NAVEGACIÓN
+============================================================ */
 function mostrarInicio(){
-
-  $("homeScreen").style.display =
-    "flex";
-
-  document
-    .querySelectorAll(
-      ".section-view"
-    )
-    .forEach(
-      seccion =>
-        seccion.classList.remove(
-          "active"
-        )
-    );
-
-  window.scrollTo(
-    {
-      top:0
-    }
-  );
+$("homeScreen").style.display =
+"flex";
+document
+.querySelectorAll(
+".section-view"
+)
+.forEach(
+seccion =>
+seccion.classList.remove(
+"active"
+)
+);
+window.scrollTo(
+{
+top:0
 }
-
-
+);
+}
 function mostrarSeccion(id){
-
-  $("homeScreen").style.display =
-    "none";
-
-  document
-    .querySelectorAll(
-      ".section-view"
-    )
-    .forEach(
-      seccion => {
-
-        seccion.classList.toggle(
-          "active",
-          seccion.id === id
-        );
-
-      }
-    );
-
-  window.scrollTo(
-    {
-      top:0
-    }
-  );
+$("homeScreen").style.display =
+"none";
+document
+.querySelectorAll(
+".section-view"
+)
+.forEach(
+seccion => {
+seccion.classList.toggle(
+"active",
+seccion.id === id
+);
 }
-
-
+);
+window.scrollTo(
+{
+top:0
+}
+);
+}
 document
-  .querySelectorAll(
-    "[data-section]"
-  )
-  .forEach(
-    boton => {
-
-      boton.addEventListener(
-        "click",
-        () =>
-          mostrarSeccion(
-            boton.dataset.section
-          )
-      );
-
-    }
-  );
-
-
+.querySelectorAll(
+"[data-section]"
+)
+.forEach(
+boton => {
+boton.addEventListener(
+"click",
+() =>
+mostrarSeccion(
+boton.dataset.section
+)
+);
+}
+);
 document
-  .querySelectorAll(
-    "[data-home]"
-  )
-  .forEach(
-    boton => {
-
-      boton.addEventListener(
-        "click",
-        mostrarInicio
-      );
-
-    }
-  );
-
-
+.querySelectorAll(
+"[data-home]"
+)
+.forEach(
+boton => {
+boton.addEventListener(
+"click",
+mostrarInicio
+);
+}
+);
 /* ============================================================
-   UTILIDADES
-   ============================================================ */
-
+UTILIDADES
+============================================================ */
 let homeUltimaActualizacion =
-  null;
-
-
+null;
 function actualizarHoraPrincipal(valor){
-
-  if(!valor){
-    return;
-  }
-
-
-  const fecha =
-    new Date(valor);
-
-
-  if(
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ){
-    return;
-  }
-
-
-  if(
-    homeUltimaActualizacion === null ||
-    fecha.getTime() >
-      homeUltimaActualizacion.getTime()
-  ){
-    homeUltimaActualizacion =
-      fecha;
-
-
-    $("homeActualizadoHora").textContent =
-      fecha.toLocaleTimeString(
-        "es-UY",
-        {
-          hour:"2-digit",
-          minute:"2-digit",
-          second:"2-digit",
-          hour12:false
-        }
-      );
-  }
-
+if(!valor){
+return;
 }
-
-
-
+const fecha =
+new Date(valor);
+if(
+Number.isNaN(
+fecha.getTime()
+)
+){
+return;
+}
+if(
+homeUltimaActualizacion === null ||
+fecha.getTime() >
+homeUltimaActualizacion.getTime()
+){
+homeUltimaActualizacion =
+fecha;
+$("homeActualizadoHora").textContent =
+fecha.toLocaleTimeString(
+"es-UY",
+{
+hour:"2-digit",
+minute:"2-digit",
+second:"2-digit",
+hour12:false
+}
+);
+}
+}
 function urlSinCache(url){
-
-  const separador =
-    url.includes("?")
-      ? "&"
-      : "?";
-
-  return (
-    url +
-    separador +
-    "t=" +
-    Date.now()
-  );
+const separador =
+url.includes("?")
+? "&"
+: "?";
+return (
+url +
+separador +
+"t=" +
+Date.now()
+);
 }
-
-
 function esc(valor){
-
-  return String(
-    valor ?? ""
-  )
-  .replaceAll(
-    "&",
-    "&amp;"
-  )
-  .replaceAll(
-    "<",
-    "&lt;"
-  )
-  .replaceAll(
-    ">",
-    "&gt;"
-  )
-  .replaceAll(
-    '"',
-    "&quot;"
-  )
-  .replaceAll(
-    "'",
-    "&#039;"
-  );
+return String(
+valor ?? ""
+)
+.replaceAll(
+"&",
+"&amp;"
+)
+.replaceAll(
+"<",
+"&lt;"
+)
+.replaceAll(
+">",
+"&gt;"
+)
+.replaceAll(
+'"',
+"&quot;"
+)
+.replaceAll(
+"'",
+"&#039;"
+);
 }
-
-
 function numero(
-  valor,
-  decimales = 0
+valor,
+decimales = 0
 ){
-
-  const n =
-    Number(valor);
-
-  if(
-    !Number.isFinite(n)
-  ){
-    return "-";
-  }
-
-  return n.toLocaleString(
-    "es-UY",
-    {
-      minimumFractionDigits:
-        decimales,
-
-      maximumFractionDigits:
-        decimales
-    }
-  );
+const n =
+Number(valor);
+if(
+!Number.isFinite(n)
+){
+return "-";
 }
-
-
+return n.toLocaleString(
+"es-UY",
+{
+minimumFractionDigits:
+decimales,
+maximumFractionDigits:
+decimales
+}
+);
+}
 function porcentaje(valor){
-
-  return (
-    numero(
-      valor,
-      2
-    ) +
-    "%"
-  );
+return (
+numero(
+valor,
+2
+) +
+"%"
+);
 }
-
-
 function fechaISO(valor){
-
-  if(!valor){
-    return "";
-  }
-
-  const texto =
-    String(valor).trim();
-
-  let m =
-    texto.match(
-      /^(\d{4})-(\d{2})-(\d{2})/
-    );
-
-  if(m){
-
-    return (
-      m[1] +
-      "-" +
-      m[2] +
-      "-" +
-      m[3]
-    );
-  }
-
-  m =
-    texto.match(
-      /^(\d{1,2})\/(\d{1,2})\/(\d{4})/
-    );
-
-  if(m){
-
-    return (
-      m[3] +
-      "-" +
-      String(m[2])
-        .padStart(
-          2,
-          "0"
-        ) +
-      "-" +
-      String(m[1])
-        .padStart(
-          2,
-          "0"
-        )
-    );
-  }
-
-  return "";
+if(!valor){
+return "";
 }
-
-
+const texto =
+String(valor).trim();
+let m =
+texto.match(
+/^(\d{4})-(\d{2})-(\d{2})/
+);
+if(m){
+return (
+m[1] +
+"-" +
+m[2] +
+"-" +
+m[3]
+);
+}
+m =
+texto.match(
+/^(\d{1,2})\/(\d{1,2})\/(\d{4})/
+);
+if(m){
+return (
+m[3] +
+"-" +
+String(m[2])
+.padStart(
+2,
+"0"
+) +
+"-" +
+String(m[1])
+.padStart(
+2,
+"0"
+)
+);
+}
+return "";
+}
 function fechaUY(valor){
-
-  const iso =
-    fechaISO(valor);
-
-  if(!iso){
-    return valor || "";
-  }
-
-  const partes =
-    iso.split("-");
-
-  return (
-    partes[2] +
-    "/" +
-    partes[1] +
-    "/" +
-    partes[0]
-  );
+const iso =
+fechaISO(valor);
+if(!iso){
+return valor || "";
 }
-
-
+const partes =
+iso.split("-");
+return (
+partes[2] +
+"/" +
+partes[1] +
+"/" +
+partes[0]
+);
+}
 function fechaHoraUY(valor){
-
-  if(!valor){
-    return "Sin información";
-  }
-
-  const fecha =
-    new Date(valor);
-
-  if(
-    Number.isNaN(
-      fecha.getTime()
-    )
-  ){
-    return String(valor);
-  }
-
-  return fecha.toLocaleString(
-    "es-UY",
-    {
-      day:"2-digit",
-      month:"2-digit",
-      year:"numeric",
-      hour:"2-digit",
-      minute:"2-digit",
-      second:"2-digit",
-      hour12:false
-    }
-  ).replace(",", "");
+if(!valor){
+return "Sin información";
 }
-
-
+const fecha =
+new Date(valor);
+if(
+Number.isNaN(
+fecha.getTime()
+)
+){
+return String(valor);
+}
+return fecha.toLocaleString(
+"es-UY",
+{
+day:"2-digit",
+month:"2-digit",
+year:"numeric",
+hour:"2-digit",
+minute:"2-digit",
+second:"2-digit",
+hour12:false
+}
+).replace(",", "");
+}
 function marcaTiempoFechaHora(valor){
-
-  if(!valor){
-    return Number.POSITIVE_INFINITY;
-  }
-
-  const texto =
-    String(valor).trim();
-
-  const formatoUY =
-    texto.match(
-      /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
-    );
-
-  if(formatoUY){
-
-    return new Date(
-      Number(formatoUY[3]),
-      Number(formatoUY[2]) - 1,
-      Number(formatoUY[1]),
-      Number(formatoUY[4] || 0),
-      Number(formatoUY[5] || 0),
-      Number(formatoUY[6] || 0)
-    ).getTime();
-
-  }
-
-  const fecha =
-    new Date(texto);
-
-  return Number.isNaN(
-    fecha.getTime()
-  )
-    ? Number.POSITIVE_INFINITY
-    : fecha.getTime();
+if(!valor){
+return Number.POSITIVE_INFINITY;
 }
-
-
+const texto =
+String(valor).trim();
+const formatoUY =
+texto.match(
+/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/
+);
+if(formatoUY){
+return new Date(
+Number(formatoUY[3]),
+Number(formatoUY[2]) - 1,
+Number(formatoUY[1]),
+Number(formatoUY[4] || 0),
+Number(formatoUY[5] || 0),
+Number(formatoUY[6] || 0)
+).getTime();
+}
+const fecha =
+new Date(texto);
+return Number.isNaN(
+fecha.getTime()
+)
+? Number.POSITIVE_INFINITY
+: fecha.getTime();
+}
 function normalizarCertificacion(
-  valor
+valor
 ){
-
-  const texto =
-    String(
-      valor ?? ""
-    ).trim();
-
-  const upper =
-    texto.toUpperCase();
-
-  if(
-    upper ===
-    "FSC MIXTO"
-  ){
-    return "FSC 100%";
-  }
-
-  if(
-    upper ===
-    "CONTROLADO FSC"
-  ){
-    return "FSC CW";
-  }
-
-  return texto;
+const texto =
+String(
+valor ?? ""
+).trim();
+const upper =
+texto.toUpperCase();
+if(
+upper ===
+"FSC MIXTO"
+){
+return "FSC 100%";
 }
-
-
+if(
+upper ===
+"CONTROLADO FSC"
+){
+return "FSC CW";
+}
+return texto;
+}
 /* ============================================================
-   RESÚMENES DE PANTALLA PRINCIPAL
-   ============================================================ */
-
+RESÚMENES DE PANTALLA PRINCIPAL
+============================================================ */
 function homeResumenMuestras(){
-  if(!muestrasDatos.length){
-    $("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos.</div>';
-    return;
-  }
-  const periodo=muestrasPeriodoActual();
-  if(!periodo){
-    $("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos del mes actual.</div>';
-    return;
-  }
-  const registrosMes=muestrasDatos.filter(r=>String(r.ano)===periodo.ano && String(r.mes_numero)===periodo.mes_numero);
-  const resumen=muestrasAgrupar(registrosMes);
-  const total=muestrasTotales(resumen);
-  const filas=[...resumen].sort((a,b)=>String(a.origen).localeCompare(String(b.origen),"es"));
-  $("homeResumenMuestras").innerHTML=`
-    <div class="home-resumen-titulo">Detalle resumido del mes actual - ${esc(periodo.mes)} ${esc(periodo.ano)}</div>
-    ${filas.length?`
-      <table class="home-mini-table">
-        <thead><tr><th>Origen</th><th>Producto</th><th>Viajes</th><th>Muestras</th><th>%</th></tr></thead>
-        <tbody>${filas.map(r=>`
-          <tr>
-            <td class="left">${esc(r.origen)}</td>
-            <td>${esc(r.nombre_prod)}</td>
-            <td>${numero(r.viajes)}</td>
-            <td>${numero(r.muestras)}</td>
-            <td>${porcentaje(r.porcentaje_muestreo)}</td>
-          </tr>`).join("")}
-        </tbody>
-      </table>
-      <div class="home-mini-total">
-        <span>Total mes</span>
-        <span><strong>${numero(total.viajes)}</strong> viajes · <strong>${numero(total.muestras)}</strong> muestras · <strong>${porcentaje(total.porcentaje)}</strong></span>
-      </div>`:
-      '<div class="home-resumen-vacio">Sin registros del mes actual.</div>'}
-  `;
+if(!muestrasDatos.length){
+$("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos.</div>';
+return;
 }
-
+const periodo=muestrasPeriodoActual();
+if(!periodo){
+$("homeResumenMuestras").innerHTML='<div class="home-resumen-vacio">Sin datos del mes actual.</div>';
+return;
+}
+const registrosMes=muestrasDatos.filter(r=>String(r.ano)===periodo.ano && String(r.mes_numero)===periodo.mes_numero);
+const resumen=muestrasAgrupar(registrosMes);
+const total=muestrasTotales(resumen);
+const filas=[...resumen].sort((a,b)=>String(a.origen).localeCompare(String(b.origen),"es"));
+$("homeResumenMuestras").innerHTML=`
+<div class="home-resumen-titulo">Detalle resumido del mes actual - ${esc(periodo.mes)} ${esc(periodo.ano)}</div>
+${filas.length?`
+<table class="home-mini-table">
+<thead><tr><th>Origen</th><th>Producto</th><th>Viajes</th><th>Muestras</th><th>%</th></tr></thead>
+<tbody>${filas.map(r=>`
+<tr>
+<td class="left">${esc(r.origen)}</td>
+<td>${esc(r.nombre_prod)}</td>
+<td>${numero(r.viajes)}</td>
+<td>${numero(r.muestras)}</td>
+<td>${porcentaje(r.porcentaje_muestreo)}</td>
+</tr>`).join("")}
+</tbody>
+</table>
+<div class="home-mini-total">
+<span>Total mes</span>
+<span><strong>${numero(total.viajes)}</strong> viajes · <strong>${numero(total.muestras)}</strong> muestras · <strong>${porcentaje(total.porcentaje)}</strong></span>
+</div>`:
+'<div class="home-resumen-vacio">Sin registros del mes actual.</div>'}
+`;
+}
 function homeResumenPendientes(pendientes){
-  const conteo=new Map();
-  pendientes.forEach(r=>{
-    const destino=String(valorCampo(r,"DESTINO","destino")).trim();
-    if(!destino)return;
-    conteo.set(destino,(conteo.get(destino)||0)+1);
-  });
-  const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]);
-  $("homeResumenPendientes").innerHTML=`
-    <div class="home-resumen-titulo">Pendientes por destino</div>
-    ${destinos.length?`
-      <div class="home-destinos">
-        ${destinos.map(([destino,cantidad])=>`
-          <div class="home-destino-row"><span>${esc(destino)}</span><strong>${numero(cantidad)}</strong></div>`).join("")}
-      </div>`:
-      '<div class="home-resumen-vacio">SIN CAMIONES PENDIENTES DE DESCARGAR</div>'}
-  `;
+const conteo=new Map();
+pendientes.forEach(r=>{
+const destino=String(valorCampo(r,"DESTINO","destino")).trim();
+if(!destino)return;
+conteo.set(destino,(conteo.get(destino)||0)+1);
+});
+const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]);
+$("homeResumenPendientes").innerHTML=`
+<div class="home-resumen-titulo">Pendientes por destino</div>
+${destinos.length?`
+<div class="home-destinos">
+${destinos.map(([destino,cantidad])=>`
+<div class="home-destino-row"><span>${esc(destino)}</span><strong>${numero(cantidad)}</strong></div>`).join("")}
+</div>`:
+'<div class="home-resumen-vacio">SIN CAMIONES PENDIENTES DE DESCARGAR</div>'}
+`;
 }
-
 function hoyISO(){
-  const h=new Date();
-  return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");
+const h=new Date();
+return h.getFullYear()+"-"+String(h.getMonth()+1).padStart(2,"0")+"-"+String(h.getDate()).padStart(2,"0");
 }
-
 function homeResumenCierre(){
-
-  const fechaHoy =
-    hoyISO();
-
-
-  const registrosHoy =
-    cierreDatos.filter(
-      r =>
-        r.fechaISO ===
-        fechaHoy
-    );
-
-
-  const cantidad =
-    registrosHoy.length;
-
-
-  const tiempos =
-    registrosHoy
-      .map(
-        r =>
-          segundosDesdeHHMMSS(
-            r.tiempo_descarga
-          )
-      )
-      .filter(
-        Number.isFinite
-      );
-
-
-  const promedioSegundos =
-    tiempos.length
-      ?
-      tiempos.reduce(
-        (a,b) =>
-          a + b,
-        0
-      ) /
-      tiempos.length
-      :
-      0;
-
-
-  const promedioTexto =
-    hhmmss(
-      promedioSegundos
-    );
-
-
-  $("homeResumenCierre").innerHTML =
-    `
-    <div class="home-resumen-titulo">
-      Descarga del día - ${fechaUY(fechaHoy)}
-    </div>
-
-    <div class="home-cierre-kpi">
-
-      <div class="valor">
-        ${numero(cantidad)}
-      </div>
-
-      <div class="texto">
-        Camiones descargados al momento
-      </div>
-
-      <div class="home-cierre-tiempo">
-        Prom. descarga
-        <strong>
-          ${promedioTexto}
-        </strong>
-      </div>
-
-    </div>
-    `;
-
+const fechaHoy =
+hoyISO();
+const registrosHoy =
+cierreDatos.filter(
+r =>
+r.fechaISO ===
+fechaHoy
+);
+const cantidad =
+registrosHoy.length;
+const tiempos =
+registrosHoy
+.map(
+r =>
+segundosDesdeHHMMSS(
+r.tiempo_descarga
+)
+)
+.filter(
+Number.isFinite
+);
+const promedioSegundos =
+tiempos.length
+?
+tiempos.reduce(
+(a,b) =>
+a + b,
+0
+) /
+tiempos.length
+:
+0;
+const promedioTexto =
+hhmmss(
+promedioSegundos
+);
+$("homeResumenCierre").innerHTML =
+`
+<div class="home-resumen-titulo">
+Descarga del día - ${fechaUY(fechaHoy)}
+</div>
+<div class="home-cierre-kpi">
+<div class="valor">
+${numero(cantidad)}
+</div>
+<div class="texto">
+Camiones descargados al momento
+</div>
+<div class="home-cierre-tiempo">
+Prom. descarga
+<strong>
+${promedioTexto}
+</strong>
+</div>
+</div>
+`;
 }
-
 function homeNormalizar(valor){
-  if(valor===null||valor===undefined)return "";
-  return String(valor).trim().toUpperCase();
+if(valor===null||valor===undefined)return "";
+return String(valor).trim().toUpperCase();
 }
-
 function homePorcentajeRendimiento(registro){
-  const cantidad=Number(registro.cantidad_pps);
-  const total=Number(registro.total_remitos);
-  if(!Number.isFinite(cantidad)||!Number.isFinite(total)||total<=0)return null;
-  return (cantidad/total)*100;
+const cantidad=Number(registro.cantidad_pps);
+const total=Number(registro.total_remitos);
+if(!Number.isFinite(cantidad)||!Number.isFinite(total)||total<=0)return null;
+return (cantidad/total)*100;
 }
-
 function homeObtenerNecesidades(registros,tipo){
-  const anoActual=new Date().getFullYear();
-  return registros.filter(registro=>{
-    const nombreFas=homeNormalizar(registro.nombre_fas);
-    const especie=homeNormalizar(registro.especie);
-    if(homeNormalizar(registro.activo)!=="SI")return false;
-    if(Number(registro.ano)!==anoActual)return false;
-    const excluirSinEspecie=!especie||especie==="-";
-    const excluirTroza=especie.includes("TROZA");
-    const excluirBalanza=nombreFas.includes("BALANZA");
-    const excluirQuebrachoAlmedo=nombreFas==="QUEBRACHO - ALMEDO SAS"&&especie==="GLOBULUS 3,60";
-    if(excluirSinEspecie||excluirTroza||excluirBalanza||excluirQuebrachoAlmedo)return false;
-    if(tipo==="RENDIMIENTO"){
-      const cantidadRend=Number(registro.cantidad_pps||0);
-      const pct=homePorcentajeRendimiento(registro);
-      return cantidadRend===0||(pct!==null&&pct<10);
-    }
-    if(tipo==="DENSIDAD"){
-      return Number(registro.cantidad_densidad_basica||0)===0;
-    }
-    return false;
-  }).sort((a,b)=>String(a.nombre_fas).localeCompare(String(b.nombre_fas),"es")||String(a.especie).localeCompare(String(b.especie),"es"));
+const anoActual=new Date().getFullYear();
+return registros.filter(registro=>{
+const nombreFas=homeNormalizar(registro.nombre_fas);
+const especie=homeNormalizar(registro.especie);
+if(homeNormalizar(registro.activo)!=="SI")return false;
+if(Number(registro.ano)!==anoActual)return false;
+const excluirSinEspecie=!especie||especie==="-";
+const excluirTroza=especie.includes("TROZA");
+const excluirBalanza=nombreFas.includes("BALANZA");
+const excluirQuebrachoAlmedo=nombreFas==="QUEBRACHO - ALMEDO SAS"&&especie==="GLOBULUS 3,60";
+if(excluirSinEspecie||excluirTroza||excluirBalanza||excluirQuebrachoAlmedo)return false;
+if(tipo==="RENDIMIENTO"){
+const cantidadRend=Number(registro.cantidad_pps||0);
+const pct=homePorcentajeRendimiento(registro);
+return cantidadRend===0||(pct!==null&&pct<10);
 }
-
+if(tipo==="DENSIDAD"){
+return Number(registro.cantidad_densidad_basica||0)===0;
+}
+return false;
+}).sort((a,b)=>String(a.nombre_fas).localeCompare(String(b.nombre_fas),"es")||String(a.especie).localeCompare(String(b.especie),"es"));
+}
 function homeRenderNecesidadBloque(titulo,registros,tipo){
-  const clase=registros.length?"alerta":"ok";
-  return `
-    <div class="home-necesidad-bloque">
-      <div class="home-necesidad-head ${clase}"><span>${esc(titulo)}</span><span>${numero(registros.length)}</span></div>
-      ${registros.length?`
-        <div class="home-necesidad-lista">
-          ${registros.map(r=>{
-            let detalle=esc(r.especie);
-            if(tipo==="RENDIMIENTO"){
-              const pct=homePorcentajeRendimiento(r);
-              detalle+=" · "+(pct===null?"-":numero(pct,1)+"%");
-            }
-            return `<div class="home-necesidad-row"><span>${esc(r.nombre_fas)}</span><span>${detalle}</span></div>`;
-          }).join("")}
-        </div>`:
-        '<div class="home-resumen-vacio">Al día</div>'}
-    </div>`;
+const clase=registros.length?"alerta":"ok";
+return `
+<div class="home-necesidad-bloque">
+<div class="home-necesidad-head ${clase}"><span>${esc(titulo)}</span><span>${numero(registros.length)}</span></div>
+${registros.length?`
+<div class="home-necesidad-lista">
+${registros.map(r=>{
+let detalle=esc(r.especie);
+if(tipo==="RENDIMIENTO"){
+const pct=homePorcentajeRendimiento(r);
+detalle+=" · "+(pct===null?"-":numero(pct,1)+"%");
 }
-
+return `<div class="home-necesidad-row"><span>${esc(r.nombre_fas)}</span><span>${detalle}</span></div>`;
+}).join("")}
+</div>`:
+'<div class="home-resumen-vacio">Al día</div>'}
+</div>`;
+}
 async function cargarResumenRendimientos(){
-  try{
-    const respuesta=await fetch(urlSinCache(JSON_RENDIMIENTOS),{cache:"no-store"});
-    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
-    const json=await respuesta.json();
-    const registros=Array.isArray(json.registros)?json.registros:[];
-
-    actualizarHoraPrincipal(
-      json.actualizado
-    );
-
-    const necesitaRendimiento=homeObtenerNecesidades(registros,"RENDIMIENTO");
-    const necesitaDensidad=homeObtenerNecesidades(registros,"DENSIDAD");
-    $("homeResumenRendimientos").innerHTML=`
-      <div class="home-resumen-titulo">Necesidades ${new Date().getFullYear()}</div>
-      <div class="home-necesidades">
-        ${homeRenderNecesidadBloque("Necesita rendimiento",necesitaRendimiento,"RENDIMIENTO")}
-        ${homeRenderNecesidadBloque("Necesita densidad básica",necesitaDensidad,"DENSIDAD")}
-      </div>`;
-  }catch(error){
-    console.error(error);
-    $("homeResumenRendimientos").innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
-  }
+try{
+const respuesta=await fetch(urlSinCache(JSON_RENDIMIENTOS),{cache:"no-store"});
+if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
+const json=await respuesta.json();
+const registros=Array.isArray(json.registros)?json.registros:[];
+actualizarHoraPrincipal(
+json.actualizado
+);
+const necesitaRendimiento=homeObtenerNecesidades(registros,"RENDIMIENTO");
+const necesitaDensidad=homeObtenerNecesidades(registros,"DENSIDAD");
+$("homeResumenRendimientos").innerHTML=`
+<div class="home-resumen-titulo">Necesidades ${new Date().getFullYear()}</div>
+<div class="home-necesidades">
+${homeRenderNecesidadBloque("Necesita rendimiento",necesitaRendimiento,"RENDIMIENTO")}
+${homeRenderNecesidadBloque("Necesita densidad básica",necesitaDensidad,"DENSIDAD")}
+</div>`;
+}catch(error){
+console.error(error);
+$("homeResumenRendimientos").innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
 }
-
+}
 async function cargarResumenControlPredios(){
-  const contenedor=$("homeResumenControlPredios");
-
-  try{
-    const respuesta=await fetch(urlSinCache(JSON_CONTROL_PREDIOS),{cache:"no-store"});
-    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
-
-    const json=await respuesta.json();
-    const registros=Array.isArray(json.registros)?json.registros:[];
-
-    const inconsistencias=registros.filter(r=>{
-      const estado=String(r.estado_control||"NO COINCIDE").trim().toUpperCase();
-
-      const predios=[
-        r.predio_eremitos,
-        r.predio_remitos2
-      ]
-        .map(valor=>normalizarTexto(valor))
-        .join(" ");
-
-      const esLasAcaciasUPM=predios.includes("LAS ACACIAS UPM");
-
-      return estado==="NO COINCIDE"&&!esLasAcaciasUPM;
-    });
-
-    const cantidad=inconsistencias.length;
-    const ejemplos=inconsistencias.slice(0,3);
-
-    contenedor.innerHTML=`
-      <div class="home-resumen-titulo">Registros con inconsistencias</div>
-      <div class="home-control-kpi">
-        <div class="valor ${cantidad>0?"alerta":""}">${numero(cantidad)}</div>
-        <div class="texto">${cantidad===0?"No hay inconsistencias":cantidad===1?"Registro para revisar":"Registros para revisar"}</div>
-      </div>
-      ${ejemplos.length?`
-        <div class="home-control-lista">
-          ${ejemplos.map(r=>`
-            <div class="home-control-row">
-              <strong>${esc(r.vehiculo||"—")}</strong>
-              <span>${esc(r.predio_eremitos||"—")} / ${esc(r.predio_remitos2||"—")}</span>
-            </div>`).join("")}
-        </div>`:
-        '<div class="home-resumen-vacio">No hay inconsistencias.</div>'}
-      ${cantidad>0?'<div class="home-control-alerta" role="alert">REVISAR</div>':""}
-    `;
-  }catch(error){
-    console.error(error);
-    contenedor.innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
-  }
+const contenedor=$("homeResumenControlPredios");
+try{
+const respuesta=await fetch(urlSinCache(JSON_CONTROL_PREDIOS),{cache:"no-store"});
+if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
+const json=await respuesta.json();
+const registros=Array.isArray(json.registros)?json.registros:[];
+const inconsistencias=registros.filter(r=>{
+const estado=String(r.estado_control||"NO COINCIDE").trim().toUpperCase();
+const predios=[
+r.predio_eremitos,
+r.predio_remitos2
+]
+.map(valor=>normalizarTexto(valor))
+.join(" ");
+const esLasAcaciasUPM=predios.includes("LAS ACACIAS UPM");
+return estado==="NO COINCIDE"&&!esLasAcaciasUPM;
+});
+const cantidad=inconsistencias.length;
+const ejemplos=inconsistencias.slice(0,3);
+contenedor.innerHTML=`
+<div class="home-resumen-titulo">Registros con inconsistencias</div>
+<div class="home-control-kpi">
+<div class="valor ${cantidad>0?"alerta":""}">${numero(cantidad)}</div>
+<div class="texto">${cantidad===0?"No hay inconsistencias":cantidad===1?"Registro para revisar":"Registros para revisar"}</div>
+</div>
+${ejemplos.length?`
+<div class="home-control-lista">
+${ejemplos.map(r=>`
+<div class="home-control-row">
+<strong>${esc(r.vehiculo||"—")}</strong>
+<span>${esc(r.predio_eremitos||"—")} / ${esc(r.predio_remitos2||"—")}</span>
+</div>`).join("")}
+</div>`:
+'<div class="home-resumen-vacio">No hay inconsistencias.</div>'}
+${cantidad>0?'<div class="home-control-alerta" role="alert">REVISAR</div>':""}
+`;
+}catch(error){
+console.error(error);
+contenedor.innerHTML='<div class="home-resumen-vacio">No fue posible cargar el resumen.</div>';
 }
-
+}
 /* ============================================================
-   MUESTRAS
-   ============================================================ */
-
+MUESTRAS
+============================================================ */
 let muestrasDatos = [];
-
-
 function muestrasAgrupar(
-  registros
+registros
 ){
-
-  const mapa =
-    new Map();
-
-
-  registros.forEach(
-    r => {
-
-      const deposito =
-        r.deposito ?? "";
-
-      const origen =
-        r.origen ?? "";
-
-      const cosecha =
-        r.cosecha ?? "";
-
-      const certificacion =
-        normalizarCertificacion(
-          r.certificacion
-        );
-
-      const producto =
-        r.nombre_prod ?? "";
-
-
-      const clave =
-        [
-          deposito,
-          origen,
-          cosecha,
-          certificacion,
-          producto
-        ].join(
-          "|||"
-        );
-
-
-      if(
-        !mapa.has(
-          clave
-        )
-      ){
-
-        mapa.set(
-          clave,
-          {
-            deposito,
-            origen,
-            cosecha,
-            certificacion,
-            nombre_prod:
-              producto,
-
-            viajes:0,
-            muestras:0,
-            suma_densidad:0,
-            cantidad_densidades:0
-          }
-        );
-      }
-
-
-      const g =
-        mapa.get(
-          clave
-        );
-
-
-      g.viajes +=
-        Number(
-          r.viajes
-        ) || 0;
-
-
-      g.muestras +=
-        Number(
-          r.muestras
-        ) || 0;
-
-
-      g.suma_densidad +=
-        Number(
-          r.suma_densidad
-        ) || 0;
-
-
-      g.cantidad_densidades +=
-        Number(
-          r.cantidad_densidades
-        ) || 0;
-
-    }
-  );
-
-
-  return [
-    ...mapa.values()
-  ].map(
-    g => {
-
-      return {
-
-        ...g,
-
-        promedio_densidad:
-          g.cantidad_densidades > 0
-            ?
-            g.suma_densidad /
-            g.cantidad_densidades
-            :
-            null,
-
-        porcentaje_muestreo:
-          g.viajes > 0
-            ?
-            (
-              g.muestras /
-              g.viajes
-            ) *
-            100
-            :
-            0
-
-      };
-
-    }
-  );
+const mapa =
+new Map();
+registros.forEach(
+r => {
+const deposito =
+r.deposito ?? "";
+const origen =
+r.origen ?? "";
+const cosecha =
+r.cosecha ?? "";
+const certificacion =
+normalizarCertificacion(
+r.certificacion
+);
+const producto =
+r.nombre_prod ?? "";
+const clave =
+[
+deposito,
+origen,
+cosecha,
+certificacion,
+producto
+].join(
+"|||"
+);
+if(
+!mapa.has(
+clave
+)
+){
+mapa.set(
+clave,
+{
+deposito,
+origen,
+cosecha,
+certificacion,
+nombre_prod:
+producto,
+viajes:0,
+muestras:0,
+suma_densidad:0,
+cantidad_densidades:0
 }
-
-
+);
+}
+const g =
+mapa.get(
+clave
+);
+g.viajes +=
+Number(
+r.viajes
+) || 0;
+g.muestras +=
+Number(
+r.muestras
+) || 0;
+g.suma_densidad +=
+Number(
+r.suma_densidad
+) || 0;
+g.cantidad_densidades +=
+Number(
+r.cantidad_densidades
+) || 0;
+}
+);
+return [
+...mapa.values()
+].map(
+g => {
+return {
+...g,
+promedio_densidad:
+g.cantidad_densidades > 0
+?
+g.suma_densidad /
+g.cantidad_densidades
+:
+null,
+porcentaje_muestreo:
+g.viajes > 0
+?
+(
+g.muestras /
+g.viajes
+) *
+100
+:
+0
+};
+}
+);
+}
 function muestrasTotales(
-  registros
+registros
 ){
-
-  let viajes = 0;
-  let muestras = 0;
-  let suma = 0;
-  let cantidad = 0;
-
-
-  registros.forEach(
-    r => {
-
-      viajes +=
-        Number(
-          r.viajes
-        ) || 0;
-
-      muestras +=
-        Number(
-          r.muestras
-        ) || 0;
-
-      suma +=
-        Number(
-          r.suma_densidad
-        ) || 0;
-
-      cantidad +=
-        Number(
-          r.cantidad_densidades
-        ) || 0;
-
-    }
-  );
-
-
-  return {
-
-    viajes,
-
-    muestras,
-
-    porcentaje:
-      viajes > 0
-        ?
-        (
-          muestras /
-          viajes
-        ) *
-        100
-        :
-        0,
-
-    densidad:
-      cantidad > 0
-        ?
-        suma /
-        cantidad
-        :
-        null
-
-  };
+let viajes = 0;
+let muestras = 0;
+let suma = 0;
+let cantidad = 0;
+registros.forEach(
+r => {
+viajes +=
+Number(
+r.viajes
+) || 0;
+muestras +=
+Number(
+r.muestras
+) || 0;
+suma +=
+Number(
+r.suma_densidad
+) || 0;
+cantidad +=
+Number(
+r.cantidad_densidades
+) || 0;
 }
-
-
+);
+return {
+viajes,
+muestras,
+porcentaje:
+viajes > 0
+?
+(
+muestras /
+viajes
+) *
+100
+:
+0,
+densidad:
+cantidad > 0
+?
+suma /
+cantidad
+:
+null
+};
+}
 function muestrasRenderTabla(
-  datos,
-  tbodyId,
-  countId
+datos,
+tbodyId,
+countId
 ){
-
-  const tbody =
-    $(tbodyId);
-
-
-  const ordenados =
-    [
-      ...datos
-    ].sort(
-      (a,b) =>
-        String(
-          a.origen
-        ).localeCompare(
-          String(
-            b.origen
-          ),
-          "es"
-        )
-    );
-
-
-  if(
-    !ordenados.length
-  ){
-
-    tbody.innerHTML =
-      `
-      <tr>
-        <td
-          colspan="9"
-          class="empty"
-        >
-          No hay registros para la selección.
-        </td>
-      </tr>
-      `;
-
-    $(countId).textContent =
-      "0 registros";
-
-    return;
-  }
-
-
-  tbody.innerHTML =
-    ordenados.map(
-      r =>
-        `
-        <tr
-          class="${
-            Number(
-              r.porcentaje_muestreo
-            ) < 10
-              ?
-              "alerta-baja"
-              :
-              ""
-          }"
-        >
-
-          <td>
-            ${esc(r.deposito)}
-          </td>
-
-          <td>
-            ${esc(r.origen)}
-          </td>
-
-          <td>
-            ${esc(r.cosecha)}
-          </td>
-
-          <td>
-            ${esc(r.certificacion)}
-          </td>
-
-          <td>
-            ${esc(r.nombre_prod)}
-          </td>
-
-          <td>
-            ${
-              r.promedio_densidad === null
-                ?
-                "-"
-                :
-                numero(
-                  r.promedio_densidad,
-                  3
-                )
-            }
-          </td>
-
-          <td>
-            ${numero(r.viajes)}
-          </td>
-
-          <td>
-            ${numero(r.muestras)}
-          </td>
-
-          <td>
-            ${porcentaje(
-              r.porcentaje_muestreo
-            )}
-          </td>
-
-        </tr>
-        `
-    ).join("");
-
-
-  $(countId).textContent =
-    ordenados.length
-      .toLocaleString(
-        "es-UY"
-      ) +
-    " registros";
+const tbody =
+$(tbodyId);
+const ordenados =
+[
+...datos
+].sort(
+(a,b) =>
+String(
+a.origen
+).localeCompare(
+String(
+b.origen
+),
+"es"
+)
+);
+if(
+!ordenados.length
+){
+tbody.innerHTML =
+`
+<tr>
+<td
+colspan="9"
+class="empty"
+>
+No hay registros para la selección.
+</td>
+</tr>
+`;
+$(countId).textContent =
+"0 registros";
+return;
 }
-
-
+tbody.innerHTML =
+ordenados.map(
+r =>
+`
+<tr
+class="${
+Number(
+r.porcentaje_muestreo
+) < 10
+?
+"alerta-baja"
+:
+""
+}"
+>
+<td>
+${esc(r.deposito)}
+</td>
+<td>
+${esc(r.origen)}
+</td>
+<td>
+${esc(r.cosecha)}
+</td>
+<td>
+${esc(r.certificacion)}
+</td>
+<td>
+${esc(r.nombre_prod)}
+</td>
+<td>
+${
+r.promedio_densidad === null
+?
+"-"
+:
+numero(
+r.promedio_densidad,
+3
+)
+}
+</td>
+<td>
+${numero(r.viajes)}
+</td>
+<td>
+${numero(r.muestras)}
+</td>
+<td>
+${porcentaje(
+r.porcentaje_muestreo
+)}
+</td>
+</tr>
+`
+).join("");
+$(countId).textContent =
+ordenados.length
+.toLocaleString(
+"es-UY"
+) +
+" registros";
+}
 function muestrasRenderTotales(
-  datos,
-  sufijo
+datos,
+sufijo
 ){
-
-  const total =
-    muestrasTotales(
-      datos
-    );
-
-
-  $(
-    "totalDensidad" +
-    sufijo
-  ).textContent =
-    total.densidad === null
-      ?
-      "-"
-      :
-      numero(
-        total.densidad,
-        3
-      );
-
-
-  $(
-    "totalViajes" +
-    sufijo
-  ).textContent =
-    numero(
-      total.viajes
-    );
-
-
-  $(
-    "totalMuestras" +
-    sufijo
-  ).textContent =
-    numero(
-      total.muestras
-    );
-
-
-  $(
-    "totalPorcentaje" +
-    sufijo
-  ).textContent =
-    porcentaje(
-      total.porcentaje
-    );
+const total =
+muestrasTotales(
+datos
+);
+$(
+"totalDensidad" +
+sufijo
+).textContent =
+total.densidad === null
+?
+"-"
+:
+numero(
+total.densidad,
+3
+);
+$(
+"totalViajes" +
+sufijo
+).textContent =
+numero(
+total.viajes
+);
+$(
+"totalMuestras" +
+sufijo
+).textContent =
+numero(
+total.muestras
+);
+$(
+"totalPorcentaje" +
+sufijo
+).textContent =
+porcentaje(
+total.porcentaje
+);
 }
-
-
 function muestrasPeriodoActual(){
-
-  const hoy =
-    new Date();
-
-  /*
-    El período operativo se obtiene de la fecha actual y no del último
-    registro disponible. Del día 26 en adelante corresponde al mes siguiente.
-  */
-  let anoOperativo =
-    hoy.getFullYear();
-
-  let mesOperativo =
-    hoy.getMonth() + 1;
-
-  if(
-    hoy.getDate() >= 26
-  ){
-    mesOperativo += 1;
-
-    if(
-      mesOperativo === 13
-    ){
-      mesOperativo = 1;
-      anoOperativo += 1;
-    }
-  }
-
-  return {
-    ano:
-      String(anoOperativo),
-
-    mes_numero:
-      String(mesOperativo),
-
-    mes:
-      meses[mesOperativo]
-  };
-
-  /* El bloque siguiente se conserva inaccesible por compatibilidad. */
-
-  const hoyISO =
-    hoy.getFullYear() +
-    "-" +
-    String(
-      hoy.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    ) +
-    "-" +
-    String(
-      hoy.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
-
-  const registros =
-    muestrasDatos
-      .filter(
-        r =>
-          fechaISO(
-            r.fecha
-          )
-      )
-      .sort(
-        (a,b) =>
-          fechaISO(
-            b.fecha
-          ).localeCompare(
-            fechaISO(
-              a.fecha
-            )
-          )
-      );
-
-
-  if(
-    !registros.length
-  ){
-    return null;
-  }
-
-
-  /*
-    Primero buscamos un registro del día de hoy.
-    Ese registro indica a qué mes operativo pertenece.
-    Por ejemplo, 31/08/2026 pertenece a Setiembre 2026.
-    Si hoy todavía no tiene registros, usamos el último día disponible.
-  */
-  const r =
-    registros.find(
-      registro =>
-        fechaISO(
-          registro.fecha
-        ) === hoyISO
-    ) ||
-    registros[0];
-
-
-  return {
-    ano:
-      String(
-        r.ano ?? ""
-      ),
-
-    mes_numero:
-      String(
-        r.mes_numero ?? ""
-      ),
-
-    mes:
-      String(
-        r.mes ?? ""
-      )
-  };
+const hoy =
+new Date();
+/*
+El período operativo se obtiene de la fecha actual y no del último
+registro disponible. Del día 26 en adelante corresponde al mes siguiente.
+*/
+let anoOperativo =
+hoy.getFullYear();
+let mesOperativo =
+hoy.getMonth() + 1;
+if(
+hoy.getDate() >= 26
+){
+mesOperativo += 1;
+if(
+mesOperativo === 13
+){
+mesOperativo = 1;
+anoOperativo += 1;
 }
-
-
+}
+return {
+ano:
+String(anoOperativo),
+mes_numero:
+String(mesOperativo),
+mes:
+meses[mesOperativo]
+};
+/* El bloque siguiente se conserva inaccesible por compatibilidad. */
+const hoyISO =
+hoy.getFullYear() +
+"-" +
+String(
+hoy.getMonth() + 1
+).padStart(
+2,
+"0"
+) +
+"-" +
+String(
+hoy.getDate()
+).padStart(
+2,
+"0"
+);
+const registros =
+muestrasDatos
+.filter(
+r =>
+fechaISO(
+r.fecha
+)
+)
+.sort(
+(a,b) =>
+fechaISO(
+b.fecha
+).localeCompare(
+fechaISO(
+a.fecha
+)
+)
+);
+if(
+!registros.length
+){
+return null;
+}
+/*
+Primero buscamos un registro del día de hoy.
+Ese registro indica a qué mes operativo pertenece.
+Por ejemplo, 31/08/2026 pertenece a Setiembre 2026.
+Si hoy todavía no tiene registros, usamos el último día disponible.
+*/
+const r =
+registros.find(
+registro =>
+fechaISO(
+registro.fecha
+) === hoyISO
+) ||
+registros[0];
+return {
+ano:
+String(
+r.ano ?? ""
+),
+mes_numero:
+String(
+r.mes_numero ?? ""
+),
+mes:
+String(
+r.mes ?? ""
+)
+};
+}
 function actualizarFiltrosMuestras(){
-
-  const anos =
-    [
-      ...new Set(
-        muestrasDatos
-          .map(
-            r =>
-              String(
-                r.ano ?? ""
-              )
-          )
-          .filter(Boolean)
-      )
-    ].sort(
-      (a,b) =>
-        Number(b) -
-        Number(a)
-    );
-
-
-  $("filtroAno").innerHTML =
-    anos.map(
-      a =>
-        `
-        <option value="${a}">
-          ${a}
-        </option>
-        `
-    ).join("");
-
-
-  const periodoActual =
-    muestrasPeriodoActual();
-
-  const anoActual =
-    periodoActual
-      ? periodoActual.ano
-      : String(
-          new Date().getFullYear()
-        );
-
-
-  if(
-    anos.includes(
-      anoActual
-    )
-  ){
-    $("filtroAno").value =
-      anoActual;
-  }
-
-
-  actualizarMesesMuestras();
+const anos =
+[
+...new Set(
+muestrasDatos
+.map(
+r =>
+String(
+r.ano ?? ""
+)
+)
+.filter(Boolean)
+)
+].sort(
+(a,b) =>
+Number(b) -
+Number(a)
+);
+$("filtroAno").innerHTML =
+anos.map(
+a =>
+`
+<option value="${a}">
+${a}
+</option>
+`
+).join("");
+const periodoActual =
+muestrasPeriodoActual();
+const anoActual =
+periodoActual
+? periodoActual.ano
+: String(
+new Date().getFullYear()
+);
+if(
+anos.includes(
+anoActual
+)
+){
+$("filtroAno").value =
+anoActual;
 }
-
-
+actualizarMesesMuestras();
+}
 function actualizarMesesMuestras(){
-
-  const ano =
-    $("filtroAno").value;
-
-
-  let nums =
-    [
-      ...new Set(
-        muestrasDatos
-          .filter(
-            r =>
-              String(
-                r.ano
-              ) === ano
-          )
-          .map(
-            r =>
-              Number(
-                r.mes_numero
-              )
-          )
-          .filter(Boolean)
-      )
-    ].sort(
-      (a,b) =>
-        a - b
-    );
-
-  const periodoActual =
-    muestrasPeriodoActual();
-
-  if(
-    periodoActual.ano === ano &&
-    !nums.includes(
-      Number(periodoActual.mes_numero)
-    )
-  ){
-    nums.push(
-      Number(periodoActual.mes_numero)
-    );
-
-    nums.sort(
-      (a,b) => a - b
-    );
-  }
-
-
-  $("filtroMes").innerHTML =
-    nums.map(
-      n =>
-        `
-        <option value="${n}">
-          ${meses[n]}
-        </option>
-        `
-    ).join("");
-
-
-  const mesActual =
-    periodoActual &&
-    periodoActual.ano === ano
-      ? periodoActual.mes_numero
-      : "";
-
-
-  if(
-    nums
-      .map(String)
-      .includes(
-        mesActual
-      )
-  ){
-    $("filtroMes").value =
-      mesActual;
-  }
-
-
-  actualizarFechasMuestras();
+const ano =
+$("filtroAno").value;
+let nums =
+[
+...new Set(
+muestrasDatos
+.filter(
+r =>
+String(
+r.ano
+) === ano
+)
+.map(
+r =>
+Number(
+r.mes_numero
+)
+)
+.filter(Boolean)
+)
+].sort(
+(a,b) =>
+a - b
+);
+const periodoActual =
+muestrasPeriodoActual();
+if(
+periodoActual.ano === ano &&
+!nums.includes(
+Number(periodoActual.mes_numero)
+)
+){
+nums.push(
+Number(periodoActual.mes_numero)
+);
+nums.sort(
+(a,b) => a - b
+);
 }
-
-
+$("filtroMes").innerHTML =
+nums.map(
+n =>
+`
+<option value="${n}">
+${meses[n]}
+</option>
+`
+).join("");
+const mesActual =
+periodoActual &&
+periodoActual.ano === ano
+? periodoActual.mes_numero
+: "";
+if(
+nums
+.map(String)
+.includes(
+mesActual
+)
+){
+$("filtroMes").value =
+mesActual;
+}
+actualizarFechasMuestras();
+}
 function fechasMesCompleto(
-  ano,
-  mes
+ano,
+mes
 ){
-
-  const resultado = [];
-
-  const hoy =
-    new Date();
-
-  /*
-    El mes de muestras es OPERATIVO:
-    va desde el día 26 del mes anterior
-    hasta el día 25 del mes seleccionado.
-    Ejemplo: Setiembre 2026 = 26/08/2026 a 25/09/2026.
-  */
-  const inicio =
-    new Date(
-      Number(ano),
-      Number(mes) - 2,
-      26
-    );
-
-  let fin =
-    new Date(
-      Number(ano),
-      Number(mes) - 1,
-      25
-    );
-
-  if(
-    hoy >= inicio &&
-    hoy < fin
-  ){
-    fin = hoy;
-  }
-
-  for(
-    let fecha = new Date(inicio);
-    fecha <= fin;
-    fecha.setDate(
-      fecha.getDate() + 1
-    )
-  ){
-
-    resultado.push(
-      fecha.getFullYear() +
-      "-" +
-      String(
-        fecha.getMonth() + 1
-      ).padStart(
-        2,
-        "0"
-      ) +
-      "-" +
-      String(
-        fecha.getDate()
-      ).padStart(
-        2,
-        "0"
-      )
-    );
-
-  }
-
-
-  return resultado;
+const resultado = [];
+const hoy =
+new Date();
+/*
+El mes de muestras es OPERATIVO:
+va desde el día 26 del mes anterior
+hasta el día 25 del mes seleccionado.
+Ejemplo: Setiembre 2026 = 26/08/2026 a 25/09/2026.
+*/
+const inicio =
+new Date(
+Number(ano),
+Number(mes) - 2,
+26
+);
+let fin =
+new Date(
+Number(ano),
+Number(mes) - 1,
+25
+);
+if(
+hoy >= inicio &&
+hoy < fin
+){
+fin = hoy;
 }
-
-
+for(
+let fecha = new Date(inicio);
+fecha <= fin;
+fecha.setDate(
+fecha.getDate() + 1
+)
+){
+resultado.push(
+fecha.getFullYear() +
+"-" +
+String(
+fecha.getMonth() + 1
+).padStart(
+2,
+"0"
+) +
+"-" +
+String(
+fecha.getDate()
+).padStart(
+2,
+"0"
+)
+);
+}
+return resultado;
+}
 function actualizarFechasMuestras(){
-
-  const ano =
-    $("filtroAno").value;
-
-  const mes =
-    $("filtroMes").value;
-
-
-  const fechas =
-    fechasMesCompleto(
-      ano,
-      mes
-    ).sort(
-      (a,b) =>
-        b.localeCompare(a)
-    );
-
-
-  $("filtroFecha").innerHTML =
-    `
-    <option value="">
-      Todas las fechas
-    </option>
-    ` +
-    fechas.map(
-      f =>
-        `
-        <option value="${f}">
-          ${fechaUY(f)}
-        </option>
-        `
-    ).join("");
-
-
-  const hoy =
-    new Date();
-
-  const hoyISO =
-    hoy.getFullYear() +
-    "-" +
-    String(
-      hoy.getMonth() +
-      1
-    ).padStart(
-      2,
-      "0"
-    ) +
-    "-" +
-    String(
-      hoy.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
-
-
-  if(
-    fechas.includes(
-      hoyISO
-    )
-  ){
-    $("filtroFecha").value =
-      hoyISO;
-  }
-}
-
-
-function renderMuestras(){
-
-  const ano =
-    $("filtroAno").value;
-
-  const mes =
-    $("filtroMes").value;
-
-  const fecha =
-    $("filtroFecha").value;
-
-
-  const periodo =
-    muestrasPeriodoActual();
-
-
-  let registrosMesActual =
-    [];
-
-
-  if(periodo){
-
-    registrosMesActual =
-      muestrasDatos.filter(
-        r =>
-          String(
-            r.ano
-          ) ===
-            periodo.ano &&
-          String(
-            r.mes_numero
-          ) ===
-            periodo.mes_numero
-      );
-
-  }
-
-
-  const resumenMesActual =
-    muestrasAgrupar(
-      registrosMesActual
-    );
-
-
-  const totalActual =
-    muestrasTotales(
-      resumenMesActual
-    );
-
-
-  $("kpiViajes").textContent =
-    numero(
-      totalActual.viajes
-    );
-
-  $("kpiMuestras").textContent =
-    numero(
-      totalActual.muestras
-    );
-
-  $("kpiPorcentaje").textContent =
-    porcentaje(
-      totalActual.porcentaje
-    );
-
-  $("kpiDensidad").textContent =
-    totalActual.densidad === null
-      ?
-      "-"
-      :
-      numero(
-        totalActual.densidad,
-        3
-      );
-
-
-  if(periodo){
-
-    $("infoMesActual").innerHTML =
-      "Mes operativo actual: <strong>" +
-      esc(
-        periodo.mes +
-        " " +
-        periodo.ano
-      ) +
-      "</strong>";
-
-    $("tituloDetalleMes").textContent =
-      "Detalle resumido del mes actual - " +
-      periodo.mes +
-      " " +
-      periodo.ano;
-
-  }
-
-
-  muestrasRenderTabla(
-    resumenMesActual,
-    "tbodyMes",
-    "recordCountMes"
-  );
-
-  muestrasRenderTotales(
-    resumenMesActual,
-    "Mes"
-  );
-
-
-  let seleccionados =
-    muestrasDatos.filter(
-      r =>
-        (
-          !ano ||
-          String(
-            r.ano
-          ) === ano
-        ) &&
-        (
-          !mes ||
-          String(
-            r.mes_numero
-          ) === mes
-        ) &&
-        (
-          !fecha ||
-          fechaISO(
-            r.fecha
-          ) === fecha
-        )
-    );
-
-
-  const resumen =
-    muestrasAgrupar(
-      seleccionados
-    );
-
-
-  $("tituloDetalleDia").textContent =
-    fecha
-      ?
-      "Detalle resumido del día - " +
-      fechaUY(fecha)
-      :
-      "Detalle resumido del mes";
-
-
-  $("tituloMuestras").textContent =
-    fecha
-      ?
-      "MUESTRAS AL CIERRE DE " +
-      fechaUY(fecha)
-      :
-      "MUESTRAS AL CIERRE";
-
-
-  muestrasRenderTabla(
-    resumen,
-    "tbodyDia",
-    "recordCountDia"
-  );
-
-  muestrasRenderTotales(
-    resumen,
-    "Dia"
-  );
-
-}
-
-
-async function cargarMuestras(){
-
-  try{
-
-    const respuesta =
-      await fetch(
-        urlSinCache(
-          JSON_MUESTRAS
-        ),
-        {
-          cache:"no-store"
-        }
-      );
-
-
-    if(
-      !respuesta.ok
-    ){
-      throw new Error(
-        "HTTP " +
-        respuesta.status
-      );
-    }
-
-
-    const json =
-      await respuesta.json();
-
-
-    muestrasDatos =
-      Array.isArray(
-        json.registros
-      )
-        ?
-        json.registros
-        :
-        [];
-
-
-    $("actualizado").textContent =
-      fechaHoraUY(
-        json.actualizado
-      );
-
-
-    actualizarHoraPrincipal(
-      json.actualizado
-    );
-
-
-    const fechas =
-      muestrasDatos
-        .map(
-          r =>
-            fechaISO(
-              r.fecha
-            )
-        )
-        .filter(Boolean)
-        .sort(
-          (a,b) =>
-            b.localeCompare(a)
-        );
-
-
-    $("ultimoDiaConRegistro").textContent =
-      fechas.length
-        ?
-        fechaUY(
-          fechas[0]
-        )
-        :
-        "Sin registros";
-
-
-    actualizarFiltrosMuestras();
-
-    renderMuestras();
-
-    homeResumenMuestras();
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    $("actualizado").textContent =
-      "Error de carga";
-
-    $("tbodyDia").innerHTML =
-      `
-      <tr>
-        <td
-          colspan="9"
-          class="error"
-        >
-          No fue posible cargar MuestrasCierre.json
-        </td>
-      </tr>
-      `;
-
-  }
-
-}
-
-
-$("filtroAno").addEventListener(
-  "change",
-  () => {
-
-    actualizarMesesMuestras();
-
-    renderMuestras();
-
-  }
+const ano =
+$("filtroAno").value;
+const mes =
+$("filtroMes").value;
+const fechas =
+fechasMesCompleto(
+ano,
+mes
+).sort(
+(a,b) =>
+b.localeCompare(a)
 );
-
-
-$("filtroMes").addEventListener(
-  "change",
-  () => {
-
-    actualizarFechasMuestras();
-
-    $("filtroFecha").value =
-      "";
-
-    renderMuestras();
-
-  }
+$("filtroFecha").innerHTML =
+`
+<option value="">
+Todas las fechas
+</option>
+` +
+fechas.map(
+f =>
+`
+<option value="${f}">
+${fechaUY(f)}
+</option>
+`
+).join("");
+const hoy =
+new Date();
+const hoyISO =
+hoy.getFullYear() +
+"-" +
+String(
+hoy.getMonth() +
+1
+).padStart(
+2,
+"0"
+) +
+"-" +
+String(
+hoy.getDate()
+).padStart(
+2,
+"0"
 );
-
-
-$("filtroFecha").addEventListener(
-  "change",
-  renderMuestras
-);
-
-
-$("btnPrepararCorreoMuestras")
-  .addEventListener(
-    "click",
-    () => {
-
-      const fecha =
-        $("filtroFecha").value;
-
-      const asunto =
-        fecha
-          ?
-          "Muestras al cierre - " +
-          fechaUY(fecha)
-          :
-          "Muestras al cierre";
-
-      window.location.href =
-        "mailto:?subject=" +
-        encodeURIComponent(
-          asunto
-        );
-
-    }
-  );
-
-
-/* ============================================================
-   PENDIENTES
-   ============================================================ */
-
-function normalizarTexto(valor){
-
-  return String(
-    valor ?? ""
-  )
-  .normalize("NFD")
-  .replace(
-    /[\u0300-\u036f]/g,
-    ""
-  )
-  .trim()
-  .toUpperCase();
-}
-
-
-function valorCampo(
-  registro,
-  ...campos
+if(
+fechas.includes(
+hoyISO
+)
 ){
-
-  for(
-    const campo
-    of campos
-  ){
-
-    const valor =
-      registro[campo];
-
-    if(
-      valor !== undefined &&
-      valor !== null &&
-      valor !== ""
-    ){
-      return valor;
-    }
-
-  }
-
-  return "";
+$("filtroFecha").value =
+hoyISO;
 }
-
-
+}
+function renderMuestras(){
+const ano =
+$("filtroAno").value;
+const mes =
+$("filtroMes").value;
+const fecha =
+$("filtroFecha").value;
+const periodo =
+muestrasPeriodoActual();
+let registrosMesActual =
+[];
+if(periodo){
+registrosMesActual =
+muestrasDatos.filter(
+r =>
+String(
+r.ano
+) ===
+periodo.ano &&
+String(
+r.mes_numero
+) ===
+periodo.mes_numero
+);
+}
+const resumenMesActual =
+muestrasAgrupar(
+registrosMesActual
+);
+const totalActual =
+muestrasTotales(
+resumenMesActual
+);
+$("kpiViajes").textContent =
+numero(
+totalActual.viajes
+);
+$("kpiMuestras").textContent =
+numero(
+totalActual.muestras
+);
+$("kpiPorcentaje").textContent =
+porcentaje(
+totalActual.porcentaje
+);
+$("kpiDensidad").textContent =
+totalActual.densidad === null
+?
+"-"
+:
+numero(
+totalActual.densidad,
+3
+);
+if(periodo){
+$("infoMesActual").innerHTML =
+"Mes operativo actual: <strong>" +
+esc(
+periodo.mes +
+" " +
+periodo.ano
+) +
+"</strong>";
+$("tituloDetalleMes").textContent =
+"Detalle resumido del mes actual - " +
+periodo.mes +
+" " +
+periodo.ano;
+}
+muestrasRenderTabla(
+resumenMesActual,
+"tbodyMes",
+"recordCountMes"
+);
+muestrasRenderTotales(
+resumenMesActual,
+"Mes"
+);
+let seleccionados =
+muestrasDatos.filter(
+r =>
+(
+!ano ||
+String(
+r.ano
+) === ano
+) &&
+(
+!mes ||
+String(
+r.mes_numero
+) === mes
+) &&
+(
+!fecha ||
+fechaISO(
+r.fecha
+) === fecha
+)
+);
+const resumen =
+muestrasAgrupar(
+seleccionados
+);
+$("tituloDetalleDia").textContent =
+fecha
+?
+"Detalle resumido del día - " +
+fechaUY(fecha)
+:
+"Detalle resumido del mes";
+$("tituloMuestras").textContent =
+fecha
+?
+"MUESTRAS AL CIERRE DE " +
+fechaUY(fecha)
+:
+"MUESTRAS AL CIERRE";
+muestrasRenderTabla(
+resumen,
+"tbodyDia",
+"recordCountDia"
+);
+muestrasRenderTotales(
+resumen,
+"Dia"
+);
+}
+async function cargarMuestras(){
+try{
+const respuesta =
+await fetch(
+urlSinCache(
+JSON_MUESTRAS
+),
+{
+cache:"no-store"
+}
+);
+if(
+!respuesta.ok
+){
+throw new Error(
+"HTTP " +
+respuesta.status
+);
+}
+const json =
+await respuesta.json();
+muestrasDatos =
+Array.isArray(
+json.registros
+)
+?
+json.registros
+:
+[];
+$("actualizado").textContent =
+fechaHoraUY(
+json.actualizado
+);
+actualizarHoraPrincipal(
+json.actualizado
+);
+const fechas =
+muestrasDatos
+.map(
+r =>
+fechaISO(
+r.fecha
+)
+)
+.filter(Boolean)
+.sort(
+(a,b) =>
+b.localeCompare(a)
+);
+$("ultimoDiaConRegistro").textContent =
+fechas.length
+?
+fechaUY(
+fechas[0]
+)
+:
+"Sin registros";
+actualizarFiltrosMuestras();
+renderMuestras();
+homeResumenMuestras();
+}
+catch(error){
+console.error(error);
+$("actualizado").textContent =
+"Error de carga";
+$("tbodyDia").innerHTML =
+`
+<tr>
+<td
+colspan="9"
+class="error"
+>
+No fue posible cargar MuestrasCierre.json
+</td>
+</tr>
+`;
+}
+}
+$("filtroAno").addEventListener(
+"change",
+() => {
+actualizarMesesMuestras();
+renderMuestras();
+}
+);
+$("filtroMes").addEventListener(
+"change",
+() => {
+actualizarFechasMuestras();
+$("filtroFecha").value =
+"";
+renderMuestras();
+}
+);
+$("filtroFecha").addEventListener(
+"change",
+renderMuestras
+);
+$("btnPrepararCorreoMuestras")
+.addEventListener(
+"click",
+() => {
+const fecha =
+$("filtroFecha").value;
+const asunto =
+fecha
+?
+"Muestras al cierre - " +
+fechaUY(fecha)
+:
+"Muestras al cierre";
+window.location.href =
+"mailto:?subject=" +
+encodeURIComponent(
+asunto
+);
+}
+);
+/* ============================================================
+PENDIENTES
+============================================================ */
+function normalizarTexto(valor){
+return String(
+valor ?? ""
+)
+.normalize("NFD")
+.replace(
+/[\u0300-\u036f]/g,
+""
+)
+.trim()
+.toUpperCase();
+}
+function valorCampo(
+registro,
+...campos
+){
+for(
+const campo
+of campos
+){
+const valor =
+registro[campo];
+if(
+valor !== undefined &&
+valor !== null &&
+valor !== ""
+){
+return valor;
+}
+}
+return "";
+}
 let descargasPendientes=[];
 let descargasDestinoActivo="";
 let descargasOrden={columna:"fin_carga",direccion:"asc"};
-
-
 function descargasValorOrden(registro,columna){
-  if(columna==="remito"){
-    const valor=valorCampo(registro,"REMITO MONTE","remito_monte","numero_1");
-    const numeroValor=Number(valor);
-    return Number.isFinite(numeroValor)?numeroValor:normalizarTexto(valor);
-  }
-
-  if(columna==="destino"){
-    return normalizarTexto(valorCampo(registro,"DESTINO","destino"));
-  }
-
-  if(columna==="predio"){
-    return normalizarTexto(valorCampo(registro,"PREDIO","predio"));
-  }
-
-  if(columna==="vehiculo"){
-    return normalizarTexto(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"));
-  }
-
-  return marcaTiempoFechaHora(valorCampo(registro,"FIN CARGA","fin_carga"));
+if(columna==="remito"){
+const valor=valorCampo(registro,"REMITO MONTE","remito_monte","numero_1");
+const numeroValor=Number(valor);
+return Number.isFinite(numeroValor)?numeroValor:normalizarTexto(valor);
 }
-
-
+if(columna==="destino"){
+return normalizarTexto(valorCampo(registro,"DESTINO","destino"));
+}
+if(columna==="predio"){
+return normalizarTexto(valorCampo(registro,"PREDIO","predio"));
+}
+if(columna==="vehiculo"){
+return normalizarTexto(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"));
+}
+return marcaTiempoFechaHora(valorCampo(registro,"FIN CARGA","fin_carga"));
+}
 function descargasComparar(a,b){
-  const valorA=descargasValorOrden(a,descargasOrden.columna);
-  const valorB=descargasValorOrden(b,descargasOrden.columna);
-  let resultado=0;
-
-  if(typeof valorA==="number"&&typeof valorB==="number"){
-    resultado=valorA-valorB;
-  }
-  else{
-    resultado=String(valorA).localeCompare(String(valorB),"es",{numeric:true,sensitivity:"base"});
-  }
-
-  return descargasOrden.direccion==="asc"?resultado:-resultado;
+const valorA=descargasValorOrden(a,descargasOrden.columna);
+const valorB=descargasValorOrden(b,descargasOrden.columna);
+let resultado=0;
+if(typeof valorA==="number"&&typeof valorB==="number"){
+resultado=valorA-valorB;
 }
-
-
+else{
+resultado=String(valorA).localeCompare(String(valorB),"es",{numeric:true,sensitivity:"base"});
+}
+return descargasOrden.direccion==="asc"?resultado:-resultado;
+}
 function actualizarIndicadoresOrdenDescargas(){
-  document.querySelectorAll("[data-descargas-sort]").forEach(encabezado=>{
-    const activo=encabezado.dataset.descargasSort===descargasOrden.columna;
-    encabezado.setAttribute("aria-sort",activo?(descargasOrden.direccion==="asc"?"ascending":"descending"):"none");
-    const indicador=encabezado.querySelector(".sort-indicator");
-    if(indicador){
-      indicador.textContent=activo?(descargasOrden.direccion==="asc"?"▲":"▼"):"↕";
-    }
-  });
-}
-
-
-function renderTarjetasDescargas(){
-  const conteo=new Map();
-
-  descargasPendientes.forEach(registro=>{
-    const destino=String(valorCampo(registro,"DESTINO","destino")).trim();
-    if(destino)conteo.set(destino,(conteo.get(destino)||0)+1);
-  });
-
-  const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
-
-  if(!destinos.length){
-    $("descargasTarjetas").innerHTML='<div class="sin-pendientes">SIN CAMIONES PENDIENTES DE DESCARGAR</div>';
-    return;
-  }
-
-  $("descargasTarjetas").innerHTML=destinos.map(([destino,cantidad])=>`
-    <button
-      type="button"
-      class="destino-card ${destino===descargasDestinoActivo?"active":""}"
-      data-destino="${esc(destino)}"
-      aria-pressed="${destino===descargasDestinoActivo?"true":"false"}"
-      title="${destino===descargasDestinoActivo?"Quitar filtro":"Filtrar por este destino"}"
-    >
-      <div class="label">${esc(destino)}</div>
-      <div class="value">${cantidad}</div>
-      <div class="kpi-note">Falta descargar</div>
-    </button>`).join("");
-
-  document.querySelectorAll("#descargasTarjetas [data-destino]").forEach(tarjeta=>{
-    tarjeta.addEventListener("click",()=>{
-      const destino=tarjeta.dataset.destino||"";
-      descargasDestinoActivo=descargasDestinoActivo===destino?"":destino;
-      renderTarjetasDescargas();
-      renderTablaDescargas();
-    });
-  });
-}
-
-
-function renderTablaDescargas(){
-  const filtrados=descargasDestinoActivo
-    ? descargasPendientes.filter(registro=>String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo)
-    : [...descargasPendientes];
-
-  const ordenados=filtrados.sort(descargasComparar);
-
-  if(!ordenados.length){
-    $("descargasTbody").innerHTML=`
-      <tr><td colspan="5" class="empty">
-        ${descargasDestinoActivo?"SIN REGISTROS PARA ESTE DESTINO":"SIN CAMIONES PENDIENTES DE DESCARGAR"}
-      </td></tr>`;
-  }
-  else{
-    $("descargasTbody").innerHTML=ordenados.map(registro=>`
-      <tr>
-        <td>${esc(valorCampo(registro,"REMITO MONTE","remito_monte","numero_1"))}</td>
-        <td>${esc(valorCampo(registro,"DESTINO","destino"))}</td>
-        <td>${esc(valorCampo(registro,"PREDIO","predio"))}</td>
-        <td>${esc(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"))}</td>
-        <td>${esc(fechaHoraUY(valorCampo(registro,"FIN CARGA","fin_carga")))}</td>
-      </tr>`).join("");
-  }
-
-  $("descargasRecordCount").textContent=
-    ordenados.length.toLocaleString("es-UY")+
-    (ordenados.length===1?" registro":" registros")+
-    (descargasDestinoActivo?" · "+descargasDestinoActivo:"");
-
-  actualizarIndicadoresOrdenDescargas();
-}
-
-
 document.querySelectorAll("[data-descargas-sort]").forEach(encabezado=>{
-  const ordenar=()=>{
-    const columna=encabezado.dataset.descargasSort;
-    if(descargasOrden.columna===columna){
-      descargasOrden.direccion=descargasOrden.direccion==="asc"?"desc":"asc";
-    }
-    else{
-      descargasOrden={columna,direccion:"asc"};
-    }
-    renderTablaDescargas();
-  };
-
-  encabezado.addEventListener("click",ordenar);
-  encabezado.addEventListener("keydown",evento=>{
-    if(evento.key==="Enter"||evento.key===" "){
-      evento.preventDefault();
-      ordenar();
-    }
-  });
+const activo=encabezado.dataset.descargasSort===descargasOrden.columna;
+encabezado.setAttribute("aria-sort",activo?(descargasOrden.direccion==="asc"?"ascending":"descending"):"none");
+const indicador=encabezado.querySelector(".sort-indicator");
+if(indicador){
+indicador.textContent=activo?(descargasOrden.direccion==="asc"?"▲":"▼"):"↕";
+}
 });
-
-
+}
+function renderTarjetasDescargas(){
+const conteo=new Map();
+descargasPendientes.forEach(registro=>{
+const destino=String(valorCampo(registro,"DESTINO","destino")).trim();
+if(destino)conteo.set(destino,(conteo.get(destino)||0)+1);
+});
+const destinos=[...conteo.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],"es"));
+if(!destinos.length){
+$("descargasTarjetas").innerHTML='<div class="sin-pendientes">SIN CAMIONES PENDIENTES DE DESCARGAR</div>';
+return;
+}
+$("descargasTarjetas").innerHTML=destinos.map(([destino,cantidad])=>`
+<button
+type="button"
+class="destino-card ${destino===descargasDestinoActivo?"active":""}"
+data-destino="${esc(destino)}"
+aria-pressed="${destino===descargasDestinoActivo?"true":"false"}"
+title="${destino===descargasDestinoActivo?"Quitar filtro":"Filtrar por este destino"}"
+>
+<div class="label">${esc(destino)}</div>
+<div class="value">${cantidad}</div>
+<div class="kpi-note">Falta descargar</div>
+</button>`).join("");
+document.querySelectorAll("#descargasTarjetas [data-destino]").forEach(tarjeta=>{
+tarjeta.addEventListener("click",()=>{
+const destino=tarjeta.dataset.destino||"";
+descargasDestinoActivo=descargasDestinoActivo===destino?"":destino;
+renderTarjetasDescargas();
+renderTablaDescargas();
+});
+});
+}
+function renderTablaDescargas(){
+const filtrados=descargasDestinoActivo
+? descargasPendientes.filter(registro=>String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo)
+: [...descargasPendientes];
+const ordenados=filtrados.sort(descargasComparar);
+if(!ordenados.length){
+$("descargasTbody").innerHTML=`
+<tr><td colspan="5" class="empty">
+${descargasDestinoActivo?"SIN REGISTROS PARA ESTE DESTINO":"SIN CAMIONES PENDIENTES DE DESCARGAR"}
+</td></tr>`;
+}
+else{
+$("descargasTbody").innerHTML=ordenados.map(registro=>`
+<tr>
+<td>${esc(valorCampo(registro,"REMITO MONTE","remito_monte","numero_1"))}</td>
+<td>${esc(valorCampo(registro,"DESTINO","destino"))}</td>
+<td>${esc(valorCampo(registro,"PREDIO","predio"))}</td>
+<td>${esc(valorCampo(registro,"VEHÍCULO","VEHICULO","vehiculo"))}</td>
+<td>${esc(fechaHoraUY(valorCampo(registro,"FIN CARGA","fin_carga")))}</td>
+</tr>`).join("");
+}
+$("descargasRecordCount").textContent=
+ordenados.length.toLocaleString("es-UY")+
+(ordenados.length===1?" registro":" registros")+
+(descargasDestinoActivo?" · "+descargasDestinoActivo:"");
+actualizarIndicadoresOrdenDescargas();
+}
+document.querySelectorAll("[data-descargas-sort]").forEach(encabezado=>{
+const ordenar=()=>{
+const columna=encabezado.dataset.descargasSort;
+if(descargasOrden.columna===columna){
+descargasOrden.direccion=descargasOrden.direccion==="asc"?"desc":"asc";
+}
+else{
+descargasOrden={columna,direccion:"asc"};
+}
+renderTablaDescargas();
+};
+encabezado.addEventListener("click",ordenar);
+encabezado.addEventListener("keydown",evento=>{
+if(evento.key==="Enter"||evento.key===" "){
+evento.preventDefault();
+ordenar();
+}
+});
+});
 async function cargarPendientes(){
-  try{
-    const respuesta=await fetch(urlSinCache(JSON_DESCARGAS),{cache:"no-store"});
-    if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
-
-    const json=await respuesta.json();
-    const registros=Array.isArray(json)?json:Array.isArray(json.registros)?json.registros:[];
-    const actualizado=json.actualizado??json.generado??json.fechaActualizacion??json.fecha_actualizacion;
-
-    $("descargasActualizado").textContent=fechaHoraUY(actualizado);
-    actualizarHoraPrincipal(actualizado);
-
-    descargasPendientes=registros.filter(registro=>
-      normalizarTexto(valorCampo(registro,"ESTADO DESCARGA","estado_descarga"))==="FALTA DESCARGAR"
-    );
-
-    if(descargasDestinoActivo&&!descargasPendientes.some(registro=>
-      String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo
-    )){
-      descargasDestinoActivo="";
-    }
-
-    homeResumenPendientes(descargasPendientes);
-    renderTarjetasDescargas();
-    renderTablaDescargas();
-  }
-  catch(error){
-    console.error(error);
-    $("descargasActualizado").textContent="Error de carga";
-    $("descargasTarjetas").innerHTML='<div class="sin-pendientes">No fue posible cargar los datos.</div>';
-    $("descargasTbody").innerHTML='<tr><td colspan="5" class="error">No fue posible cargar los datos.</td></tr>';
-    $("descargasRecordCount").textContent="0 registros";
-  }
+try{
+const respuesta=await fetch(urlSinCache(JSON_DESCARGAS),{cache:"no-store"});
+if(!respuesta.ok)throw new Error("HTTP "+respuesta.status);
+const json=await respuesta.json();
+const registros=Array.isArray(json)?json:Array.isArray(json.registros)?json.registros:[];
+const actualizado=json.actualizado??json.generado??json.fechaActualizacion??json.fecha_actualizacion;
+$("descargasActualizado").textContent=fechaHoraUY(actualizado);
+actualizarHoraPrincipal(actualizado);
+descargasPendientes=registros.filter(registro=>
+normalizarTexto(valorCampo(registro,"ESTADO DESCARGA","estado_descarga"))==="FALTA DESCARGAR"
+);
+if(descargasDestinoActivo&&!descargasPendientes.some(registro=>
+String(valorCampo(registro,"DESTINO","destino")).trim()===descargasDestinoActivo
+)){
+descargasDestinoActivo="";
 }
-
-
+homeResumenPendientes(descargasPendientes);
+renderTarjetasDescargas();
+renderTablaDescargas();
+}
+catch(error){
+console.error(error);
+$("descargasActualizado").textContent="Error de carga";
+$("descargasTarjetas").innerHTML='<div class="sin-pendientes">No fue posible cargar los datos.</div>';
+$("descargasTbody").innerHTML='<tr><td colspan="5" class="error">No fue posible cargar los datos.</td></tr>';
+$("descargasRecordCount").textContent="0 registros";
+}
+}
 /* ============================================================
-   CIERRE
-   ============================================================ */
-
+CIERRE
+============================================================ */
 let cierreDatos = [];
-
-
 function segundosDesdeHHMMSS(
-  valor
+valor
 ){
-
-  if(!valor){
-    return null;
-  }
-
-  const partes =
-    String(valor)
-      .split(":");
-
-
-  if(
-    partes.length !== 3
-  ){
-    return null;
-  }
-
-
-  const h =
-    Number(
-      partes[0]
-    );
-
-  const m =
-    Number(
-      partes[1]
-    );
-
-  const s =
-    Number(
-      partes[2]
-    );
-
-
-  if(
-    ![
-      h,
-      m,
-      s
-    ].every(
-      Number.isFinite
-    )
-  ){
-    return null;
-  }
-
-
-  return (
-    h *
-    3600
-  ) +
-  (
-    m *
-    60
-  ) +
-  s;
+if(!valor){
+return null;
 }
-
-
+const partes =
+String(valor)
+.split(":");
+if(
+partes.length !== 3
+){
+return null;
+}
+const h =
+Number(
+partes[0]
+);
+const m =
+Number(
+partes[1]
+);
+const s =
+Number(
+partes[2]
+);
+if(
+![
+h,
+m,
+s
+].every(
+Number.isFinite
+)
+){
+return null;
+}
+return (
+h *
+3600
+) +
+(
+m *
+60
+) +
+s;
+}
 function hhmmss(
-  segundos
+segundos
 ){
-
-  if(
-    !Number.isFinite(
-      segundos
-    )
-  ){
-    return "00:00:00";
-  }
-
-
-  segundos =
-    Math.round(
-      segundos
-    );
-
-
-  const h =
-    Math.floor(
-      segundos /
-      3600
-    );
-
-
-  const m =
-    Math.floor(
-      (
-        segundos %
-        3600
-      ) /
-      60
-    );
-
-
-  const s =
-    segundos %
-    60;
-
-
-  return (
-    String(h)
-      .padStart(
-        2,
-        "0"
-      ) +
-    ":" +
-    String(m)
-      .padStart(
-        2,
-        "0"
-      ) +
-    ":" +
-    String(s)
-      .padStart(
-        2,
-        "0"
-      )
-  );
+if(
+!Number.isFinite(
+segundos
+)
+){
+return "00:00:00";
 }
-
-
+segundos =
+Math.round(
+segundos
+);
+const h =
+Math.floor(
+segundos /
+3600
+);
+const m =
+Math.floor(
+(
+segundos %
+3600
+) /
+60
+);
+const s =
+segundos %
+60;
+return (
+String(h)
+.padStart(
+2,
+"0"
+) +
+":" +
+String(m)
+.padStart(
+2,
+"0"
+) +
+":" +
+String(s)
+.padStart(
+2,
+"0"
+)
+);
+}
 function cierreFechas(){
-
-  return [
-    ...new Set(
-      cierreDatos
-        .map(
-          r =>
-            r.fechaISO
-        )
-        .filter(Boolean)
-    )
-  ].sort();
-
+return [
+...new Set(
+cierreDatos
+.map(
+r =>
+r.fechaISO
+)
+.filter(Boolean)
+)
+].sort();
 }
-
-
 function fechasMesCalendario(
-  ano,
-  mes
+ano,
+mes
 ){
-
-  const resultado = [];
-
-  const hoy =
-    new Date();
-
-  const inicio =
-    new Date(
-      Number(ano),
-      Number(mes) - 1,
-      1
-    );
-
-  let fin =
-    new Date(
-      Number(ano),
-      Number(mes),
-      0
-    );
-
-  if(
-    hoy >= inicio &&
-    hoy <= fin
-  ){
-    fin = hoy;
-  }
-
-  for(
-    let fecha = new Date(inicio);
-    fecha <= fin;
-    fecha.setDate(fecha.getDate() + 1)
-  ){
-    resultado.push(
-      fecha.getFullYear() +
-      "-" +
-      String(fecha.getMonth() + 1).padStart(2,"0") +
-      "-" +
-      String(fecha.getDate()).padStart(2,"0")
-    );
-  }
-
-  return resultado;
+const resultado = [];
+const hoy =
+new Date();
+const inicio =
+new Date(
+Number(ano),
+Number(mes) - 1,
+1
+);
+let fin =
+new Date(
+Number(ano),
+Number(mes),
+0
+);
+if(
+hoy >= inicio &&
+hoy <= fin
+){
+fin = hoy;
 }
-
-
+for(
+let fecha = new Date(inicio);
+fecha <= fin;
+fecha.setDate(fecha.getDate() + 1)
+){
+resultado.push(
+fecha.getFullYear() +
+"-" +
+String(fecha.getMonth() + 1).padStart(2,"0") +
+"-" +
+String(fecha.getDate()).padStart(2,"0")
+);
+}
+return resultado;
+}
 function cargarFiltrosCierre(){
-
-  const fechas =
-    cierreFechas();
-
-
-  const anos =
-    [
-      ...new Set(
-        fechas.map(
-          f =>
-            f.substring(
-              0,
-              4
-            )
-        )
-      )
-    ].sort(
-      (a,b) =>
-        Number(b) -
-        Number(a)
-    );
-
-
-  $("cierreFiltroAno").innerHTML =
-    anos.map(
-      a =>
-        `
-        <option value="${a}">
-          ${a}
-        </option>
-        `
-    ).join("");
-
-
-  const hoy =
-    new Date();
-
-
-  const anoHoy =
-    String(
-      hoy.getFullYear()
-    );
-
-
-  if(
-    anos.includes(
-      anoHoy
-    )
-  ){
-    $("cierreFiltroAno").value =
-      anoHoy;
-  }
-
-
-  actualizarMesesCierre();
-
+const fechas =
+cierreFechas();
+const anos =
+[
+...new Set(
+fechas.map(
+f =>
+f.substring(
+0,
+4
+)
+)
+)
+].sort(
+(a,b) =>
+Number(b) -
+Number(a)
+);
+$("cierreFiltroAno").innerHTML =
+anos.map(
+a =>
+`
+<option value="${a}">
+${a}
+</option>
+`
+).join("");
+const hoy =
+new Date();
+const anoHoy =
+String(
+hoy.getFullYear()
+);
+if(
+anos.includes(
+anoHoy
+)
+){
+$("cierreFiltroAno").value =
+anoHoy;
 }
-
-
+actualizarMesesCierre();
+}
 function actualizarMesesCierre(){
-
-  const ano =
-    $("cierreFiltroAno").value;
-
-
-  let nums =
-    [
-      ...new Set(
-        cierreFechas()
-          .filter(
-            f =>
-              f.startsWith(
-                ano +
-                "-"
-              )
-          )
-          .map(
-            f =>
-              Number(
-                f.substring(
-                  5,
-                  7
-                )
-              )
-          )
-      )
-    ].sort(
-      (a,b) =>
-        a -
-        b
-    );
-
-  const hoy =
-    new Date();
-
-  const mesHoyNumero =
-    hoy.getMonth() + 1;
-
-  if(
-    String(hoy.getFullYear()) === ano &&
-    !nums.includes(mesHoyNumero)
-  ){
-    nums.push(mesHoyNumero);
-    nums.sort((a,b) => a - b);
-  }
-
-
-  $("cierreFiltroMes").innerHTML =
-    nums.map(
-      n =>
-        `
-        <option value="${n}">
-          ${meses[n]}
-        </option>
-        `
-    ).join("");
-
-
-  const mesHoy =
-    String(
-      hoy.getMonth() +
-      1
-    );
-
-
-  if(
-    nums
-      .map(String)
-      .includes(
-        mesHoy
-      )
-  ){
-    $("cierreFiltroMes").value =
-      mesHoy;
-  }
-
-
-  actualizarFechasCierre();
-
+const ano =
+$("cierreFiltroAno").value;
+let nums =
+[
+...new Set(
+cierreFechas()
+.filter(
+f =>
+f.startsWith(
+ano +
+"-"
+)
+)
+.map(
+f =>
+Number(
+f.substring(
+5,
+7
+)
+)
+)
+)
+].sort(
+(a,b) =>
+a -
+b
+);
+const hoy =
+new Date();
+const mesHoyNumero =
+hoy.getMonth() + 1;
+if(
+String(hoy.getFullYear()) === ano &&
+!nums.includes(mesHoyNumero)
+){
+nums.push(mesHoyNumero);
+nums.sort((a,b) => a - b);
 }
-
-
+$("cierreFiltroMes").innerHTML =
+nums.map(
+n =>
+`
+<option value="${n}">
+${meses[n]}
+</option>
+`
+).join("");
+const mesHoy =
+String(
+hoy.getMonth() +
+1
+);
+if(
+nums
+.map(String)
+.includes(
+mesHoy
+)
+){
+$("cierreFiltroMes").value =
+mesHoy;
+}
+actualizarFechasCierre();
+}
 function actualizarFechasCierre(){
-
-  const ano =
-    $("cierreFiltroAno").value;
-
-  const mes =
-    $("cierreFiltroMes").value;
-
-
-  const fechas =
-    fechasMesCalendario(
-      ano,
-      mes
-    ).sort(
-      (a,b) =>
-        b.localeCompare(a)
-    );
-
-
-  $("cierreFiltroFecha").innerHTML =
-    fechas.map(
-      f =>
-        `
-        <option value="${f}">
-          ${fechaUY(f)}
-        </option>
-        `
-    ).join("");
-
-  const hoy =
-    hoyISO();
-
-  if(
-    fechas.includes(hoy)
-  ){
-    $("cierreFiltroFecha").value = hoy;
-  }
-
-
-  renderCierre();
-
+const ano =
+$("cierreFiltroAno").value;
+const mes =
+$("cierreFiltroMes").value;
+const fechas =
+fechasMesCalendario(
+ano,
+mes
+).sort(
+(a,b) =>
+b.localeCompare(a)
+);
+$("cierreFiltroFecha").innerHTML =
+fechas.map(
+f =>
+`
+<option value="${f}">
+${fechaUY(f)}
+</option>
+`
+).join("");
+const hoy =
+hoyISO();
+if(
+fechas.includes(hoy)
+){
+$("cierreFiltroFecha").value = hoy;
 }
-
-
+renderCierre();
+}
 function renderCierre(){
-
-  const fecha =
-    $("cierreFiltroFecha").value;
-
-
-  const registros =
-    cierreDatos
-      .filter(
-        r =>
-          r.fechaISO ===
-          fecha
-      )
-      .sort(
-        (a,b) =>
-          String(
-            a.hora_rto
-          ).localeCompare(
-            String(
-              b.hora_rto
-            )
-          )
-      );
-
-
-  $("cierreTotalCamiones").textContent =
-    numero(
-      registros.length
-    );
-
-
-  const tiempos =
-    registros
-      .map(
-        r =>
-          segundosDesdeHHMMSS(
-            r.tiempo_descarga
-          )
-      )
-      .filter(
-        Number.isFinite
-      );
-
-
-  const promedio =
-    tiempos.length
-      ?
-      tiempos.reduce(
-        (a,b) =>
-          a +
-          b,
-        0
-      ) /
-      tiempos.length
-      :
-      0;
-
-
-  $("cierrePromedioDescarga").textContent =
-    hhmmss(
-      promedio
-    );
-
-
-  let directo = 0;
-  let acopio = 0;
-
-
-  registros.forEach(
-    r => {
-
-      const neto =
-        Number(
-          String(
-            r.neto_ton ?? 0
-          ).replace(
-            ",",
-            "."
-          )
-        ) || 0;
-
-
-      if(
-        normalizarTexto(
-          r.primero_de_pila
-        ) ===
-        "FFU"
-      ){
-        directo +=
-          neto;
-      }
-      else{
-        acopio +=
-          neto;
-      }
-
-    }
-  );
-
-
-  $("cierreTonDirecto").textContent =
-    numero(
-      directo,
-      2
-    ) +
-    " ton";
-
-
-  $("cierreTonAcopio").textContent =
-    numero(
-      acopio,
-      2
-    ) +
-    " ton";
-
-
-  $("cierreSinDatos").style.display =
-    registros.length
-      ?
-      "none"
-      :
-      "block";
-
-
-  $("cierreTituloDetalle").textContent =
-    "Detalle de descargas - " +
-    fechaUY(fecha);
-
-
-  $("cierreRecordCount").textContent =
-    registros.length
-      .toLocaleString(
-        "es-UY"
-      ) +
-    " registros";
-
-
-  if(
-    !registros.length
-  ){
-
-    $("cierreTbody").innerHTML =
-      `
-      <tr>
-        <td
-          colspan="8"
-          class="empty"
-        >
-          SIN DESCARGA DE CAMIONES EN PLANTA
-        </td>
-      </tr>
-      `;
-
-    return;
-  }
-
-
-  $("cierreTbody").innerHTML =
-    registros.map(
-      r =>
-        `
-        <tr>
-
-          <td>
-            ${fechaUY(
-              r.fechaISO
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.hora_rto
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.hora_salida
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.tiempo_descarga
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.primero_de_pila
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.nombre_prod
-            )}
-          </td>
-
-          <td>
-            ${esc(
-              r.matricula
-            )}
-          </td>
-
-          <td>
-            ${numero(
-              Number(
-                String(
-                  r.neto_ton ?? 0
-                ).replace(
-                  ",",
-                  "."
-                )
-              ),
-              2
-            )}
-          </td>
-
-        </tr>
-        `
-    ).join("");
-
+const fecha =
+$("cierreFiltroFecha").value;
+const registros =
+cierreDatos
+.filter(
+r =>
+r.fechaISO ===
+fecha
+)
+.sort(
+(a,b) =>
+String(
+a.hora_rto
+).localeCompare(
+String(
+b.hora_rto
+)
+)
+);
+$("cierreTotalCamiones").textContent =
+numero(
+registros.length
+);
+const tiempos =
+registros
+.map(
+r =>
+segundosDesdeHHMMSS(
+r.tiempo_descarga
+)
+)
+.filter(
+Number.isFinite
+);
+const promedio =
+tiempos.length
+?
+tiempos.reduce(
+(a,b) =>
+a +
+b,
+0
+) /
+tiempos.length
+:
+0;
+$("cierrePromedioDescarga").textContent =
+hhmmss(
+promedio
+);
+let directo = 0;
+let acopio = 0;
+registros.forEach(
+r => {
+const neto =
+Number(
+String(
+r.neto_ton ?? 0
+).replace(
+",",
+"."
+)
+) || 0;
+if(
+normalizarTexto(
+r.primero_de_pila
+) ===
+"FFU"
+){
+directo +=
+neto;
 }
-
-
+else{
+acopio +=
+neto;
+}
+}
+);
+$("cierreTonDirecto").textContent =
+numero(
+directo,
+2
+) +
+" ton";
+$("cierreTonAcopio").textContent =
+numero(
+acopio,
+2
+) +
+" ton";
+$("cierreSinDatos").style.display =
+registros.length
+?
+"none"
+:
+"block";
+$("cierreTituloDetalle").textContent =
+"Detalle de descargas - " +
+fechaUY(fecha);
+$("cierreRecordCount").textContent =
+registros.length
+.toLocaleString(
+"es-UY"
+) +
+" registros";
+if(
+!registros.length
+){
+$("cierreTbody").innerHTML =
+`
+<tr>
+<td
+colspan="8"
+class="empty"
+>
+SIN DESCARGA DE CAMIONES EN PLANTA
+</td>
+</tr>
+`;
+return;
+}
+$("cierreTbody").innerHTML =
+registros.map(
+r =>
+`
+<tr>
+<td>
+${fechaUY(
+r.fechaISO
+)}
+</td>
+<td>
+${esc(
+r.hora_rto
+)}
+</td>
+<td>
+${esc(
+r.hora_salida
+)}
+</td>
+<td>
+${esc(
+r.tiempo_descarga
+)}
+</td>
+<td>
+${esc(
+r.primero_de_pila
+)}
+</td>
+<td>
+${esc(
+r.nombre_prod
+)}
+</td>
+<td>
+${esc(
+r.matricula
+)}
+</td>
+<td>
+${numero(
+Number(
+String(
+r.neto_ton ?? 0
+).replace(
+",",
+"."
+)
+),
+2
+)}
+</td>
+</tr>
+`
+).join("");
+}
 async function cargarCierre(){
-
-  try{
-
-    const respuesta =
-      await fetch(
-        urlSinCache(
-          JSON_CIERRE
-        ),
-        {
-          cache:"no-store"
-        }
-      );
-
-
-    if(
-      !respuesta.ok
-    ){
-      throw new Error(
-        "HTTP " +
-        respuesta.status
-      );
-    }
-
-
-    const json =
-      await respuesta.json();
-
-
-    const registros =
-      Array.isArray(
-        json.registros
-      )
-        ?
-        json.registros
-        :
-        [];
-
-
-    cierreDatos =
-      registros.map(
-        r => {
-
-          return {
-
-            fechaISO:
-              fechaISO(
-                r.fecha_rto
-              ),
-
-            hora_rto:
-              r.hora_rto ?? "",
-
-            hora_salida:
-              r.hora_salida ?? "",
-
-            tiempo_descarga:
-              r.tiempo_descarga_texto ??
-              r.tiempo_descarga ??
-              "",
-
-            primero_de_pila:
-              r.primero_de_pila ?? "",
-
-            nombre_prod:
-              r.nombre_prod ?? "",
-
-            matricula:
-              r.matricula ?? "",
-
-            neto_ton:
-              r.neto_ton
-
-          };
-
-        }
-      )
-      .filter(
-        r =>
-          r.fechaISO &&
-          r.matricula &&
-          String(
-            r.matricula
-          ).trim() !==
-          "0"
-      );
-
-
-    $("cierreActualizado").textContent =
-      fechaHoraUY(
-        json.actualizado
-      );
-
-
-    actualizarHoraPrincipal(
-      json.actualizado
-    );
-
-
-    const fechas =
-      cierreFechas();
-
-
-    $("cierreUltimoDiaConRegistro").textContent =
-      fechas.length
-        ?
-        fechaUY(
-          fechas[
-            fechas.length -
-            1
-          ]
-        )
-        :
-        "Sin registros";
-
-
-    cargarFiltrosCierre();
-
-    homeResumenCierre();
-
-  }
-  catch(error){
-
-    console.error(error);
-
-    $("cierreActualizado").textContent =
-      "Error de carga";
-
-    $("cierreTbody").innerHTML =
-      `
-      <tr>
-        <td
-          colspan="8"
-          class="error"
-        >
-          No fue posible cargar DescargaCierreTurno.json
-        </td>
-      </tr>
-      `;
-
-  }
-
+try{
+const respuesta =
+await fetch(
+urlSinCache(
+JSON_CIERRE
+),
+{
+cache:"no-store"
 }
-
-
+);
+if(
+!respuesta.ok
+){
+throw new Error(
+"HTTP " +
+respuesta.status
+);
+}
+const json =
+await respuesta.json();
+const registros =
+Array.isArray(
+json.registros
+)
+?
+json.registros
+:
+[];
+cierreDatos =
+registros.map(
+r => {
+return {
+fechaISO:
+fechaISO(
+r.fecha_rto
+),
+hora_rto:
+r.hora_rto ?? "",
+hora_salida:
+r.hora_salida ?? "",
+tiempo_descarga:
+r.tiempo_descarga_texto ??
+r.tiempo_descarga ??
+"",
+primero_de_pila:
+r.primero_de_pila ?? "",
+nombre_prod:
+r.nombre_prod ?? "",
+matricula:
+r.matricula ?? "",
+neto_ton:
+r.neto_ton
+};
+}
+)
+.filter(
+r =>
+r.fechaISO &&
+r.matricula &&
+String(
+r.matricula
+).trim() !==
+"0"
+);
+$("cierreActualizado").textContent =
+fechaHoraUY(
+json.actualizado
+);
+actualizarHoraPrincipal(
+json.actualizado
+);
+const fechas =
+cierreFechas();
+$("cierreUltimoDiaConRegistro").textContent =
+fechas.length
+?
+fechaUY(
+fechas[
+fechas.length -
+1
+]
+)
+:
+"Sin registros";
+cargarFiltrosCierre();
+homeResumenCierre();
+}
+catch(error){
+console.error(error);
+$("cierreActualizado").textContent =
+"Error de carga";
+$("cierreTbody").innerHTML =
+`
+<tr>
+<td
+colspan="8"
+class="error"
+>
+No fue posible cargar DescargaCierreTurno.json
+</td>
+</tr>
+`;
+}
+}
 $("cierreFiltroAno")
-  .addEventListener(
-    "change",
-    actualizarMesesCierre
-  );
-
-
+.addEventListener(
+"change",
+actualizarMesesCierre
+);
 $("cierreFiltroMes")
-  .addEventListener(
-    "change",
-    actualizarFechasCierre
-  );
-
-
+.addEventListener(
+"change",
+actualizarFechasCierre
+);
 $("cierreFiltroFecha")
-  .addEventListener(
-    "change",
-    renderCierre
-  );
-
-
+.addEventListener(
+"change",
+renderCierre
+);
 $("btnExportarCierreExcel")
-  .addEventListener(
-    "click",
-    () => {
-
-      const fecha =
-        $("cierreFiltroFecha").value;
-
-
-      const registros =
-        cierreDatos
-          .filter(
-            r =>
-              r.fechaISO === fecha
-          )
-          .sort(
-            (a,b) =>
-              String(
-                a.hora_rto
-              ).localeCompare(
-                String(
-                  b.hora_rto
-                )
-              )
-          );
-
-
-      // ======================================================
-      // CALCULAR RESUMEN
-      // ======================================================
-
-      const totalCamiones =
-        registros.length;
-
-
-      const tiempos =
-        registros
-          .map(
-            r =>
-              segundosDesdeHHMMSS(
-                r.tiempo_descarga
-              )
-          )
-          .filter(
-            Number.isFinite
-          );
-
-
-      const promedioSegundos =
-        tiempos.length
-          ?
-          tiempos.reduce(
-            (a,b) =>
-              a + b,
-            0
-          ) /
-          tiempos.length
-          :
-          0;
-
-
-      const promedioTexto =
-        hhmmss(
-          promedioSegundos
-        );
-
-
-      let directo = 0;
-      let acopio = 0;
-
-
-      registros.forEach(
-        r => {
-
-          const neto =
-            Number(
-              String(
-                r.neto_ton ?? 0
-              ).replace(
-                ",",
-                "."
-              )
-            ) || 0;
-
-
-          if(
-            normalizarTexto(
-              r.primero_de_pila
-            ) ===
-            "FFU"
-          ){
-            directo += neto;
-          }
-          else{
-            acopio += neto;
-          }
-
-        }
-      );
-
-
-      // ======================================================
-      // DATOS DEL EXCEL
-      // ======================================================
-
-      const filas =
-        [
-          [
-            "DESCARGA CIERRE DE TURNO - FRIMOSA",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "Fecha",
-            fechaUY(fecha),
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "Total camiones",
-            totalCamiones,
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "Prom. descarga",
-            promedioTexto,
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "DIRECTO - Neto ton Pila FFU",
-            directo,
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "ACOPIO - Neto ton diferente FFU",
-            acopio,
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-          ],
-
-          [
-            "Fecha",
-            "Hora Ingreso",
-            "Hora Salida",
-            "Tiempo Descarga",
-            "Primero de Pila",
-            "Producto",
-            "Matrícula",
-            "Neto ton"
-          ]
-        ];
-
-
-      if(
-        registros.length
-      ){
-
-        registros.forEach(
-          r => {
-
-            filas.push(
-              [
-                fechaUY(
-                  r.fechaISO
-                ),
-
-                r.hora_rto ||
-                  "00:00:00",
-
-                r.hora_salida ||
-                  "00:00:00",
-
-                r.tiempo_descarga ||
-                  "00:00:00",
-
-                r.primero_de_pila ||
-                  "",
-
-                r.nombre_prod ||
-                  "",
-
-                r.matricula ||
-                  "",
-
-                Number(
-                  String(
-                    r.neto_ton ?? 0
-                  ).replace(
-                    ",",
-                    "."
-                  )
-                ) || 0
-              ]
-            );
-
-          }
-        );
-
-      }
-      else{
-
-        // Aunque no haya descargas, generar la fila de control
-        // con la fecha seleccionada y valores en cero.
-        filas.push(
-          [
-            fechaUY(fecha),
-            "00:00:00",
-            "00:00:00",
-            "00:00:00",
-            "",
-            "",
-            "",
-            0
-          ]
-        );
-
-      }
-
-
-      const ws =
-        XLSX.utils.aoa_to_sheet(
-          filas
-        );
-
-
-      // ======================================================
-      // COMBINAR TÍTULO
-      // ======================================================
-
-      ws["!merges"] =
-        [
-          {
-            s:{
-              r:0,
-              c:0
-            },
-            e:{
-              r:0,
-              c:7
-            }
-          }
-        ];
-
-
-      // ======================================================
-      // ESTILOS
-      // ======================================================
-
-      const borde =
-        {
-          top:{
-            style:"thin",
-            color:{
-              rgb:"D9D6D2"
-            }
-          },
-
-          bottom:{
-            style:"thin",
-            color:{
-              rgb:"D9D6D2"
-            }
-          },
-
-          left:{
-            style:"thin",
-            color:{
-              rgb:"D9D6D2"
-            }
-          },
-
-          right:{
-            style:"thin",
-            color:{
-              rgb:"D9D6D2"
-            }
-          }
-        };
-
-
-      const estiloTitulo =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:18,
-            bold:true,
-            color:{
-              rgb:"C65312"
-            }
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"C65312"
-            }
-          },
-
-          alignment:{
-            horizontal:"center",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      const estiloEtiquetaResumen =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:11,
-            bold:true,
-            color:{
-              rgb:"1F1F1F"
-            }
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"F4F3F1"
-            }
-          },
-
-          alignment:{
-            horizontal:"left",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      const estiloValorResumen =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:11,
-            bold:true,
-            color:{
-              rgb:"C65312"
-            }
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"F4F3F1"
-            }
-          },
-
-          alignment:{
-            horizontal:"center",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      const estiloEncabezado =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:11,
-            bold:true,
-            color:{
-              rgb:"FFFFFF"
-            }
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"F4F3F1"
-            }
-          },
-
-          alignment:{
-            horizontal:"center",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      const estiloDirecto =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:10
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"FFB86B"
-            }
-          },
-
-          alignment:{
-            horizontal:"center",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      const estiloAcopio =
-        {
-          font:{
-            name:"Segoe UI",
-            sz:10
-          },
-
-          fill:{
-            fgColor:{
-              rgb:"F4F3F1"
-            }
-          },
-
-          alignment:{
-            horizontal:"center",
-            vertical:"center"
-          },
-
-          border:borde
-        };
-
-
-      // Título A1:H1
-      for(
-        let c = 0;
-        c <= 7;
-        c++
-      ){
-
-        const direccion =
-          XLSX.utils.encode_cell(
-            {
-              r:0,
-              c
-            }
-          );
-
-
-        if(
-          !ws[direccion]
-        ){
-          ws[direccion] =
-            {
-              t:"s",
-              v:""
-            };
-        }
-
-
-        ws[direccion].s =
-          estiloTitulo;
-
-      }
-
-
-      // Resumen A3:B7
-      for(
-        let r = 2;
-        r <= 6;
-        r++
-      ){
-
-        const celdaA =
-          XLSX.utils.encode_cell(
-            {
-              r,
-              c:0
-            }
-          );
-
-        const celdaB =
-          XLSX.utils.encode_cell(
-            {
-              r,
-              c:1
-            }
-          );
-
-
-        ws[celdaA].s =
-          estiloEtiquetaResumen;
-
-        ws[celdaB].s =
-          estiloValorResumen;
-
-      }
-
-
-      // Formato toneladas
-      ws["B6"].z =
-        "0.00";
-
-      ws["B7"].z =
-        "0.00";
-
-
-      // Encabezados fila 9
-      for(
-        let c = 0;
-        c <= 7;
-        c++
-      ){
-
-        const direccion =
-          XLSX.utils.encode_cell(
-            {
-              r:8,
-              c
-            }
-          );
-
-
-        ws[direccion].s =
-          estiloEncabezado;
-
-      }
-
-
-      // Filas de detalle
-      for(
-        let r = 9;
-        r < filas.length;
-        r++
-      ){
-
-        const fila =
-          filas[r];
-
-        const esDirecto =
-          normalizarTexto(
-            fila[4]
-          ) ===
-          "FFU";
-
-
-        const estiloFila =
-          esDirecto
-            ?
-            estiloDirecto
-            :
-            estiloAcopio;
-
-
-        for(
-          let c = 0;
-          c <= 7;
-          c++
-        ){
-
-          const direccion =
-            XLSX.utils.encode_cell(
-              {
-                r,
-                c
-              }
-            );
-
-
-          if(
-            !ws[direccion]
-          ){
-            ws[direccion] =
-              {
-                t:"s",
-                v:""
-              };
-          }
-
-
-          ws[direccion].s =
-            estiloFila;
-
-        }
-
-
-        const celdaNeto =
-          XLSX.utils.encode_cell(
-            {
-              r,
-              c:7
-            }
-          );
-
-
-        ws[celdaNeto].z =
-          "0.00";
-
-      }
-
-
-      // ======================================================
-      // ANCHO AUTOMÁTICO DE COLUMNAS
-      // ======================================================
-
-      const anchosMinimos =
-        [
-          14,
-          13,
-          13,
-          16,
-          18,
-          28,
-          14,
-          12
-        ];
-
-
-      ws["!cols"] =
-        Array.from(
-          {
-            length:8
-          },
-          (_,col) => {
-
-            let maximo =
-              anchosMinimos[col];
-
-
-            filas.forEach(
-              fila => {
-
-                const texto =
-                  String(
-                    fila[col] ?? ""
-                  );
-
-
-                maximo =
-                  Math.max(
-                    maximo,
-                    texto.length +
-                    2
-                  );
-
-              }
-            );
-
-
-            return {
-              wch:
-                Math.min(
-                  maximo,
-                  42
-                )
-            };
-
-          }
-        );
-
-
-      // ======================================================
-      // ALTURA DE FILAS
-      // ======================================================
-
-      ws["!rows"] =
-        [
-          {
-            hpt:28
-          },
-          {
-            hpt:8
-          }
-        ];
-
-
-      // ======================================================
-      // FILTRO DE TABLA
-      // ======================================================
-
-      ws["!autofilter"] =
-        {
-          ref:
-            "A9:H" +
-            filas.length
-        };
-
-
-      // ======================================================
-      // CREAR ARCHIVO
-      // ======================================================
-
-      const wb =
-        XLSX.utils.book_new();
-
-
-      XLSX.utils.book_append_sheet(
-        wb,
-        ws,
-        "Descarga"
-      );
-
-
-      XLSX.writeFile(
-        wb,
-        "Descarga_Cierre_Turno_" +
-        fecha.replaceAll(
-          "-",
-          ""
-        ) +
-        ".xlsx"
-      );
-
-
-      // ======================================================
-      // PREPARAR CORREO
-      // ======================================================
-
-      setTimeout(
-        () => {
-
-          const para =
-            [
-              "laboratorio@ffu.com.uy",
-              "a.ruggiero@ffu.com.uy"
-            ].join(";");
-
-
-          const cc =
-            "logma@fas.com.uy";
-
-
-          const asunto =
-            "Descarga " +
-            fechaUY(
-              fecha
-            );
-
-
-          window.location.href =
-            "mailto:" +
-            para +
-            "?cc=" +
-            encodeURIComponent(
-              cc
-            ) +
-            "&subject=" +
-            encodeURIComponent(
-              asunto
-            ) +
-            "&body=" +
-            encodeURIComponent(
-              "Saludos."
-            );
-
-        },
-        500
-      );
-
-    }
-  );
-
-
+.addEventListener(
+"click",
+() => {
+const fecha =
+$("cierreFiltroFecha").value;
+const registros =
+cierreDatos
+.filter(
+r =>
+r.fechaISO === fecha
+)
+.sort(
+(a,b) =>
+String(
+a.hora_rto
+).localeCompare(
+String(
+b.hora_rto
+)
+)
+);
+// ======================================================
+// CALCULAR RESUMEN
+// ======================================================
+const totalCamiones =
+registros.length;
+const tiempos =
+registros
+.map(
+r =>
+segundosDesdeHHMMSS(
+r.tiempo_descarga
+)
+)
+.filter(
+Number.isFinite
+);
+const promedioSegundos =
+tiempos.length
+?
+tiempos.reduce(
+(a,b) =>
+a + b,
+0
+) /
+tiempos.length
+:
+0;
+const promedioTexto =
+hhmmss(
+promedioSegundos
+);
+let directo = 0;
+let acopio = 0;
+registros.forEach(
+r => {
+const neto =
+Number(
+String(
+r.neto_ton ?? 0
+).replace(
+",",
+"."
+)
+) || 0;
+if(
+normalizarTexto(
+r.primero_de_pila
+) ===
+"FFU"
+){
+directo += neto;
+}
+else{
+acopio += neto;
+}
+}
+);
+// ======================================================
+// DATOS DEL EXCEL
+// ======================================================
+const filas =
+[
+[
+"DESCARGA CIERRE DE TURNO - FRIMOSA",
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Fecha",
+fechaUY(fecha),
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Total camiones",
+totalCamiones,
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Prom. descarga",
+promedioTexto,
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"DIRECTO - Neto ton Pila FFU",
+directo,
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"ACOPIO - Neto ton diferente FFU",
+acopio,
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"",
+"",
+"",
+"",
+"",
+"",
+"",
+""
+],
+[
+"Fecha",
+"Hora Ingreso",
+"Hora Salida",
+"Tiempo Descarga",
+"Primero de Pila",
+"Producto",
+"Matrícula",
+"Neto ton"
+]
+];
+if(
+registros.length
+){
+registros.forEach(
+r => {
+filas.push(
+[
+fechaUY(
+r.fechaISO
+),
+r.hora_rto ||
+"00:00:00",
+r.hora_salida ||
+"00:00:00",
+r.tiempo_descarga ||
+"00:00:00",
+r.primero_de_pila ||
+"",
+r.nombre_prod ||
+"",
+r.matricula ||
+"",
+Number(
+String(
+r.neto_ton ?? 0
+).replace(
+",",
+"."
+)
+) || 0
+]
+);
+}
+);
+}
+else{
+// Aunque no haya descargas, generar la fila de control
+// con la fecha seleccionada y valores en cero.
+filas.push(
+[
+fechaUY(fecha),
+"00:00:00",
+"00:00:00",
+"00:00:00",
+"",
+"",
+"",
+0
+]
+);
+}
+const ws =
+XLSX.utils.aoa_to_sheet(
+filas
+);
+// ======================================================
+// COMBINAR TÍTULO
+// ======================================================
+ws["!merges"] =
+[
+{
+s:{
+r:0,
+c:0
+},
+e:{
+r:0,
+c:7
+}
+}
+];
+// ======================================================
+// ESTILOS
+// ======================================================
+const borde =
+{
+top:{
+style:"thin",
+color:{
+rgb:"D9D6D2"
+}
+},
+bottom:{
+style:"thin",
+color:{
+rgb:"D9D6D2"
+}
+},
+left:{
+style:"thin",
+color:{
+rgb:"D9D6D2"
+}
+},
+right:{
+style:"thin",
+color:{
+rgb:"D9D6D2"
+}
+}
+};
+const estiloTitulo =
+{
+font:{
+name:"Segoe UI",
+sz:18,
+bold:true,
+color:{
+rgb:"000000"
+}
+},
+fill:{
+fgColor:{
+rgb:"C65312"
+}
+},
+alignment:{
+horizontal:"center",
+vertical:"center"
+},
+border:borde
+};
+const estiloEtiquetaResumen =
+{
+font:{
+name:"Segoe UI",
+sz:11,
+bold:true,
+color:{
+rgb:"1F1F1F"
+}
+},
+fill:{
+fgColor:{
+rgb:"F4F3F1"
+}
+},
+alignment:{
+horizontal:"left",
+vertical:"center"
+},
+border:borde
+};
+const estiloValorResumen =
+{
+font:{
+name:"Segoe UI",
+sz:11,
+bold:true,
+color:{
+rgb:"C65312"
+}
+},
+fill:{
+fgColor:{
+rgb:"F4F3F1"
+}
+},
+alignment:{
+horizontal:"center",
+vertical:"center"
+},
+border:borde
+};
+const estiloEncabezado =
+{
+font:{
+name:"Segoe UI",
+sz:11,
+bold:true,
+color:{
+rgb:"000000"
+}
+},
+fill:{
+fgColor:{
+rgb:"F4F3F1"
+}
+},
+alignment:{
+horizontal:"center",
+vertical:"center"
+},
+border:borde
+};
+const estiloDirecto =
+{
+font:{
+name:"Segoe UI",
+sz:10
+},
+fill:{
+fgColor:{
+rgb:"FFB86B"
+}
+},
+alignment:{
+horizontal:"center",
+vertical:"center"
+},
+border:borde
+};
+const estiloAcopio =
+{
+font:{
+name:"Segoe UI",
+sz:10
+},
+fill:{
+fgColor:{
+rgb:"F4F3F1"
+}
+},
+alignment:{
+horizontal:"center",
+vertical:"center"
+},
+border:borde
+};
+// Título A1:H1
+for(
+let c = 0;
+c <= 7;
+c++
+){
+const direccion =
+XLSX.utils.encode_cell(
+{
+r:0,
+c
+}
+);
+if(
+!ws[direccion]
+){
+ws[direccion] =
+{
+t:"s",
+v:""
+};
+}
+ws[direccion].s =
+estiloTitulo;
+}
+// Resumen A3:B7
+for(
+let r = 2;
+r <= 6;
+r++
+){
+const celdaA =
+XLSX.utils.encode_cell(
+{
+r,
+c:0
+}
+);
+const celdaB =
+XLSX.utils.encode_cell(
+{
+r,
+c:1
+}
+);
+ws[celdaA].s =
+estiloEtiquetaResumen;
+ws[celdaB].s =
+estiloValorResumen;
+}
+// Formato toneladas
+ws["B6"].z =
+"0.00";
+ws["B7"].z =
+"0.00";
+// Encabezados fila 9
+for(
+let c = 0;
+c <= 7;
+c++
+){
+const direccion =
+XLSX.utils.encode_cell(
+{
+r:8,
+c
+}
+);
+ws[direccion].s =
+estiloEncabezado;
+}
+// Filas de detalle
+for(
+let r = 9;
+r < filas.length;
+r++
+){
+const fila =
+filas[r];
+const esDirecto =
+normalizarTexto(
+fila[4]
+) ===
+"FFU";
+const estiloFila =
+esDirecto
+?
+estiloDirecto
+:
+estiloAcopio;
+for(
+let c = 0;
+c <= 7;
+c++
+){
+const direccion =
+XLSX.utils.encode_cell(
+{
+r,
+c
+}
+);
+if(
+!ws[direccion]
+){
+ws[direccion] =
+{
+t:"s",
+v:""
+};
+}
+ws[direccion].s =
+estiloFila;
+}
+const celdaNeto =
+XLSX.utils.encode_cell(
+{
+r,
+c:7
+}
+);
+ws[celdaNeto].z =
+"0.00";
+}
+// ======================================================
+// ANCHO AUTOMÁTICO DE COLUMNAS
+// ======================================================
+const anchosMinimos =
+[
+14,
+13,
+13,
+16,
+18,
+28,
+14,
+12
+];
+ws["!cols"] =
+Array.from(
+{
+length:8
+},
+(_,col) => {
+let maximo =
+anchosMinimos[col];
+filas.forEach(
+fila => {
+const texto =
+String(
+fila[col] ?? ""
+);
+maximo =
+Math.max(
+maximo,
+texto.length +
+2
+);
+}
+);
+return {
+wch:
+Math.min(
+maximo,
+42
+)
+};
+}
+);
+// ======================================================
+// ALTURA DE FILAS
+// ======================================================
+ws["!rows"] =
+[
+{
+hpt:28
+},
+{
+hpt:8
+}
+];
+// ======================================================
+// FILTRO DE TABLA
+// ======================================================
+ws["!autofilter"] =
+{
+ref:
+"A9:H" +
+filas.length
+};
+// ======================================================
+// CREAR ARCHIVO
+// ======================================================
+const wb =
+XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(
+wb,
+ws,
+"Descarga"
+);
+XLSX.writeFile(
+wb,
+"Descarga_Cierre_Turno_" +
+fecha.replaceAll(
+"-",
+""
+) +
+".xlsx"
+);
+// ======================================================
+// PREPARAR CORREO
+// ======================================================
+setTimeout(
+() => {
+const para =
+[
+"laboratorio@ffu.com.uy",
+"a.ruggiero@ffu.com.uy"
+].join(";");
+const cc =
+"logma@fas.com.uy";
+const asunto =
+"Descarga " +
+fechaUY(
+fecha
+);
+window.location.href =
+"mailto:" +
+para +
+"?cc=" +
+encodeURIComponent(
+cc
+) +
+"&subject=" +
+encodeURIComponent(
+asunto
+) +
+"&body=" +
+encodeURIComponent(
+"Saludos."
+);
+},
+500
+);
+}
+);
 /* ============================================================
-   INICIO
-   ============================================================ */
-
+INICIO
+============================================================ */
 cargarMuestras();
-
 cargarPendientes();
-
 cargarCierre();
-
 cargarResumenRendimientos();
-
 cargarResumenControlPredios();
-
 </script>
-
 </body>
 </html>
